@@ -1,6 +1,7 @@
 
 
 from enum import Enum
+import pygame
 
 class Dwarf:
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"

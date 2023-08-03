@@ -8,6 +8,7 @@ class Unit:
     combat_damage_high = None
     attack_tiles = None
     move_tiles = None
+    unit_size = 5
     
     def __init__(self, combat_type, combat_range, combat_damage_low, combat_damage_high, attack_tiles, move_tiles):
         self.combat_type = combat_type
@@ -26,7 +27,7 @@ class MeleeUnit(Unit):
     move_tiles = [Environment.levels.Ground]
     def __init__(self):
         pass
-    
+
 class RangedUnit(Unit):
     combat_type = CombatTypes.ranged
     combat_range = 2 # 2 tiles
