@@ -3,6 +3,7 @@ from pprint import pprint
 import pygame
 from archer import Archer
 from elf import Elf
+from goblin import Goblin
 
 # define a main function
 def main():
@@ -22,10 +23,14 @@ def main():
      
     # main loop
     while running:
-        e = Elf()
-        # spawn new elven archer
+        
         arch = Archer()
-        e_archer = e.ElvenArcher()
+
+        elf = Elf()
+        elf_archer = elf.ElvenArcher()
+
+        goblin = Goblin()
+        goblin_pillager = goblin.Pillager()
         
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
