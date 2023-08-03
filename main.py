@@ -1,6 +1,9 @@
 # import the pygame module, so you can use it
+from pprint import pprint
 import pygame
- 
+from archer import Archer
+from elf import Elf
+
 # define a main function
 def main():
      
@@ -12,20 +15,24 @@ def main():
     pygame.display.set_caption("Super duper awesome RTS game")
      
     # create a surface on screen that has the size of 240 x 180
-    screen = pygame.display.set_mode((240,180))
+    screen = pygame.display.set_mode((640,480))
      
     # define a variable to control the main loop
     running = True
      
     # main loop
     while running:
+        e = Elf()
+        # spawn new elven archer
+        arch = Archer()
+        e_archer = e.ElvenArcher()
+        
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             # only do something if the event is of type QUIT
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
                 running = False
-     
      
 # run the main function only if this module is executed as the main script
 # (if you import this as a module then nothing is executed)
