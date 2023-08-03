@@ -1,9 +1,9 @@
 # import the pygame module, so you can use it
 from pprint import pprint
 import pygame
-from archer import Archer
 from elf import Elf
 from goblin import Goblin
+from human import Human
 
 # define a main function
 def main():
@@ -24,10 +24,11 @@ def main():
     # main loop
     while running:
         
-        arch = Archer()
+        human = Human()
+        human_archer = human.Archer()
 
         elf = Elf()
-        elf_archer = elf.ElvenArcher()
+        elf_archer = elf.Archer()
 
         goblin = Goblin()
         goblin_pillager = goblin.Pillager()

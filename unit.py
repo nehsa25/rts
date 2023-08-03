@@ -1,3 +1,6 @@
+from combattypes import CombatTypes
+from environment import Environment
+
 class Unit:
     combat_type = None
     combat_range = None
@@ -13,3 +16,23 @@ class Unit:
         self.combat_damage_high = combat_damage_high
         self.attack_tiles = attack_tiles
         self.move_tiles = move_tiles
+
+class MeleeUnit(Unit):
+    combat_type = CombatTypes.melee
+    combat_range = 0
+    combat_damage_low = 3
+    combat_damage_high = 6
+    attack_tiles = [Environment.levels.Ground]
+    move_tiles = [Environment.levels.Ground]
+    def __init__(self):
+        pass
+    
+class RangedUnit(Unit):
+    combat_type = CombatTypes.ranged
+    combat_range = 2 # 2 tiles
+    combat_damage_low = 3
+    combat_damage_high = 6
+    attack_tiles = [Environment.levels.Water, Environment.levels.Ground, Environment.levels.Air]
+    move_tiles = [Environment.levels.Ground]
+    def __init__(self):
+        pass
