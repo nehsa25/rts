@@ -1,4 +1,5 @@
 # import the pygame module, so you can use it
+import random
 import pygame, sys
 
 # our stuff
@@ -23,7 +24,7 @@ class rts:
     pygame.display.set_icon(logo)
     pygame.display.set_caption(GAME_NAME)
     font = pygame.font.SysFont("arialblack", FONT_SIZE)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     running = True # kill everything
 
     # game data
@@ -32,7 +33,7 @@ class rts:
     def draw_center_text(self, text, font, text_color, y):
         text = font.render(text, True, text_color)
         text_rect = text.get_rect(center=(self.SCREEN_WIDTH / 2, y))
-        self.screen.blit(text, text_rect)    
+        self.surface.blit(text, text_rect)    
 
     def get_center_text(self, text, font, y, total_width):
         text = font.render(text, True, 'black')
@@ -43,7 +44,7 @@ class rts:
         pygame.display.set_caption("Welcome!")
 
         while first_open_running:
-            self.screen.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
+            self.surface.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
 
             self.draw_center_text(f"Welcome to {self.GAME_NAME}!", self.font, self.TEXT_COLOR, self.SCREEN_HEIGHT / 2 - self.FONT_SIZE)        
             self.draw_center_text("press SPACE to begin!", self.font, self.TEXT_COLOR, self.SCREEN_HEIGHT - self.FONT_SIZE - 50)
@@ -75,24 +76,24 @@ class rts:
         text_height = base_height / 2
 
         while race_select_running:
-            self.screen.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
+            self.surface.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
             race_mouse_position = pygame.mouse.get_pos()
 
             self.draw_center_text("Select your race", self.font, self.TEXT_COLOR, text_height)
             goblin_button_rect = self.get_center_text("Goblin", self.font, 260, self.SCREEN_WIDTH)
             goblin_button = GameButton(goblin_button_rect, "Goblin", self.font, base_color="White", hovering_color="Green")      
             goblin_button.change_color(race_mouse_position)
-            goblin_button.update(self.screen)
+            goblin_button.update(self.surface)
 
             elf_button_rect = self.get_center_text("Elf", self.font, 300, self.SCREEN_WIDTH)
             elf_button = GameButton(elf_button_rect, text_input="Elf", font=self.font, base_color="White", hovering_color="Green")
             elf_button.change_color(race_mouse_position)
-            elf_button.update(self.screen)
+            elf_button.update(self.surface)
 
             human_button_rect = self.get_center_text("Human", self.font, 340, self.SCREEN_WIDTH)
             human_button = GameButton(human_button_rect, text_input="Human", font=self.font, base_color="White", hovering_color="Green")
             human_button.change_color(race_mouse_position)
-            human_button.update(self.screen)
+            human_button.update(self.surface)
 
             # event loop for option selection screen
             for event in pygame.event.get():
@@ -116,28 +117,70 @@ class rts:
             print("Updating options loop")
             pygame.display.update()
 
-    def move_unit(self, rect, x, y):
-        # create a "screen same size and move it"
-        rect.move_ip(x, y)
+    def create_unit_with_border(self, rect, main_color):
+        unit = []
+        unit.append(rect)
+        
+        border_width = 2
+        pygame.draw.rect(self.surface, main_color, rect)
+
+        # left
+        left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+        left_border_rect = pygame.Rect((rect.x-border_width, rect.y, border_width, rect.height))
+        pygame.draw.rect(self.surface, left_border_color, left_border_rect)
+        unit.append(left_border_rect)
+
+        # bottom
+        bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+        bottom_border_rect = pygame.Rect((rect.x, rect.y + rect.height, rect.width, border_width))
+        pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
+        unit.append(bottom_border_rect)
+
+        # right
+        right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+        right_border_rect = pygame.Rect((rect.x + rect.width, rect.y, border_width, rect.height))
+        pygame.draw.rect(self.surface, right_border_color, right_border_rect)
+        unit.append(right_border_rect)
+
+        # # top
+        top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+        top_border_rect = pygame.Rect((rect.x, rect.y - border_width, rect.width, border_width))
+        pygame.draw.rect(self.surface, top_border_color, top_border_rect)
+        unit.append(top_border_rect)
+
+        print(unit)
+        return unit
+        pass
+    
+    def create_unit(self, rect, main_color):
+        return self.create_unit_with_border(rect, main_color)   
+
+    def move_unit(self, rect, x, y, main_color):
+        rects = self.create_unit_with_border(rect, main_color)        
+        for edge in rects:
+            edge.move_ip(x, y)
 
     def main_game(self):
         main_game_running = True 
         pygame.display.set_caption("")
         while main_game_running:
-            self.screen.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
-            pygame.draw.rect(self.screen, self.selected_race.color, self.selected_race.rect)
+            self.surface.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
+
+            # create initial unit
+            unit = self.create_unit(self.selected_race.rect, self.selected_race.color)
+
             # pygame.draw.rect(screen, elf_archer.color, elf_archer.rect)
             # pygame.draw.rect(screen, goblin_pillager.color, goblin_pillager.rect)
 
             key = pygame.key.get_pressed()
             if key[pygame.K_a] == True:
-                self.move_unit(self.selected_race.rect, -1, 0)
+                self.move_unit(self.selected_race.rect, -1, 0, self.selected_race.color)
             elif key[pygame.K_d] == True:
-                self.move_unit(self.selected_race.rect, 1, 0)
+                self.move_unit(self.selected_race.rect, 1, 0, self.selected_race.color)
             elif key[pygame.K_w] == True:
-                self.move_unit(self.selected_race.rect, 0, -1)
+                self.move_unit(self.selected_race.rect, 0, -1, self.selected_race.color)
             elif key[pygame.K_s] == True:
-                self.move_unit(self.selected_race.rect, 0, 1)
+                self.move_unit(self.selected_race.rect, 0, 1, self.selected_race.color)
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -152,7 +195,7 @@ class rts:
     def main(self):     
         first_opened = True
         while self.running:
-            self.screen.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
+            self.surface.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
             if first_opened:
                 first_opened = self.first_open()
             elif (self.selected_race is None):
