@@ -60,7 +60,7 @@ class rts:
     running = True # kill everything
 
     # game data
-    selected_race = None
+    main_unit = None
     any_mouse_clicked = False
 
     def draw_center_text(self, text, font, text_color, y):
@@ -149,15 +149,15 @@ class rts:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(race_mouse_position):
                         print("Goblin selected")
-                        self.selected_race = Goblin()
+                        self.main_unit = Goblin()
                         race_select_running = False
                     if elf_button.check_position(race_mouse_position):
                         print("Elf selected")
-                        self.selected_race = Elf()
+                        self.main_unit = Elf()
                         race_select_running = False
                     if human_button.check_position(race_mouse_position):
                         print("Human selected")
-                        self.selected_race = Human()
+                        self.main_unit = Human()
                         race_select_running = False               
                 if event.type == pygame.QUIT:
                     race_select_running = False
@@ -233,7 +233,7 @@ class rts:
             self.surface.blit(self.mouse_pointer, pos)
 
             # create initial unit
-            unit = self.create_unit(self.selected_race.rect, self.selected_race.color)
+            unit = self.create_unit(self.main_unit.rect, self.main_unit.color)
 
             # create random obstacles
             for water_tile in water_rects:
@@ -246,13 +246,25 @@ class rts:
             # continuous key movement (fast)
             key = pygame.key.get_pressed()
             if key[pygame.K_a] == True:
-                self.move_unit(self.selected_race.rect, -5, 0, self.selected_race.color)
+                print(self.main_unit.rect.collidelist(water_rects)) 
+                self.move_unit(self.main_unit.rect, -5, 0, self.main_unit.color)
+                if self.main_unit.rect.collidelist(water_rects) != -1:
+                    self.move_unit(self.main_unit.rect, 5, 0, self.main_unit.color)
             elif key[pygame.K_d] == True:
-                self.move_unit(self.selected_race.rect, 5, 0, self.selected_race.color)
+                print(self.main_unit.rect.collidelist(water_rects)) 
+                self.move_unit(self.main_unit.rect, 5, 0, self.main_unit.color)
+                if self.main_unit.rect.collidelist(water_rects) != -1:
+                    self.move_unit(self.main_unit.rect, -5, 0, self.main_unit.color)
             elif key[pygame.K_w] == True:
-                self.move_unit(self.selected_race.rect, 0, -5, self.selected_race.color)
+                print(self.main_unit.rect.collidelist(water_rects))
+                self.move_unit(self.main_unit.rect, 0, -5, self.main_unit.color)
+                if self.main_unit.rect.collidelist(water_rects) != -1:
+                    self.move_unit(self.main_unit.rect, 0, 5, self.main_unit.color)
             elif key[pygame.K_s] == True:
-                self.move_unit(self.selected_race.rect, 0, 5, self.selected_race.color)
+                print(self.main_unit.rect.collidelist(water_rects))                
+                self.move_unit(self.main_unit.rect, 0, 5, self.main_unit.color)
+                if self.main_unit.rect.collidelist(water_rects) != -1:
+                    self.move_unit(self.main_unit.rect, 0, -5, self.main_unit.color)
             
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
@@ -294,7 +306,7 @@ class rts:
             self.surface.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
             if first_opened:
                 first_opened = self.first_open_loop()
-            elif (self.selected_race is None):
+            elif (self.main_unit is None):
                 self.race_select_loop()
             else:   
                 self.main_game_loop()
