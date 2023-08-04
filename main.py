@@ -64,7 +64,7 @@ class rts:
                     self.running = False
                     break
 
-            print("first_open loop...")
+            # print("first_open loop...")
             pygame.display.update()
 
         return False
@@ -114,7 +114,7 @@ class rts:
                     race_select_running = False
                     self.running = False
             
-            print("Updating options loop")
+            # print("Updating options loop")
             pygame.display.update()
 
     def create_unit_with_border(self, rect, main_color):
@@ -142,13 +142,13 @@ class rts:
         pygame.draw.rect(self.surface, right_border_color, right_border_rect)
         unit.append(right_border_rect)
 
-        # # top
+        # top
         top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
         top_border_rect = pygame.Rect((rect.x, rect.y - border_width, rect.width, border_width))
         pygame.draw.rect(self.surface, top_border_color, top_border_rect)
         unit.append(top_border_rect)
 
-        print(unit)
+        # print(unit)
         return unit
         pass
     
@@ -189,7 +189,7 @@ class rts:
                     main_game_running = False
                     self.running = False
 
-            print("Main game loop...")
+            # print("Main game loop...")
             pygame.display.update()
 
     def main(self):     
