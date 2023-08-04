@@ -46,7 +46,7 @@ class rts:
             self.screen.fill(self.BACKGROUND_COLOR) # blank out screen to allow refresh
 
             self.draw_center_text(f"Welcome to {self.GAME_NAME}!", self.font, self.TEXT_COLOR, self.SCREEN_HEIGHT / 2 - self.FONT_SIZE)        
-            self.draw_center_text("press SPACE to continue", self.font, self.TEXT_COLOR, self.SCREEN_HEIGHT / 2 + self.FONT_SIZE)
+            self.draw_center_text("press SPACE to begin!", self.font, self.TEXT_COLOR, self.SCREEN_HEIGHT - self.FONT_SIZE - 50)
 
             # pygame.draw.rect(screen, elf_archer.color, elf_archer.rect)
             # pygame.draw.rect(screen, goblin_pillager.color, goblin_pillager.rect)
@@ -63,7 +63,7 @@ class rts:
                     self.running = False
                     break
 
-            print("first_open update...")
+            print("first_open loop...")
             pygame.display.update()
 
         return False
@@ -113,8 +113,12 @@ class rts:
                     race_select_running = False
                     self.running = False
             
-            print("Updating options menu")
+            print("Updating options loop")
             pygame.display.update()
+
+    def move_unit(self, rect, x, y):
+        # create a "screen same size and move it"
+        rect.move_ip(x, y)
 
     def main_game(self):
         main_game_running = True 
@@ -127,15 +131,13 @@ class rts:
 
             key = pygame.key.get_pressed()
             if key[pygame.K_a] == True:
-                self.selected_race.rect.move_ip(-1, 0)
+                self.move_unit(self.selected_race.rect, -1, 0)
             elif key[pygame.K_d] == True:
-                self.selected_race.rect.move_ip(1, 0)
+                self.move_unit(self.selected_race.rect, 1, 0)
             elif key[pygame.K_w] == True:
-                self.selected_race.rect.move_ip(0, -1)
+                self.move_unit(self.selected_race.rect, 0, -1)
             elif key[pygame.K_s] == True:
-                self.selected_race.rect.move_ip(0, 1)
-
-            # self.screen.blit(self.screen, self.selected_race.rect)
+                self.move_unit(self.selected_race.rect, 0, 1)
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -144,7 +146,7 @@ class rts:
                     main_game_running = False
                     self.running = False
 
-            print("Main game update...")
+            print("Main game loop...")
             pygame.display.update()
 
     def main(self):     
