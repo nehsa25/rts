@@ -20,6 +20,7 @@ class rts:
     MAROON = (128, 0, 0)
     YELLOW = (98, 67, 41)
     ALICE_BLUE = (240,248,255)
+    AQUA = (0,255,255)
     MOUSE_POINTER_COLOR = WHITE
     MOUSE_POINTER_SIZE = 5
     BACKGROUND_COLOR = BLUE
@@ -29,12 +30,6 @@ class rts:
     GAME_NAME = "Super duper awesome RTS game"
     FONT_SIZE = 20
     BORDER_SIZE = 10
-
-    # obstacles
-    obstacle_rects = []
-    for _ in range(160):
-        obstacle_rect = pygame.Rect(random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT), 25, 25)
-        obstacle_rects.append(obstacle_rect)
 
     # screen border
     border_rects = []
@@ -218,7 +213,12 @@ class rts:
         main_game_running = True 
         pygame.display.set_caption("")
 
-        # not used but maybe neat
+        # water
+        water_rects = []
+        for _ in range(260):
+            water_rect = pygame.Rect(random.randint(0, self.SCREEN_WIDTH), random.randint(0, self.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            water_rects.append(water_rect)
+
         clock = pygame.time.Clock()
         print(f"Started: {clock}")
         while main_game_running:
@@ -236,15 +236,12 @@ class rts:
             unit = self.create_unit(self.selected_race.rect, self.selected_race.color)
 
             # create random obstacles
+            for water_tile in water_rects:
+                pygame.draw.rect(self.surface, self.AQUA, water_tile)
+
+            # create border last to cover anything up
             for screen_border in self.border_rects:
                 pygame.draw.rect(self.surface, self.BLACK, screen_border)
-
-            # create random obstacles
-            for obstacle in self.obstacle_rects:
-                pygame.draw.rect(self.surface, self.MAROON, obstacle)
-
-            # pygame.draw.rect(screen, elf_archer.color, elf_archer.rect)
-            # pygame.draw.rect(screen, goblin_pillager.color, goblin_pillager.rect)
 
             # continuous key movement (fast)
             key = pygame.key.get_pressed()
