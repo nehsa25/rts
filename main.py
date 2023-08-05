@@ -24,6 +24,7 @@ class rts:
     SCREEN_HEIGHT = 600   
     FONT_SIZE = 20
     BORDER_SIZE = 5
+    main_caption = f"{GAME_NAME} - GLHF!"
 
     # screen border
     border_rects = []
@@ -249,10 +250,29 @@ class rts:
             unit_text = font.render(unit["Name"], True, Colors.BLACK)
             text_rect = unit_text.get_rect(center=(self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT/2))
             self.surface.blit(unit_text, unit_rect)
-        
+
+    def pause_game_menu_loop(self):
+        pause_game_menu_loop_running = True 
+        pygame.display.set_caption(f"Paused!")
+
+        while pause_game_menu_loop_running:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    print(f"mouse down: {event}")
+                if event.type == pygame.MOUSEBUTTONUP:
+                    print(f"mouse up: {event}")
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pause_game_menu_loop_running = False # unpause
+                        pygame.display.set_caption(self.main_caption)
+                if event.type == pygame.QUIT:
+                    # change the value to False, to exit the main loop
+                    pause_game_menu_loop_running = False
+                    self.running = False
+
     def main_game_loop(self):        
         main_game_running = True 
-        pygame.display.set_caption(f"{self.GAME_NAME} - GLHF!")
+        pygame.display.set_caption(self.main_caption)
 
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
@@ -270,10 +290,6 @@ class rts:
             # blank out screen so we can redraw it
             self.surface.fill(Colors.BACKGROUND_COLOR) 
 
-            # mouse position
-            pos = pygame.mouse.get_pos()
-            self.surface.blit(self.mouse_pointer, pos)
-
             # create initial unit
             unit = self.create_rect_with_border(self.selected_race.main_unit_rect, self.selected_race.color)
 
@@ -283,6 +299,10 @@ class rts:
 
             #  side panel
             self.create_side_panel()
+
+            # mouse position
+            pos = pygame.mouse.get_pos()
+            self.surface.blit(self.mouse_pointer, pos)
 
             # create border last to cover anything up
             for screen_border in self.border_rects:
@@ -328,7 +348,9 @@ class rts:
                 if event.type == pygame.MOUSEBUTTONUP:
                     print(f"mouse up: {event}")
                 # 
-                # if event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.pause_game_menu_loop()
                 #     if event.key == pygame.K_a:
                 #         self.move_unit(self.selected_race.rect, -1, 0, self.selected_race.color)
                 #     elif event.key == pygame.K_d:
