@@ -7,6 +7,8 @@ from race import Race
 from elf import Elf
 from goblin import Goblin
 from human import Human
+from fae import Fae
+from dwarf import Dwarf
 from gamebutton import GameButton
 from colors import Colors
 class rts:
@@ -15,7 +17,8 @@ class rts:
 
     # constants
     GAME_NAME = "Super duper awesome RTS game"
-    SIDE_PANEL_WIDTH = 100    
+    SIDE_PANEL_WIDTH = 100   
+    SIDE_PANEL_TEXT = 16 
     MOUSE_POINTER_SIZE = 5    
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600   
@@ -119,37 +122,53 @@ class rts:
             race_mouse_position = pygame.mouse.get_pos()
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
+            MENU_FIRST_BUTTON = 260
+            MENU_SPACING = 40
+
             self.draw_center_text("Select your race", self.font, Colors.TEXT_COLOR, text_height)
-            goblin_button_rect = self.get_center_text("Goblin", self.font, 260, self.SCREEN_WIDTH)
+            goblin_button_rect = self.get_center_text("Goblin", self.font, MENU_FIRST_BUTTON, self.SCREEN_WIDTH)
             goblin_button = GameButton(goblin_button_rect, "Goblin", self.font, base_color="White", hovering_color="Green")      
             goblin_button.change_color(race_mouse_position)
             goblin_button.update(self.surface)
 
-            elf_button_rect = self.get_center_text("Elf", self.font, 300, self.SCREEN_WIDTH)
+            elf_button_rect = self.get_center_text("Elf", self.font, MENU_FIRST_BUTTON + (MENU_SPACING * 1), self.SCREEN_WIDTH)
             elf_button = GameButton(elf_button_rect, text_input="Elf", font=self.font, base_color="White", hovering_color="Green")
             elf_button.change_color(race_mouse_position)
             elf_button.update(self.surface)
 
-            human_button_rect = self.get_center_text("Human", self.font, 340, self.SCREEN_WIDTH)
+            human_button_rect = self.get_center_text("Human", self.font, MENU_FIRST_BUTTON + (MENU_SPACING * 2), self.SCREEN_WIDTH)
             human_button = GameButton(human_button_rect, text_input="Human", font=self.font, base_color="White", hovering_color="Green")
             human_button.change_color(race_mouse_position)
             human_button.update(self.surface)
+
+            fae_button_rect = self.get_center_text("Fae", self.font, MENU_FIRST_BUTTON + (MENU_SPACING * 3), self.SCREEN_WIDTH)
+            fae_button = GameButton(fae_button_rect, text_input="Fae", font=self.font, base_color="White", hovering_color="Green")
+            fae_button.change_color(race_mouse_position)
+            fae_button.update(self.surface)
+
+            dwarf_button_rect = self.get_center_text("Dwarf", self.font, MENU_FIRST_BUTTON + (MENU_SPACING * 4), self.SCREEN_WIDTH)
+            dwarf_button = GameButton(dwarf_button_rect, text_input="Dwarf", font=self.font, base_color="White", hovering_color="Green")
+            dwarf_button.change_color(race_mouse_position)
+            dwarf_button.update(self.surface)
 
             # event loop for option selection screen
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(race_mouse_position):
-                        print("Goblin selected")
                         self.selected_race = Goblin()
                         race_select_running = False
                     if elf_button.check_position(race_mouse_position):
-                        print("Elf selected")
                         self.selected_race = Elf()
                         race_select_running = False
                     if human_button.check_position(race_mouse_position):
-                        print("Human selected")
                         self.selected_race = Human()
-                        race_select_running = False               
+                        race_select_running = False    
+                    if fae_button.check_position(race_mouse_position):
+                        self.selected_race = Fae()
+                        race_select_running = False  
+                    if dwarf_button.check_position(race_mouse_position):
+                        self.selected_race = Dwarf()
+                        race_select_running = False            
                 if event.type == pygame.QUIT:
                     race_select_running = False
                     self.running = False
@@ -224,6 +243,12 @@ class rts:
             unit_rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
             self.create_rect_with_border(unit_rect, unit["Color"], Colors.HUNTER_GREEN, True)
             i = i + 1
+
+            # add text
+            font = pygame.font.Font(None, self.SIDE_PANEL_TEXT)
+            unit_text = font.render(unit["Name"], True, Colors.BLACK)
+            text_rect = unit_text.get_rect(center=(self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT/2))
+            self.surface.blit(unit_text, unit_rect)
         
     def main_game_loop(self):        
         main_game_running = True 

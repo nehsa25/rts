@@ -5,6 +5,7 @@ class Colors:
     MAROON = (128, 0, 0)
     YELLOW = (98, 67, 41)
     ALICE_BLUE = (240,248,255)
+    COCOA = (53,40,30)
     POOP_BROWN = (123, 92, 0)
     AQUA = (0,255,255)
     SALMON = (250, 128, 114)    
@@ -14,6 +15,13 @@ class Colors:
     SCARLET = (255, 36, 0)
     NAVY = (75,104,184)
     CRIMSON = (139, 0, 0)
+
+    # race colors
+    HUMAN = NAVY
+    ELF = HUNTER_GREEN
+    FAE = ALICE_BLUE
+    DWARF = COCOA
+    GOBLIN = CRIMSON
 
     # items
     BACKGROUND_COLOR = BLUE

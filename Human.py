@@ -6,7 +6,7 @@ from colors import Colors
 class Human:
     description = "Land units focused, jack of all trades, Mid-game"
     main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))
-    color = (73, 155, 30)
+    color = Colors.HUMAN
 
     class Farmer(unit.MeleeUnit):
         def __init__(self):

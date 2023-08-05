@@ -6,7 +6,7 @@ from colors import Colors
 class Goblin:
     description = "Create water tiles, Sail, Pillage from other players, Strong early game"
     main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))
-    color = (193, 155, 30)
+    color = Colors.GOBLIN
 
     class Sailor(unit.MeleeUnit):
         def __init__(self):
@@ -27,4 +27,4 @@ class Goblin:
     units = []
     units.append(dict(Name="Sailor", Type=Sailor, Color=Colors.CRIMSON))
     units.append(dict(Name="Pillager", Type=Pillager, Color=Colors.CRIMSON))
-    units.append(dict(Name="GoblinCaptain", Type=GoblinCaptain, Color=Colors.CRIMSON))
+    units.append(dict(Name="Captain", Type=GoblinCaptain, Color=Colors.CRIMSON))
