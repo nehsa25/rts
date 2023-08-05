@@ -381,6 +381,8 @@ class rts:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.pause_game_menu_loop()
+                        if self.running == False:
+                            main_game_running = False
                 #     if event.key == pygame.K_a:
                 #         self.move_unit(self.selected_race.rect, -1, 0, self.selected_race.color)
                 #     elif event.key == pygame.K_d:
