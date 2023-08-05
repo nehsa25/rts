@@ -4,7 +4,7 @@ import unit
 
 class Elf:
     description = "Can impersonate humans, sabatage, can use magic, Strong late game"     
-    rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))    
+    main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))    
     color = (123, 25, 30)
     def __init__(self):
         pass

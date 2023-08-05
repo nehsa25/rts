@@ -18,11 +18,23 @@ class Unit:
         self.attack_tiles = attack_tiles
         self.move_tiles = move_tiles
 
+class MountedUnit(Unit):
+    combat_type = CombatTypes.melee
+    combat_range = 0
+    combat_damage_low = 4
+    combat_damage_high = 7
+    speed = 3
+    attack_tiles = [Environment.levels.Ground]
+    move_tiles = [Environment.levels.Ground]
+    def __init__(self):
+        pass
+
 class MeleeUnit(Unit):
     combat_type = CombatTypes.melee
     combat_range = 0
     combat_damage_low = 3
     combat_damage_high = 6
+    speed = 2
     attack_tiles = [Environment.levels.Ground]
     move_tiles = [Environment.levels.Ground]
     def __init__(self):
@@ -33,6 +45,7 @@ class RangedUnit(Unit):
     combat_range = 2 # 2 tiles
     combat_damage_low = 3
     combat_damage_high = 6
+    speed = 1
     attack_tiles = [Environment.levels.Water, Environment.levels.Ground, Environment.levels.Air]
     move_tiles = [Environment.levels.Ground]
     def __init__(self):

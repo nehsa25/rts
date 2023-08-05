@@ -1,15 +1,12 @@
 from enum import Enum
 import pygame
 import unit
+from colors import Colors
 
 class Goblin:
     description = "Create water tiles, Sail, Pillage from other players, Strong early game"
-    rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))
+    main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))
     color = (193, 155, 30)
-    class Units(Enum):
-       Sailor = 0
-       Pillager = 1
-       GoblinCaptain = 2
 
     class Sailor(unit.MeleeUnit):
         def __init__(self):
@@ -26,3 +23,8 @@ class Goblin:
         combat_damage_high = unit.MeleeUnit.combat_damage_high + 2
         def __init__(self):
             pass
+
+    units = []
+    units.append(dict(Name="Sailor", Type=Sailor, Color=Colors.CRIMSON))
+    units.append(dict(Name="Pillager", Type=Pillager, Color=Colors.CRIMSON))
+    units.append(dict(Name="GoblinCaptain", Type=GoblinCaptain, Color=Colors.CRIMSON))
