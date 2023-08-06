@@ -37,7 +37,7 @@ class rts:
 
     # mouse
     mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE, Constants.MOUSE_POINTER_SIZE))
-    mouse_pointer.fill(Colors.MOUSE_POINTER_COLOR)
+    mouse_pointer.fill(Constants.MOUSE_POINTER_COLOR)
     mouse_pointer_mask = pygame.mask.from_surface(mouse_pointer)
     pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
 
@@ -57,17 +57,17 @@ class rts:
         pygame.display.set_caption("Welcome!")
 
         while first_open_running:
-            self.surface.fill(Colors.BACKGROUND_COLOR) # blank out screen to allow refresh
+            self.surface.fill(Constants.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
             # create yellow border
             for screen_border in self.border_rects:
-                pygame.draw.rect(self.surface, Colors.YELLOW, screen_border)
+                pygame.draw.rect(self.surface, Constants.GAME_BORDER, screen_border)
 
             race_mouse_position = pygame.mouse.get_pos()
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
-            Utility.draw_center_text(self, f"Welcome to {Constants.GAME_NAME}!", Colors.TEXT_COLOR, Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE)        
-            Utility.draw_center_text(self, "press SPACE or CLICK to begin!", Colors.TEXT_COLOR, Constants.SCREEN_HEIGHT - Constants.FONT_SIZE - 50)
+            Utility.draw_center_text(self, f"{Constants.GAME_NAME} RTS", Constants.GAME_TEXT_COLOR, Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE, font_size=Constants.TITLE_SCREEN_FONT)        
+            Utility.draw_center_text(self, "press SPACE or CLICK to begin!", Constants.GAME_TEXT_COLOR, Constants.SCREEN_HEIGHT - Constants.FONT_SIZE - 50)
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -314,7 +314,7 @@ class rts:
     def main(self):     
         first_opened = True
         while self.running:
-            self.surface.fill(Colors.BACKGROUND_COLOR) # blank out screen to allow refresh
+            self.surface.fill(Constants.GAME_MAIN_COLOR) # blank out screen to allow refresh
             if first_opened:
                 first_opened = self.first_open_loop()
             elif (self.player.selected_race is None):

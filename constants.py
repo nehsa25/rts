@@ -1,6 +1,8 @@
+from colors import Colors
+
 # constants
 class Constants:
-    GAME_NAME = "Super duper awesome RTS game"
+    GAME_NAME = "Unhinged"
     SIDE_PANEL_WIDTH = 100   
     SIDE_PANEL_TEXT_SIZE = 12 
     MOUSE_POINTER_SIZE = 5    
@@ -10,3 +12,16 @@ class Constants:
     BORDER_SIZE = 5
     MENU_FIRST_BUTTON = 260
     MENU_SPACING = 40
+
+    # main colors
+    GAME_MAIN_COLOR = Colors.DARK_PURPLE
+    GAME_BORDER = Colors.WHITE
+    GAME_TEXT_COLOR = Colors.ROYAL_GOLD
+
+    # title screen
+    TITLE_SCREEN_FONT = 48
+
+    RANDOM = 1
+    MOUSE_POINTER_COLOR = Colors.WHITE
+
+    

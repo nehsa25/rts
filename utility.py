@@ -7,7 +7,7 @@ from constants import Constants
 
 class Utility:
     def draw_center_text(self, text, text_color, y, font = None, font_size = None):
-        default_font_size = 20
+        default_font_size = Constants.FONT_SIZE
         if font_size is None:
             font_size = default_font_size            
 
