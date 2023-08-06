@@ -275,6 +275,10 @@ class rts:
                 pass
             elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
                 pass
+
+            # scan for selected units
+            for selected_unit in self.selected_units:
+                self, Utility.select_unit(self, selected_unit)
             
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
@@ -285,8 +289,7 @@ class rts:
                 for unit in self.player.army:
                     if unit.Rect.collidepoint(pos):
                         self, Utility.select_unit(self, unit)
-                        Utility.update_selected_units_list(self, unit)
-
+                        self.selected_units = Utility.update_selected_units_list(self, unit)
             elif mouse[1] == True:
                 pass
                 # print(f"middle mouse: {pos}")

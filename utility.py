@@ -96,15 +96,18 @@ class Utility:
         print(f"current_selected_units: {self.selected_units}")
         print(f"new unit: {unit}")
 
+        newlist = self.selected_units
         unit_already_added = False
         for selected_unit in self.selected_units:
             print(selected_unit)
-            if selected_unit.name == unit.name:
+            if selected_unit.Name == unit.Name:
                 unit_already_added = True
                 break
 
-            if not unit_already_added:
-                self.select_units.append(unit)
+        if not unit_already_added:
+            newlist.append(unit)
+
+        return newlist
 
     def create_side_panel(self):
         rect_settings = Utility.RectSettings()
