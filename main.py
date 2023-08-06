@@ -238,7 +238,7 @@ class rts:
             clock.tick(60)
 
             # blank out screen so we can redraw it
-            self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
+            self.surface.fill(Constants.Colors.HUNTER_GREEN) 
 
             # create initial unit
             unit = Utility.create_unit(self, Names.generate_name(self), self.player.selected_race.hero_character)
