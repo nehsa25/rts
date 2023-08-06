@@ -1,6 +1,7 @@
 # import the pygame module, so you can use it
 import random
 import pygame, sys
+from names import Names
 
 # our stuff
 from utility import Utility
@@ -238,7 +239,7 @@ class rts:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
             # create initial unit
-            unit = Utility.create_unit(self, "super", self.player.selected_race.hero_character)
+            unit = Utility.create_unit(self, Names.generate_name(self), self.player.selected_race.hero_character)
 
             # create random obstacles
             for water_tile in water_rects:
