@@ -8,12 +8,8 @@ from colors import Colors
 class Dwarf:
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
     main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))  
-    color = Colors.DWARF
-
-    class Units(Enum):
-        Miner = 0
-        Warror = 1 
-        DwarvenLord = 2
+    main_color = Colors.POOP_BROWN
+    secondary_color = Colors.COCOA    
 
     class Miner(unit.MeleeUnit):
         def __init__(self):
@@ -27,7 +23,7 @@ class Dwarf:
         def __init__(self):
             pass
 
-    class DwarvenLord(unit.MeleeUnit):
+    class DwarvenLord(unit.Hero):
         def __init__(self):
             pass
 
@@ -36,9 +32,9 @@ class Dwarf:
             pass
 
     units = []
-    units.append(dict(Name="Miner", Type=CrossbowGuard, Color=Colors.BLACK))
-    units.append(dict(Name="Crossbow Guard", Type=CrossbowGuard, Color=Colors.BLACK))
-    units.append(dict(Name="Warror", Type=Warror, Color=Colors.BLACK))
-    units.append(dict(Name="Dwarven Lord", Type=DwarvenLord, Color=Colors.BLACK))
-    units.append(dict(Name="Servant", Type=Servant, Color=Colors.BLACK))
+    units.append(dict(Name="Miner", Type=CrossbowGuard, Color=main_color))
+    units.append(dict(Name="Crossbow Guard", Type=CrossbowGuard, Color=main_color))
+    units.append(dict(Name="Warror", Type=Warror, Color=main_color))
+    units.append(dict(Name="Dwarven Lord", Type=DwarvenLord, Color=main_color))
+    units.append(dict(Name="Servant", Type=Servant, Color=main_color))
     

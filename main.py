@@ -4,7 +4,7 @@ import pygame, sys
 
 # our stuff
 from utility import Utility
-from race import Race
+from player import Player
 from elf import Elf
 from goblin import Goblin
 from human import Human
@@ -61,8 +61,7 @@ class rts:
     running = True # kill everything
 
     # game data
-    selected_race = None
-    any_mouse_clicked = False
+    player = Player()
 
     def first_open_loop(self):
         first_open_running = True 
@@ -79,10 +78,7 @@ class rts:
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             Utility.draw_center_text(self, f"Welcome to {self.GAME_NAME}!", self.font, Colors.TEXT_COLOR, self.SCREEN_HEIGHT / 2 - self.FONT_SIZE)        
-            Utility.draw_center_text(self, "press SPACE to begin!", self.font, Colors.TEXT_COLOR, self.SCREEN_HEIGHT - self.FONT_SIZE - 50)
-
-            # pygame.draw.rect(screen, elf_archer.color, elf_archer.rect)
-            # pygame.draw.rect(screen, goblin_pillager.color, goblin_pillager.rect)
+            Utility.draw_center_text(self, "press SPACE or CLICK to begin!", self.font, Colors.TEXT_COLOR, self.SCREEN_HEIGHT - self.FONT_SIZE - 50)
 
             # event handling, gets all event from the event queue
             for event in pygame.event.get():
@@ -151,19 +147,19 @@ class rts:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(race_mouse_position):
-                        self.selected_race = Goblin()
+                        self.player.selected_race = Goblin()
                         race_select_running = False
                     if elf_button.check_position(race_mouse_position):
-                        self.selected_race = Elf()
+                        self.player.selected_race = Elf()
                         race_select_running = False
                     if human_button.check_position(race_mouse_position):
-                        self.selected_race = Human()
+                        self.player.selected_race = Human()
                         race_select_running = False    
                     if fae_button.check_position(race_mouse_position):
-                        self.selected_race = Fae()
+                        self.player.selected_race = Fae()
                         race_select_running = False  
                     if dwarf_button.check_position(race_mouse_position):
-                        self.selected_race = Dwarf()
+                        self.player.selected_race = Dwarf()
                         race_select_running = False            
                 if event.type == pygame.QUIT:
                     race_select_running = False
@@ -232,7 +228,7 @@ class rts:
             water_rects.append(water_rect)
 
         # force initialiation of side panel
-        side_panel_list = []
+        initial_unit_created = False
         while main_game_running:
             # slow things down
             clock.tick(60)
@@ -241,7 +237,13 @@ class rts:
             self.surface.fill(Colors.BACKGROUND_COLOR) 
 
             # create initial unit
-            unit = Utility.create_rect_with_border(self, self.selected_race.main_unit_rect, self.selected_race.color)
+            unit = Utility.create_rect_with_border(self, 
+                                                self.player.selected_race.main_unit_rect, 
+                                                self.player.selected_race.main_color, 
+                                                self.player.selected_race.secondary_color,
+                                                create_as_unit=True, 
+                                                unit_name="super",
+                                                singular_only = True)
 
             # create random obstacles
             for water_tile in water_rects:
@@ -259,7 +261,7 @@ class rts:
             # check for highlighting unit buttons
             for unit in unit_list:
                 if unit["unit_rect"].collidepoint(pos):
-                    Utility.unit_button_highlighted(self, unit)                    
+                    Utility.unit_button_highlighted(self, unit)    
 
             # create border last to cover anything up
             for screen_border in self.border_rects:
@@ -268,34 +270,43 @@ class rts:
             # continuous key movement (fast)
             key = pygame.key.get_pressed()
             if key[pygame.K_a] or key[pygame.K_LEFT] == True:
-                print(self.selected_race.main_unit_rect.collidelist(water_rects)) 
-                Utility.move_unit(self, self.selected_race.main_unit_rect, -5, 0, self.selected_race.color)
-                if self.selected_race.main_unit_rect.collidelist(water_rects) != -1:
-                    Utility.move_unit(self, self.selected_race.main_unit_rect, 5, 0, self.selected_race.color)
+                print(self.player.selected_race.main_unit_rect.collidelist(water_rects)) 
+                Utility.move_unit(self, self.player.selected_race.main_unit_rect, -5, 0, self.player.selected_race.main_color)
+                if self.player.selected_race.main_unit_rect.collidelist(water_rects) != -1:
+                    Utility.move_unit(self, self.player.selected_race.main_unit_rect, 5, 0, self.player.selected_race.main_color)
             elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
-                print(self.selected_race.main_unit_rect.collidelist(water_rects)) 
-                Utility.move_unit(self, self.selected_race.main_unit_rect, 5, 0, self.selected_race.color)
-                if self.selected_race.main_unit_rect.collidelist(water_rects) != -1:
-                    Utility.move_unit(self, self.selected_race.main_unit_rect, -5, 0, self.selected_race.color)
+                print(self.player.selected_race.main_unit_rect.collidelist(water_rects)) 
+                Utility.move_unit(self, self.player.selected_race.main_unit_rect, 5, 0, self.player.selected_race.main_color)
+                if self.player.selected_race.main_unit_rect.collidelist(water_rects) != -1:
+                    Utility.move_unit(self, self.player.selected_race.main_unit_rect, -5, 0, self.player.selected_race.main_color)
             elif key[pygame.K_w] or key[pygame.K_UP] == True:
-                print(self.selected_race.main_unit_rect.collidelist(water_rects))
-                Utility.move_unit(self, self.selected_race.main_unit_rect, 0, -5, self.selected_race.color)
-                if self.selected_race.main_unit_rect.collidelist(water_rects) != -1:
-                    Utility.move_unit(self, self.selected_race.main_unit_rect, 0, 5, self.selected_race.color)
+                print(self.player.selected_race.main_unit_rect.collidelist(water_rects))
+                Utility.move_unit(self, self.player.selected_race.main_unit_rect, 0, -5, self.player.selected_race.main_color)
+                if self.player.selected_race.main_unit_rect.collidelist(water_rects) != -1:
+                    Utility.move_unit(self, self.player.selected_race.main_unit_rect, 0, 5, self.player.selected_race.main_color)
             elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
-                print(self.selected_race.main_unit_rect.collidelist(water_rects))                
-                Utility.move_unit(self, self.selected_race.main_unit_rect, 0, 5, self.selected_race.color)
-                if self.selected_race.main_unit_rect.collidelist(water_rects) != -1:
-                    Utility.move_unit(self, self.selected_race.main_unit_rect, 0, -5, self.selected_race.color)
+                print(self.player.selected_race.main_unit_rect.collidelist(water_rects))                
+                Utility.move_unit(self, self.player.selected_race.main_unit_rect, 0, 5, self.player.selected_race.main_color)
+                if self.player.selected_race.main_unit_rect.collidelist(water_rects) != -1:
+                    Utility.move_unit(self, self.player.selected_race.main_unit_rect, 0, -5, self.player.selected_race.main_color)
             
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
             if mouse[0] == True:
-                print(f"left mouse: {pos}")
+                # print(f"left mouse: {pos}")
+                # scan troops for select      
+                for unit in self.player.army:
+                    for newrect in unit["unit_rect"]:
+                        if newrect.collidepoint(pos):
+                            print(f"click found at: {newrect}")
+                            Utility.select_unit(self, unit)
+
             elif mouse[1] == True:
-                print(f"middle mouse: {pos}")
+                pass
+                # print(f"middle mouse: {pos}")
             elif mouse[2] == True:
-                print(f"right mouse: {pos}")
+                pass
+                # print(f"right mouse: {pos}")
 
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
             for event in pygame.event.get():
@@ -323,7 +334,7 @@ class rts:
             self.surface.fill(Colors.BACKGROUND_COLOR) # blank out screen to allow refresh
             if first_opened:
                 first_opened = self.first_open_loop()
-            elif (self.selected_race is None):
+            elif (self.player.selected_race is None):
                 self.race_select_loop()
             else:   
                 self.main_game_loop()

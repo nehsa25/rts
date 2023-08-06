@@ -18,6 +18,13 @@ class Unit:
         self.attack_tiles = attack_tiles
         self.move_tiles = move_tiles
 
+class Hero(Unit):
+    combat_type = CombatTypes.melee
+    attack_tiles = [Environment.levels.Ground, Environment.levels.Air]
+    move_tiles = [Environment.levels.Ground]
+    def __init__(self):
+        pass
+
 class MountedUnit(Unit):
     combat_type = CombatTypes.melee
     combat_range = 0

@@ -15,13 +15,7 @@ class Colors:
     SCARLET = (255, 36, 0)
     NAVY = (75,104,184)
     CRIMSON = (139, 0, 0)
-
-    # race colors
-    HUMAN = NAVY
-    ELF = HUNTER_GREEN
-    FAE = ALICE_BLUE
-    DWARF = COCOA
-    GOBLIN = CRIMSON
+    RANDOM = 1
 
     # items
     BACKGROUND_COLOR = BLUE
