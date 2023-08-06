@@ -26,6 +26,8 @@ class Fae:
         def __init__(self):
             pass
 
+    hero_character = HighFae
+    
     units = []
     units.append(dict(Name="Shapeshifter", Type=Shapeshifter, Color=main_color))
     units.append(dict(Name="Little Folk", Type=Littlefolk, Color=main_color))

@@ -31,6 +31,8 @@ class Elf:
         def __init__(self):
             pass
 
+    hero_character = Lord
+
     units = []
     units.append(dict(Name="Scout", Type=Scout, Color=main_color))
     units.append(dict(Name="Archer", Type=Archer, Color=main_color))

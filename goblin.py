@@ -32,6 +32,8 @@ class Goblin:
         def __init__(self):
             pass
 
+    hero_character = King
+
     units = []
     units.append(dict(Name="Sailor", Type=Sailor, Color=main_color))
     units.append(dict(Name="Pillager", Type=Pillager, Color=main_color))

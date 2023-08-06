@@ -31,6 +31,8 @@ class Dwarf:
         def __init__(self):
             pass
 
+    hero_character = DwarvenLord
+
     units = []
     units.append(dict(Name="Miner", Type=CrossbowGuard, Color=main_color))
     units.append(dict(Name="Crossbow Guard", Type=CrossbowGuard, Color=main_color))

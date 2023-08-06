@@ -32,6 +32,8 @@ class Human:
     class Archer(unit.RangedUnit):
         def __init__(self):
             pass
+
+    hero_character = Commander
     
     units = []
     units.append(dict(Name="Farmer", Type=Farmer, Color=main_color))
