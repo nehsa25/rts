@@ -1,6 +1,7 @@
 # import the pygame module, so you can use it
 import random
 import pygame, sys
+from names import Names
 
 # our stuff
 from utility import Utility
@@ -54,7 +55,7 @@ class rts:
     # game data
     player = Player()
 
-    def first_open_loop(self):
+    def title_loop(self):
         first_open_running = True 
         pygame.display.set_caption("Welcome!")
 
@@ -240,7 +241,7 @@ class rts:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
             # create initial unit
-            unit = Utility.create_unit(self, "super", self.player.selected_race.hero_character)
+            unit = Utility.create_unit(self, Names.generate_name(self), self.player.selected_race.hero_character)
 
             # create random obstacles
             for water_tile in water_rects:
@@ -317,7 +318,7 @@ class rts:
         while self.running:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
             if first_opened:
-                first_opened = self.first_open_loop()
+                first_opened = self.title_loop()
             elif (self.player.selected_race is None):
                 self.race_select_loop()
             else:   
