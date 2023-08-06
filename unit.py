@@ -77,11 +77,6 @@ class Unit:
     Type = UnitTypes()
     Rect = None
     Stats = Stats()
-    spawn_pos = (Constants.SP_WIDTH, Constants.BORDER_SIZE)
-    
-
-
-
-
-
+    Spawn_POS = (Constants.SP_WIDTH, Constants.BORDER_SIZE)
+    Rect_Settings = None
 

@@ -133,17 +133,8 @@ class Utility:
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, unit):
         print(f"select_unit: {unit}")
-        # change border, skip [0] as it's the "Main" rect
-        first = True
-        for unit_item in unit:
-            if first == True:
-                first = False
-            else:
-                for newunit in unit["unit_rect"]:
-                    # rect_settings = Utility.RectSettings()
-                    # rect_settings.BG_Color = self.player.selected_race.main_color
-                    # rect_settings.BorderColor = Constants.Colors.RANDOM
-                    print("refactor this..")
+        unit.Rect_Settings.BorderColor = Constants.Colors.RANDOM
+        Utility.create_rect(self, unit.Rect_Settings)
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, unit_name, unit_type):
@@ -166,6 +157,7 @@ class Utility:
         if not found_unit:
             self.player.army.append(unit)
 
+        unit.Rect_Settings = rect_settings
         return unit
 
 

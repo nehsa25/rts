@@ -250,13 +250,13 @@ class rts:
             #  side panel
             unit_button_list = Utility.create_side_panel(self)
 
-            # add pointer
-            self.surface.blit(self.mouse_pointer, pos)
-
             # check for highlighting unit buttons
             for unit_button in unit_button_list:
                 if unit_button.Rect.collidepoint(pos):
                     Utility.unit_button_highlighted(self, unit_button)    
+
+            # add pointer
+            self.surface.blit(self.mouse_pointer, pos)
 
             # create border last to cover anything up
             for screen_border in self.border_rects:
