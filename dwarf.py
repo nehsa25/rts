@@ -1,33 +1,32 @@
 
 
-from enum import Enum
-import pygame
+from constants import Constants
 import unit
-from colors import Colors
 
 class Dwarf(unit.Unit):
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
-    main_color = Colors.POOP_BROWN
-    secondary_color = Colors.COCOA   
-    hover_color = Colors.BLUE 
+    main_color = Constants.Colors.POOP_BROWN
+    secondary_color = Constants.Colors.COCOA   
+    hover_color = Constants.Colors.BLUE 
+    hover_text_color = Constants.Colors.ALICE_BLUE
 
-    class Miner(unit.MeleeUnit):
+    class Miner(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class CrossbowGuard(unit.RangedUnit):
+    class CrossbowGuard(unit.UnitTypes.RangedUnit):
         def __init__(self):
             pass
 
-    class Warror(unit.MeleeUnit):
+    class Warror(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class DwarvenLord(unit.Hero):
+    class DwarvenLord(unit.UnitTypes.Hero):
         def __init__(self):
             pass
 
-    class Servant(unit.MeleeUnit):
+    class Servant(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 

@@ -2,10 +2,29 @@ import random
 import pygame
 
 # our stuff
-from colors import Colors
 from constants import Constants
+from unit import Unit
 
 class Utility:
+    class RectSettings:        
+        RECT_SIZE = 5
+        RECT_BORDER_SIZE = 2
+        x = 0
+        y = 0
+        width = 50
+        height = 50
+        HintName = None
+        Rect = None
+        Text = None
+        Rect = None
+        Font = "arialblack"
+        Font_Size = Constants.FONT_SIZE
+        BG_Color = Constants.Colors.GREEN
+        Font_Color = Constants.Colors.BLACK
+        BorderColor = None        
+        def __init__(self):
+            pass
+
     def draw_center_text(self, text, text_color, y, font = None, font_size = None):
         default_font_size = Constants.FONT_SIZE
         if font_size is None:
@@ -18,92 +37,98 @@ class Utility:
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
         self.surface.blit(text, text_rect)    
 
-    def get_rect_with_center_text(self, text, font, y, total_width):
+    def create_rect_with_center_text(self, text, font, y, total_width):
         text = font.render(text, True, 'black')
         return text.get_rect(center=(total_width / 2, y))
 
-    def update_rect_with_text(self, text, rect, font_size, text_color=Colors.BLACK):
+    def update_rect_with_text(self, rect_settings):
         # add text
-        font = pygame.font.Font(None, font_size)
-        unit_text = font.render(text, True, text_color)
-        self.surface.blit(unit_text, rect)  
+        font = pygame.font.Font(None, rect_settings.Font_Size)
+        unit_text = font.render(rect_settings.Text, True, rect_settings.Font_Color)
+        self.surface.blit(unit_text, rect_settings.Rect)  
 
-    def create_rect_with_border(self, rect, main_color, border_color, ignore_side_panel = False):
+    def create_rect(self, rect_settings, ignore_side_panel = False):
+        if rect_settings.Rect is None:
+           rect_settings.Rect = pygame.Rect(rect_settings.x, rect_settings.y, rect_settings.width, rect_settings.height) 
+
         # ensure rect not in side panel
         if not ignore_side_panel:        
-            if rect.x < Constants.SIDE_PANEL_WIDTH:
-                rect.x = Constants.SIDE_PANEL_WIDTH
+            if rect_settings.Rect.x < Constants.SP_WIDTH:
+                rect_settings.Rect.x = Constants.SP_WIDTH
 
-        unit = []
-        unit.append(rect)
-        
-        border_width = 2
-        pygame.draw.rect(self.surface, main_color, rect) # this is what actually causes the rect to show up on screen
+        pygame.draw.rect(self.surface, rect_settings.BG_Color, rect_settings.Rect) # this is what actually causes the rect to show up on screen
 
-        # left
-        if border_color is not Colors.RANDOM:
-            left_border_color = border_color
-            bottom_border_color = border_color
-            right_border_color = border_color
-            top_border_color = border_color
-        else:
-            left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-            bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-            right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-            top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+        if rect_settings.BorderColor is not None:
+            if rect_settings.BorderColor is not Constants.Colors.RANDOM:
+                left_border_color = rect_settings.BorderColor
+                bottom_border_color = rect_settings.BorderColor
+                right_border_color = rect_settings.BorderColor
+                top_border_color = rect_settings.BorderColor
+            else:
+                left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+                bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+                right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+                top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
 
-        left_border_rect = pygame.Rect((rect.x-border_width, rect.y, border_width, rect.height))
-        pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
-        unit.append(left_border_rect)
+            # left
+            left_border_rect = pygame.Rect((rect_settings.Rect.x-Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.y, Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.height))
+            pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
 
-        # bottom        
-        bottom_border_rect = pygame.Rect((rect.x, rect.y + rect.height, rect.width, border_width))
-        pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
-        unit.append(bottom_border_rect)
+            # bottom        
+            bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Utility.RectSettings.RECT_BORDER_SIZE))
+            pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
 
-        # right        
-        right_border_rect = pygame.Rect((rect.x + rect.width, rect.y, border_width, rect.height))
-        pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
-        unit.append(right_border_rect)
+            # right        
+            right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.height))
+            pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
 
-        # top        
-        top_border_rect = pygame.Rect((rect.x, rect.y - border_width, rect.width, border_width))
-        pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
-        unit.append(top_border_rect)
+            # top        
+            top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.width, Utility.RectSettings.RECT_BORDER_SIZE))
+            pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
 
-        return unit
+        return rect_settings
 
     def move_unit(self, rect, x, y, main_color):
-        rects = Utility.create_rect_with_border(self, rect, main_color, main_color)        
-        for edge in rects:
-            edge.move_ip(x, y)
+        rect.move_ip(x, y)
+        Utility.create_rect(self, rect, main_color, main_color)        
 
-    def create_side_panel(self, font_size):
-        side_panel = pygame.Rect(0, 0, Constants.SIDE_PANEL_WIDTH, self.surface.get_height())
-        side_panel_list = Utility.create_rect_with_border(self, side_panel, Colors.POOP_BROWN, Colors.BLACK, ignore_side_panel=True)
+    def create_side_panel(self):
+        rect_settings = Utility.RectSettings()
+        rect_settings.BG_Color = Constants.Colors.POOP_BROWN
+        rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+        rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, self.surface.get_height())
+        Utility.create_rect(self, rect_settings, ignore_side_panel=True)
 
         # button for each guy
         i = 1
-        unit_list = []
+        unit_button_list = []
         for unit in self.player.selected_race.units:
-            unit_x = (Constants.SIDE_PANEL_WIDTH / 2) / 2
+            unit_x = (Constants.SP_WIDTH / 2) / 2
             unit_y = 60 * i
-            unit_width = Constants.SIDE_PANEL_WIDTH / 2
+            unit_width = Constants.SP_WIDTH / 2
             unit_height = unit_width
-            unit_rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-            Utility.create_rect_with_border(self, unit_rect, unit["Color"], Colors.HUNTER_GREEN, ignore_side_panel=True)
-            i = i + 1
-            Utility.update_rect_with_text(self, unit["Name"], unit_rect, font_size)
+
+            rect_settings = Utility.RectSettings()
+            rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
+            rect_settings.BG_Color = self.player.selected_race.main_color
+            rect_settings.BorderColor = self.player.selected_race.secondary_color
+            rect_settings.Text = unit["Name"]
+            rect_settings.HintName = "unit button text"
+            rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+
+            Utility.create_rect(self, rect_settings, ignore_side_panel=True)            
+            Utility.update_rect_with_text(self, rect_settings)
 
             # update our list to pass back
-            unit_item = dict(name = unit["Name"], unit_rect = unit_rect)
-            unit_list.append(unit_item)
+            unit_button_list.append(rect_settings)
+            i = i + 1
             
-        return side_panel_list, unit_list
+        return unit_button_list
 
-    def unit_button_highlighted(self, unit, font_size):
-        pygame.draw.rect(self.surface, self.player.selected_race.hover_color, unit["unit_rect"]) 
-        Utility.update_rect_with_text(self, unit["name"], unit["unit_rect"], font_size, Colors.WHITE)
+    def unit_button_highlighted(self, rect_settings):
+        rect_settings.Font_Color =  self.player.selected_race.hover_text_color
+        pygame.draw.rect(self.surface, self.player.selected_race.hover_color, rect_settings.Rect) 
+        Utility.update_rect_with_text(self, rect_settings)
     
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, unit):
@@ -115,20 +140,32 @@ class Utility:
                 first = False
             else:
                 for newunit in unit["unit_rect"]:
-                    Utility.create_rect_with_border(self, newunit, self.player.selected_race.main_color, Colors.RANDOM)
+                    # rect_settings = Utility.RectSettings()
+                    # rect_settings.BG_Color = self.player.selected_race.main_color
+                    # rect_settings.BorderColor = Constants.Colors.RANDOM
+                    print("refactor this..")
 
+    # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, unit_name, unit_type):
-        unit = Utility.create_rect_with_border(self, 
-                                            self.player.selected_race.spawn_rect, 
-                                            self.player.selected_race.main_color, 
-                                            self.player.selected_race.secondary_color)
+        rect_settings = Utility.RectSettings()
+        rect_settings.BG_Color = self.player.selected_race.main_color
+        rect_settings.BorderColor = self.player.selected_race.secondary_color
+        rect_settings.HintName = unit_name # just used for debugging
+        rect_settings = Utility.create_rect(self, rect_settings)
+        unit = Unit()
+        unit.Name = unit_name
+        unit.Rect = rect_settings.Rect
+        unit.Type = unit_type
             
+        # add to our army list
         found_unit = False
-        unit_item = dict(unit_name = unit_name, unit_rect = unit)
         for army_unit in self.player.army:
-            if army_unit["unit_name"] == unit_name:
+            if army_unit.Name == unit_name:
                 found_unit = True
+                break
         if not found_unit:
-            self.player.army.append(unit_item)
+            self.player.army.append(unit)
+
+        return unit
 
 

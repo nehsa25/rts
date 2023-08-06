@@ -1,28 +1,27 @@
-from enum import Enum
-import pygame
+from constants import Constants
 import unit
-from colors import Colors
 
 class Fae(unit.Unit):
     Discription = "Tricksters, Magic casters, Strong early to mid game"
-    main_color = Colors.FUCHSIA
-    secondary_color = Colors.HUNTER_GREEN 
-    hover_color = Colors.AQUA
+    main_color = Constants.Colors.FUCHSIA
+    secondary_color = Constants.Colors.HUNTER_GREEN 
+    hover_color = Constants.Colors.AQUA
+    hover_text_color = Constants.Colors.COCOA
 
-    class Shapeshifter(unit.MeleeUnit):
+    class Shapeshifter(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class Littlefolk(unit.MeleeUnit):
+    class Littlefolk(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class HighFae(unit.Hero):
+    class HighFae(unit.UnitTypes.Hero):
         def __init__(self):
             pass
 
-    class BlightedFae(unit.MeleeUnit):
-        speed = unit.MountedUnit.speed # fast motherfuckers
+    class BlightedFae(unit.UnitTypes.MeleeUnit):
+        speed = unit.UnitTypes.MountedUnit.speed + 1 # fast motherfuckers, they can run down horses
         def __init__(self):
             pass
 

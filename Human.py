@@ -1,35 +1,34 @@
-from enum import Enum
-import pygame
+from constants import Constants
 import unit
-from colors import Colors
 
 class Human(unit.Unit):
     description = "Land units focused, jack of all trades, Mid-game"
-    main_color = Colors.YELLOW
-    secondary_color = Colors.NAVY
-    hover_color = Colors.ALICE_BLUE 
+    main_color = Constants.Colors.YELLOW
+    secondary_color = Constants.Colors.NAVY
+    hover_color = Constants.Colors.ALICE_BLUE 
+    hover_text_color = Constants.Colors.NAVY
 
-    class Farmer(unit.MeleeUnit):
+    class Farmer(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class Miner(unit.MeleeUnit):
+    class Miner(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class Fisherman(unit.MeleeUnit):
+    class Fisherman(unit.UnitTypes.MeleeUnit):
         def __init__(self):
             pass
 
-    class Knight(unit.MountedUnit):
+    class Knight(unit.UnitTypes.MountedUnit):
         def __init__(self):
             pass
 
-    class Commander(unit.Hero):
+    class Commander(unit.UnitTypes.Hero):
         def __init__(self):
             pass
 
-    class Archer(unit.RangedUnit):
+    class Archer(unit.UnitTypes.RangedUnit):
         def __init__(self):
             pass
 
