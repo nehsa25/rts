@@ -51,7 +51,7 @@ class rts:
     # game data
     player = Player()
 
-    def first_open_loop(self):
+    def title_loop(self):
         first_open_running = True 
         pygame.display.set_caption("Welcome!")
 
@@ -315,7 +315,7 @@ class rts:
         while self.running:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
             if first_opened:
-                first_opened = self.first_open_loop()
+                first_opened = self.title_loop()
             elif (self.player.selected_race is None):
                 self.race_select_loop()
             else:   
