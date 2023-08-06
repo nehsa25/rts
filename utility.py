@@ -21,7 +21,7 @@ class Utility:
         text = font.render(text, True, 'black')
         return text.get_rect(center=(total_width / 2, y))
 
-    def update_rect_with_center_text(self, text, rect, font_size, text_color=Colors.BLACK):
+    def update_rect_with_text(self, text, rect, font_size, text_color=Colors.BLACK):
         # add text
         font = pygame.font.Font(None, font_size)
         unit_text = font.render(text, True, text_color)
@@ -98,7 +98,7 @@ class Utility:
             unit_rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
             Utility.create_rect_with_border(self, unit_rect, unit["Color"], Colors.HUNTER_GREEN, ignore_side_panel=True)
             i = i + 1
-            Utility.update_rect_with_center_text(self, unit["Name"], unit_rect, font_size)
+            Utility.update_rect_with_text(self, unit["Name"], unit_rect, font_size)
 
             # update our list to pass back
             unit_item = dict(name = unit["Name"], unit_rect = unit_rect)
@@ -108,7 +108,7 @@ class Utility:
 
     def unit_button_highlighted(self, unit):
         pygame.draw.rect(self.surface, Colors.FUCHSIA, unit["unit_rect"]) 
-        Utility.update_rect_with_center_text(self, unit["name"], unit["unit_rect"], Colors.WHITE)
+        Utility.update_rect_with_text(self, unit["name"], unit["unit_rect"], Colors.WHITE)
     
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, unit):
