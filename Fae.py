@@ -3,11 +3,11 @@ import pygame
 import unit
 from colors import Colors
 
-class Fae:
+class Fae(unit.Unit):
     Discription = "Tricksters, Magic casters, Strong early to mid game"
-    main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))  
     main_color = Colors.FUCHSIA
     secondary_color = Colors.HUNTER_GREEN 
+    hover_color = Colors.AQUA
 
     class Shapeshifter(unit.MeleeUnit):
         def __init__(self):
@@ -27,7 +27,7 @@ class Fae:
             pass
 
     hero_character = HighFae
-    
+
     units = []
     units.append(dict(Name="Shapeshifter", Type=Shapeshifter, Color=main_color))
     units.append(dict(Name="Little Folk", Type=Littlefolk, Color=main_color))

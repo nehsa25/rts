@@ -1,13 +1,17 @@
-from enum import Enum
 import pygame
 import unit
 from colors import Colors
+from constants import Constants
 
-class Goblin:
+class Goblin(unit.Unit):
     description = "Create water tiles, Sail, Pillage from other players, Strong early game"
-    main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))
     main_color = Colors.CRIMSON
     secondary_color = Colors.BLACK
+    hover_color = Colors.HUNTER_GREEN 
+    spawn_rect = None
+
+    def __init__(self, spawn_x = Constants.SIDE_PANEL_WIDTH):
+        self.spawn_rect = pygame.Rect((spawn_x, 0, unit.Unit.unit_size, unit.Unit.unit_size))  
 
     class Sailor(unit.MeleeUnit):
         def __init__(self):

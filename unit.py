@@ -1,3 +1,4 @@
+import pygame
 from combattypes import CombatTypes
 from environment import Environment
 
@@ -9,6 +10,7 @@ class Unit:
     attack_tiles = None
     move_tiles = None
     unit_size = 5
+    spawn_rect = None
     
     def __init__(self, combat_type, combat_range, combat_damage_low, combat_damage_high, attack_tiles, move_tiles):
         self.combat_type = combat_type

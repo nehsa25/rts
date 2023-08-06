@@ -5,11 +5,11 @@ import pygame
 import unit
 from colors import Colors
 
-class Dwarf:
+class Dwarf(unit.Unit):
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
-    main_unit_rect = pygame.Rect((0, 0, unit.Unit.unit_size, unit.Unit.unit_size))  
     main_color = Colors.POOP_BROWN
-    secondary_color = Colors.COCOA    
+    secondary_color = Colors.COCOA   
+    hover_color = Colors.BLUE 
 
     class Miner(unit.MeleeUnit):
         def __init__(self):
