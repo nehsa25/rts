@@ -92,6 +92,20 @@ class Utility:
         rect.move_ip(x, y)
         Utility.create_rect(self, rect, main_color, main_color)        
 
+    def update_selected_units_list(self, unit):
+        print(f"current_selected_units: {self.selected_units}")
+        print(f"new unit: {unit}")
+
+        unit_already_added = False
+        for selected_unit in self.selected_units:
+            print(selected_unit)
+            if selected_unit.name == unit.name:
+                unit_already_added = True
+                break
+
+            if not unit_already_added:
+                self.select_units.append(unit)
+
     def create_side_panel(self):
         rect_settings = Utility.RectSettings()
         rect_settings.BG_Color = Constants.Colors.POOP_BROWN
@@ -134,7 +148,8 @@ class Utility:
     def select_unit(self, unit):
         print(f"select_unit: {unit}")
         unit.Rect_Settings.BorderColor = Constants.Colors.RANDOM
-        Utility.create_rect(self, unit.Rect_Settings)
+        unit.Rect_settings = Utility.create_rect(self, unit.Rect_Settings)
+        return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, unit_name, unit_type):

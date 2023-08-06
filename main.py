@@ -34,6 +34,9 @@ class rts:
     right_border_rect = pygame.Rect(Constants.SCREEN_WIDTH - Constants.BORDER_SIZE, 0, Constants.BORDER_SIZE, Constants.SCREEN_HEIGHT)
     border_rects.append(right_border_rect)
 
+    # units on the screen that have been clicked on
+    selected_units = []
+
     # mouse
     mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE, Constants.MOUSE_POINTER_SIZE))
     mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
@@ -228,8 +231,7 @@ class rts:
             water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             water_rects.append(water_rect)
 
-        # force initialiation of side panel
-        initial_unit_created = False
+        # be hit 60 times every seconds
         while main_game_running:
             # slow things down
             clock.tick(60)
@@ -281,7 +283,8 @@ class rts:
                 # scan unit for select      
                 for unit in self.player.army:
                     if unit.Rect.collidepoint(pos):
-                        Utility.select_unit(self, unit)
+                        self, Utility.select_unit(self, unit)
+                        Utility.update_selected_units_list(self, unit)
 
             elif mouse[1] == True:
                 pass
@@ -294,7 +297,6 @@ class rts:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     print(f"mouse down: {event}")
-                    any_mouse_clicked = False
                 if event.type == pygame.MOUSEBUTTONUP:
                     print(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
