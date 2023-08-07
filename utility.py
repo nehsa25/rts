@@ -2,6 +2,8 @@ import random
 from uuid import uuid4
 import pygame
 from enum import Enum
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
 
 # our stuff
 from constants import Constants
@@ -106,6 +108,34 @@ class Utility:
 
         return rect_settings
 
+    def draw_grid(self):
+        blockSize = Unit.UNIT_SIZE
+
+        sp_total_width = Constants.SP_BORDER_SIZE + Constants.SP_WIDTH
+        remaining_x_total_width = Constants.SCREEN_WIDTH
+
+        for x in range(sp_total_width, remaining_x_total_width, blockSize):
+            total_height = Constants.SCREEN_HEIGHT - (Constants.SP_BORDER_SIZE * 2) - Constants.BP_HEIGHT
+            for y in range(Constants.SP_BORDER_SIZE, total_height, blockSize):
+                rect = pygame.Rect(x, y, blockSize, blockSize)
+                pygame.draw.rect(self.surface, Constants.Colors.NEON_GREEN, rect, 1)
+
+    # uses speed of unit
+    def move_unit_over_time(self, units, new_x, new_y):
+        Utility.draw_grid(self)
+        # matrix = self.
+        # grid = Grid(matrix = self.surface)
+
+        # for unit in units:
+        #     print(unit.Name)
+        #     start = grid.node(unit.Rect_Settings.Rect.x, unit.Rect_Settings.Rect.y)
+        #     end = grid.node(new_x, new_y)
+        #     finder = AStarFinder()
+        #     paths, runs = finder.find_path(start, end, grid)
+        #     print(paths)
+        #     print(runs)
+
+    # moves rect x,y cords
     def move_unit(self, rect, x, y, main_color):
         rect.move_ip(x, y)
         Utility.create_rect(self, rect, main_color, main_color)        
@@ -210,7 +240,6 @@ class Utility:
     
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, unit):
-        print(f"select_unit: {unit}")
         unit.Rect_Settings.BorderColor = Constants.Colors.RANDOM
         unit.Rect_settings = Utility.create_rect(self, unit.Rect_Settings)
         return unit
@@ -222,14 +251,14 @@ class Utility:
             unit = Unit()
             unit.Rect_Settings = Utility.RectSettings()
             unit.Rect_Settings.BG_Color = self.player.selected_race.main_color
-            unit.Rect_Settings.BorderColor = self.player.selected_race.secondary_color
-            unit.Rect_Settings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
+            unit.Rect_Settings.BorderColor = self.player.selected_race.secondary_color            
             unit.Rect_Settings.x = Constants.UNIT_SPAWN_X
             unit.Rect_Settings.y = Constants.UNIT_SPAWN_Y
-            unit.Rect_Settings.width = Constants.RECT_SIZE
-            unit.Rect_Settings.height = Constants.RECT_SIZE
+            unit.Rect_Settings.width = Unit.UNIT_SIZE
+            unit.Rect_Settings.height = Unit.UNIT_SIZE
             unit.Name = Names.generate_name(self)
             unit.Type = unit_type
+            unit.Rect_Settings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
         
         # create new unit for this guy        
         unit.Rect_Settings = Utility.create_rect(self, unit.Rect_Settings)

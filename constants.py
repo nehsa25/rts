@@ -44,7 +44,8 @@ class Constants:
         # reds
         RED = (255, 0, 0)
         SCARLET = (255, 36, 0)
-        CRIMSON = (139, 0, 0)       
+        CRIMSON = (139, 0, 0)    
+        FIRE = (255,90,0)   
 
         # blues
         BLUE = (0, 0, 255)

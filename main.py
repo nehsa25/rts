@@ -1,6 +1,7 @@
 # import the pygame module, so you can use it
 import random
 import pygame, sys
+import json
 from names import Names
 
 # our stuff
@@ -226,11 +227,17 @@ class rts:
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
 
-        # water
+        # create water tiles
         water_rects = []
         for _ in range(260):
             water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             water_rects.append(water_rect)
+
+        # create fire tiles
+        fire_rects = []
+        for _ in range(30):
+            fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            fire_rects.append(fire_rect)
 
         # be hit 60 times every seconds
         hero_unit_created = False
@@ -250,7 +257,7 @@ class rts:
                 Utility.create_unit(self, self.player.selected_race.hero_character)
                 hero_unit_created = True
 
-            # create random obstacles
+            # create random "water" obstacles
             for water_tile in water_rects:
                 found_collide = False
                 for army_unit in self.player.army:
@@ -258,6 +265,16 @@ class rts:
                         found_collide = True
                 if not found_collide:
                     pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
+
+            # create random "fire" obstacles
+            for fire_tile in fire_rects:
+                found_collide = False
+                for army_unit in self.player.army:
+                    if fire_tile.colliderect(army_unit.Rect_Settings.Rect):
+                        print("YOU BURNT!")
+                if not found_collide:
+                    pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
+ 
 
             # mouse position
             pos = pygame.mouse.get_pos()
@@ -297,14 +314,22 @@ class rts:
                 # print(f"left mouse: {pos}")
 
                 # scan unit for select      
+                selected_new_unit = False
                 for unit in self.player.army:
-                    if unit.Rect_Settings.Rect.collidepoint(pos):
+                    if unit.Rect_Settings.Rect.collidepoint(pos):                        
+                        self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
+                        self.selected_units.append(unit)
+                        selected_new_unit = True
 
-                        self.selected_units = Utility.update_selected_units_list(self, unit)
-                        # if we have a unit selected, show it in the bottom window
+                        # if we any unit selected, show it in the bottom window and indicate it's selected with border
                         if len(self.selected_units) > 0:
                             self, Utility.select_unit(self, unit)
                             Utility.create_bottom_panel(self)
+
+                # if we selected something new cool, if not, then the order it to move..
+                if not selected_new_unit and len(self.selected_units) > 0:
+                    print(f"You wish to move these units {len(self.selected_units)} units")
+                    Utility.move_unit_over_time(self, self.selected_units, pos[0], pos[1])
 
             elif mouse[1] == True:
                 pass
