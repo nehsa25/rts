@@ -11,6 +11,7 @@ class Names:
         names.append("Betelgeuse")
         names.append("Holo")
         names.append("Roswaal")
+        names.append("Roz")
         names.append("Maximus")
         names.append("Candie")
         names.append("Jesse")
@@ -28,6 +29,11 @@ class Names:
         titles.append("the Prideful")
         titles.append("the Wise")
         titles.append("the Magnificent")
+        titles.append("the Professor")
+        titles.append("the Scholar")
+        titles.append("the Loyal")
+        titles.append("Stone")      
+
         title_choice = random.randint(0, len(titles) -1)
 
         # combine name and title
