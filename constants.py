@@ -10,7 +10,7 @@ class Constants:
     SP_BUTTON_TEXT_SIZE = 12 
 
     # main game bottom panel
-    BP_HEIGHT = 300
+    BP_HEIGHT = 100
     BP_BUTTON_TEXT_SIZE = 12 
     
 

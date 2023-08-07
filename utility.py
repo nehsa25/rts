@@ -148,7 +148,7 @@ class Utility:
         rect_settings = Utility.RectSettings()
         rect_settings.BG_Color = Constants.Colors.POOP_BROWN
         rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
-        rect_settings.x = Constants.SP_WIDTH
+        rect_settings.x = Constants.SP_WIDTH # start at end of SP panel
         rect_settings.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
         rect_settings.width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH
         rect_settings.height = self.surface.get_height()
@@ -160,7 +160,7 @@ class Utility:
         unit_button_list = []
         for unit in self.player.army:
             unit_x = Constants.SP_WIDTH + Constants.PANEL_BUTTON_SPACING
-            unit_y = 60 * i
+            unit_y = rect_settings.y + Constants.RECT_SIZE
             unit_width = Constants.SP_WIDTH / 2
             unit_height = unit_width
 
