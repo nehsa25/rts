@@ -303,11 +303,11 @@ class rts:
                 # scan unit for select      
                 for unit in self.player.army:
                     if unit.Rect_Settings.Rect.collidepoint(pos):
+                        
                         self.selected_units = Utility.update_selected_units_list(self, unit)
-                        self, Utility.select_unit(self, unit)
-
                         # if we have a unit selected, show it in the bottom window
                         if len(self.selected_units) > 0:
+                            self, Utility.select_unit(self, unit)
                             Utility.create_bottom_panel(self)
 
             elif mouse[1] == True:

@@ -94,18 +94,17 @@ class Utility:
         Utility.create_rect(self, rect, main_color, main_color)        
 
     def update_selected_units_list(self, unit):
-        print(f"current_selected_units: {self.selected_units}")
-        print(f"new unit: {unit}")
-
         newlist = self.selected_units
         unit_already_added = False
         for selected_unit in self.selected_units:
-            print(selected_unit)
             if selected_unit.Name == unit.Name:
                 unit_already_added = True
                 break
 
-        if not unit_already_added:
+        if unit_already_added:
+            # newlist.remove(unit) # this is wrong
+            pass
+        else:
             newlist.append(unit)
 
         return newlist
