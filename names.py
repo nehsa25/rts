@@ -27,6 +27,7 @@ class Names:
         titles.append("the Greedy")
         titles.append("the Prideful")
         titles.append("the Wise")
+        titles.append("the Magnificent")
         title_choice = random.randint(0, len(titles) -1)
 
         # combine name and title
