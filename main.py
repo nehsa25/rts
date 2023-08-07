@@ -252,7 +252,12 @@ class rts:
 
             # create random obstacles
             for water_tile in water_rects:
-                pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
+                found_collide = False
+                for army_unit in self.player.army:
+                    if water_tile.colliderect(army_unit.Rect_Settings.Rect):
+                        found_collide = True
+                if not found_collide:
+                    pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
 
             # mouse position
             pos = pygame.mouse.get_pos()
