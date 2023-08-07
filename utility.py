@@ -1,14 +1,14 @@
 import random
+from uuid import uuid4
 import pygame
 
 # our stuff
 from constants import Constants
+from names import Names
 from unit import Unit
 
 class Utility:
     class RectSettings:        
-        RECT_SIZE = 5
-        RECT_BORDER_SIZE = 2
         x = 0
         y = 0
         width = 50
@@ -21,9 +21,10 @@ class Utility:
         Font_Size = Constants.FONT_SIZE
         BG_Color = Constants.Colors.GREEN
         Font_Color = Constants.Colors.BLACK
-        BorderColor = None        
+        BorderColor = None     
+        id = None   
         def __init__(self):
-            pass
+            id = uuid4()
 
     def draw_center_text(self, text, text_color, y, font = None, font_size = None):
         default_font_size = Constants.FONT_SIZE
@@ -71,19 +72,19 @@ class Utility:
                 top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
 
             # left
-            left_border_rect = pygame.Rect((rect_settings.Rect.x-Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.y, Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.height))
+            left_border_rect = pygame.Rect((rect_settings.Rect.x-Constants.RECT_BORDER_SIZE, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
             pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
 
             # bottom        
-            bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Utility.RectSettings.RECT_BORDER_SIZE))
+            bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
             pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
 
             # right        
-            right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.height))
+            right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
             pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
 
             # top        
-            top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Utility.RectSettings.RECT_BORDER_SIZE, rect_settings.Rect.width, Utility.RectSettings.RECT_BORDER_SIZE))
+            top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Constants.RECT_BORDER_SIZE, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
             pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
 
         return rect_settings
@@ -142,6 +143,44 @@ class Utility:
             
         return unit_button_list
 
+    # the bottom panel shown when one or more units selected
+    def create_bottom_panel(self):
+        rect_settings = Utility.RectSettings()
+        rect_settings.BG_Color = Constants.Colors.POOP_BROWN
+        rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+        rect_settings.x = Constants.SP_WIDTH
+        rect_settings.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
+        rect_settings.width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH
+        rect_settings.height = self.surface.get_height()
+        rect_settings.HintName = "bottom panel main"
+        Utility.create_rect(self, rect_settings, ignore_side_panel=True)
+
+        # button for each guy
+        i = 1
+        unit_button_list = []
+        for unit in self.player.army:
+            unit_x = Constants.SP_WIDTH + Constants.PANEL_BUTTON_SPACING
+            unit_y = 60 * i
+            unit_width = Constants.SP_WIDTH / 2
+            unit_height = unit_width
+
+            rect_settings = Utility.RectSettings()
+            rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
+            rect_settings.BG_Color = self.player.selected_race.main_color
+            rect_settings.BorderColor = self.player.selected_race.secondary_color
+            rect_settings.Text = unit.Name
+            rect_settings.HintName = "unit button text"
+            rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+
+            Utility.create_rect(self, rect_settings, ignore_side_panel=True)            
+            Utility.update_rect_with_text(self, rect_settings)
+
+            # update our list to pass back
+            unit_button_list.append(rect_settings)
+            i = i + 1
+            
+        return unit_button_list
+
     def unit_button_highlighted(self, rect_settings):
         rect_settings.Font_Color =  self.player.selected_race.hover_text_color
         pygame.draw.rect(self.surface, self.player.selected_race.hover_color, rect_settings.Rect) 
@@ -155,27 +194,33 @@ class Utility:
         return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
-    def create_unit(self, unit_name, unit_type):
-        rect_settings = Utility.RectSettings()
-        rect_settings.BG_Color = self.player.selected_race.main_color
-        rect_settings.BorderColor = self.player.selected_race.secondary_color
-        rect_settings.HintName = unit_name # just used for debugging
-        rect_settings = Utility.create_rect(self, rect_settings)
-        unit = Unit()
-        unit.Name = unit_name
-        unit.Rect = rect_settings.Rect
-        unit.Type = unit_type
+    def create_unit(self, unit_type, unit = None):
+
+        if unit is None:
+            unit = Unit()
+            unit.Rect_Settings = Utility.RectSettings()
+            unit.Rect_Settings.BG_Color = self.player.selected_race.main_color
+            unit.Rect_Settings.BorderColor = self.player.selected_race.secondary_color
+            unit.Rect_Settings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
+            unit.Rect_Settings.x = Constants.UNIT_SPAWN_X
+            unit.Rect_Settings.y = Constants.UNIT_SPAWN_Y
+            unit.Rect_Settings.width = Constants.RECT_SIZE
+            unit.Rect_Settings.height = Constants.RECT_SIZE
+            unit.Name = Names.generate_name(self)
+            unit.Type = unit_type
+        
+        # create new unit for this guy        
+        unit.Rect_Settings = Utility.create_rect(self, unit.Rect_Settings)
             
         # add to our army list
         found_unit = False
         for army_unit in self.player.army:
-            if army_unit.Name == unit_name:
+            if army_unit.Name == unit.Name:
                 found_unit = True
                 break
         if not found_unit:
             self.player.army.append(unit)
 
-        unit.Rect_Settings = rect_settings
         return unit
 
 

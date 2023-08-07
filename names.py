@@ -10,6 +10,13 @@ class Names:
         names.append("Stride")
         names.append("Betelgeuse")
         names.append("Holo")
+        names.append("Roswaal")
+        names.append("Maximus")
+        names.append("Candie")
+        names.append("Jesse")
+        names.append("Ethan")
+        names.append("Pinf")
+        names.append("Logoc")
         name_choice = random.randint(0, len(names) -1)
 
         # title list
@@ -17,7 +24,7 @@ class Names:
         titles.append("the Brave")
         titles.append("the Cowardly")
         titles.append("the Fool")
-        titles.append("the greedy")
+        titles.append("the Greedy")
         titles.append("the Prideful")
         titles.append("the Wise")
         title_choice = random.randint(0, len(titles) -1)

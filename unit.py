@@ -26,17 +26,14 @@ class Stats:
 
 # probably will help with base skill sets
 class UnitTypes:
-    def __init__(self):
-        pass
-
-    class Hero:
+    class Hero(Stats):
         combat_type = CombatTypes.melee
         attack_tiles = [Environment.levels.Ground, Environment.levels.Air]
         move_tiles = [Environment.levels.Ground]
         def __init__(self):
             pass
 
-    class MountedUnit:
+    class MountedUnit(Stats):
         combat_type = CombatTypes.melee
         combat_range = 0
         combat_damage_low = 4
@@ -47,7 +44,7 @@ class UnitTypes:
         def __init__(self):
             pass
 
-    class MeleeUnit:
+    class MeleeUnit(Stats):
         combat_type = CombatTypes.melee
         combat_range = 0
         combat_damage_low = 3
@@ -58,7 +55,7 @@ class UnitTypes:
         def __init__(self):
             pass
 
-    class RangedUnit:
+    class RangedUnit(Stats):
         combat_type = CombatTypes.ranged
         combat_range = 2 # 2 tiles
         combat_damage_low = 3
@@ -74,9 +71,6 @@ class Unit:
     UNIT_SIZE = 15
     UNIT_BORDER_SIZE = 5
     Name = None
-    Type = UnitTypes()
-    Rect = None
-    Stats = Stats()
-    Spawn_POS = (Constants.SP_WIDTH, Constants.BORDER_SIZE)
+    Type = None
     Rect_Settings = None
 

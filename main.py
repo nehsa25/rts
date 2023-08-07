@@ -233,6 +233,7 @@ class rts:
             water_rects.append(water_rect)
 
         # be hit 60 times every seconds
+        hero_unit_created = False
         while main_game_running:
             # slow things down
             clock.tick(60)
@@ -241,7 +242,13 @@ class rts:
             self.surface.fill(Constants.Colors.HUNTER_GREEN) 
 
             # create initial unit
-            unit = Utility.create_unit(self, Names.generate_name(self), self.player.selected_race.hero_character)
+            if hero_unit_created:
+                # draw units on field
+                for army_unit in self.player.army:
+                    Utility.create_unit(self, army_unit, army_unit)
+            else:
+                Utility.create_unit(self, self.player.selected_race.hero_character)
+                hero_unit_created = True
 
             # create random obstacles
             for water_tile in water_rects:
@@ -250,15 +257,15 @@ class rts:
             # mouse position
             pos = pygame.mouse.get_pos()
     
-            #  side panel
+            #  refresh side panel
             unit_button_list = Utility.create_side_panel(self)
 
-            # check for highlighting unit buttons
+            # check for highlighted unit buttons
             for unit_button in unit_button_list:
                 if unit_button.Rect.collidepoint(pos):
                     Utility.unit_button_highlighted(self, unit_button)    
 
-            # add pointer
+            # add mouse pointer
             self.surface.blit(self.mouse_pointer, pos)
 
             # create border last to cover anything up
@@ -276,9 +283,12 @@ class rts:
             elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
                 pass
 
-            # scan for selected units
+            # scan for selected units on each redraw
             for selected_unit in self.selected_units:
                 self, Utility.select_unit(self, selected_unit)
+                # if we have a unit selected, show it in the bottom window
+                if len(self.selected_units) > 0:
+                    Utility.create_bottom_panel(self)
             
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
@@ -287,9 +297,14 @@ class rts:
 
                 # scan unit for select      
                 for unit in self.player.army:
-                    if unit.Rect.collidepoint(pos):
-                        self, Utility.select_unit(self, unit)
+                    if unit.Rect_Settings.Rect.collidepoint(pos):
                         self.selected_units = Utility.update_selected_units_list(self, unit)
+                        self, Utility.select_unit(self, unit)
+
+                        # if we have a unit selected, show it in the bottom window
+                        if len(self.selected_units) > 0:
+                            Utility.create_bottom_panel(self)
+
             elif mouse[1] == True:
                 pass
                 # print(f"middle mouse: {pos}")

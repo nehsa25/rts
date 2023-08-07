@@ -3,11 +3,20 @@
 # constants
 class Constants:
     GAME_NAME = "Unhinged"
+    PANEL_BUTTON_SPACING = 50
 
     # main game side panel
     SP_WIDTH = 100   
     SP_BUTTON_TEXT_SIZE = 12 
+
+    # main game bottom panel
+    BP_HEIGHT = 300
+    BP_BUTTON_TEXT_SIZE = 12 
     
+
+    # main game window    
+    RECT_SIZE = 25
+    RECT_BORDER_SIZE = 2
     MOUSE_POINTER_SIZE = 5    
     SCREEN_WIDTH = 1024
     SCREEN_HEIGHT = 800   
@@ -15,10 +24,13 @@ class Constants:
     BORDER_SIZE = 5
     MENU_FIRST_BUTTON = 260
     MENU_SPACING = 40
+    UNIT_SPAWN_X = SP_WIDTH + RECT_BORDER_SIZE + PANEL_BUTTON_SPACING
+    UNIT_SPAWN_Y = 10
 
     # title screen
     TITLE_SCREEN_FONT = 48
 
+    # our colors
     class Colors:
 
         # rgb
