@@ -23,16 +23,16 @@ class rts:
 
     # screen border
     border_rects = []
-    top_border_rect = pygame.Rect(0, 0, Constants.SCREEN_WIDTH, Constants.BORDER_SIZE)
+    top_border_rect = pygame.Rect(0, 0, Constants.SCREEN_WIDTH, Constants.GAME_MAIN_BORDER_SIZE)
     border_rects.append(top_border_rect)
 
-    bottom_border_rect = pygame.Rect(0, Constants.SCREEN_HEIGHT-Constants.BORDER_SIZE, Constants.SCREEN_WIDTH, Constants.BORDER_SIZE)
+    bottom_border_rect = pygame.Rect(0, Constants.SCREEN_HEIGHT-Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_WIDTH, Constants.GAME_MAIN_BORDER_SIZE)
     border_rects.append(bottom_border_rect)
 
-    left_border_rect = pygame.Rect(0, 0, Constants.BORDER_SIZE, Constants.SCREEN_WIDTH)
+    left_border_rect = pygame.Rect(0, 0, Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_WIDTH)
     border_rects.append(left_border_rect)
 
-    right_border_rect = pygame.Rect(Constants.SCREEN_WIDTH - Constants.BORDER_SIZE, 0, Constants.BORDER_SIZE, Constants.SCREEN_HEIGHT)
+    right_border_rect = pygame.Rect(Constants.SCREEN_WIDTH - Constants.GAME_MAIN_BORDER_SIZE, 0, Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_HEIGHT)
     border_rects.append(right_border_rect)
 
     # units on the screen that have been clicked on
@@ -273,10 +273,6 @@ class rts:
             # add mouse pointer
             self.surface.blit(self.mouse_pointer, pos)
 
-            # create border last to cover anything up
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.surface, Constants.Colors.SALMON, screen_border)
-
             # continuous key movement (fast)
             key = pygame.key.get_pressed()            
             if key[pygame.K_a] or key[pygame.K_LEFT] == True:
@@ -303,7 +299,7 @@ class rts:
                 # scan unit for select      
                 for unit in self.player.army:
                     if unit.Rect_Settings.Rect.collidepoint(pos):
-                        
+
                         self.selected_units = Utility.update_selected_units_list(self, unit)
                         # if we have a unit selected, show it in the bottom window
                         if len(self.selected_units) > 0:
@@ -316,6 +312,10 @@ class rts:
             elif mouse[2] == True:
                 pass
                 # print(f"right mouse: {pos}")
+
+            # create border last to cover anything up
+            for screen_border in self.border_rects:
+                pygame.draw.rect(self.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
 
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
             for event in pygame.event.get():

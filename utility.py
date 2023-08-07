@@ -1,6 +1,7 @@
 import random
 from uuid import uuid4
 import pygame
+from enum import Enum
 
 # our stuff
 from constants import Constants
@@ -8,6 +9,15 @@ from names import Names
 from unit import Unit
 
 class Utility:
+
+    # indicates what borders to created, used by create_rect function
+    class BorderSides(Enum):
+        ALL = 0
+        LEFT = 1
+        TOP = 2
+        RIGHT = 3
+        BOTTOM = 4
+
     class RectSettings:        
         x = 0
         y = 0
@@ -21,7 +31,8 @@ class Utility:
         Font_Size = Constants.FONT_SIZE
         BG_Color = Constants.Colors.GREEN
         Font_Color = Constants.Colors.BLACK
-        BorderColor = None     
+        BorderColor = None   
+        BorderSides = None  
         id = None   
         def __init__(self):
             id = uuid4()
@@ -60,32 +71,38 @@ class Utility:
         pygame.draw.rect(self.surface, rect_settings.BG_Color, rect_settings.Rect) # this is what actually causes the rect to show up on screen
 
         if rect_settings.BorderColor is not None:
+            if rect_settings.BorderSides is None:
+                rect_settings.BorderSides = [Utility.BorderSides.ALL]
             if rect_settings.BorderColor is not Constants.Colors.RANDOM:
                 left_border_color = rect_settings.BorderColor
                 bottom_border_color = rect_settings.BorderColor
                 right_border_color = rect_settings.BorderColor
                 top_border_color = rect_settings.BorderColor
-            else:
-                left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-                bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-                right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
+            else:                
+                left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
+                bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
+                right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
                 top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
 
             # left
-            left_border_rect = pygame.Rect((rect_settings.Rect.x-Constants.RECT_BORDER_SIZE, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
-            pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
+            if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.LEFT in rect_settings.BorderSides:
+                left_border_rect = pygame.Rect((rect_settings.Rect.x-Constants.RECT_BORDER_SIZE, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
+                pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
 
-            # bottom        
-            bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
-            pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
+            # bottom   
+            if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.BOTTOM in rect_settings.BorderSides:     
+                bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
+                pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
 
-            # right        
-            right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
-            pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
+            # right  
+            if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.RIGHT in rect_settings.BorderSides:      
+                right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
+                pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
 
-            # top        
-            top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Constants.RECT_BORDER_SIZE, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
-            pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
+            # top
+            if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.TOP in rect_settings.BorderSides:        
+                top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Constants.RECT_BORDER_SIZE, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
+                pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
 
         return rect_settings
 
@@ -109,11 +126,14 @@ class Utility:
 
         return newlist
 
+    # create sides panel with army troop buttons
     def create_side_panel(self):
         rect_settings = Utility.RectSettings()
         rect_settings.BG_Color = Constants.Colors.POOP_BROWN
         rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
         rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, self.surface.get_height())
+        rect_settings.BorderColor = Constants.Colors.GAME_BORDER
+        rect_settings.BorderSides = [Utility.BorderSides.RIGHT]
         Utility.create_rect(self, rect_settings, ignore_side_panel=True)
 
         # button for each guy
@@ -145,11 +165,14 @@ class Utility:
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self):
         rect_settings = Utility.RectSettings()
-        rect_settings.BG_Color = Constants.Colors.POOP_BROWN
+        rect_settings.BG_Color = Constants.Colors.COCOA
+        rect_settings.BorderColor = Constants.Colors.GAME_BORDER
+        rect_settings.BorderSides = [Utility.BorderSides.TOP, Utility.BorderSides.LEFT]
         rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
-        rect_settings.x = Constants.SP_WIDTH # start at end of SP panel
+        nudge = 2
+        rect_settings.x = Constants.SP_WIDTH  + nudge # start at end of SP panel
         rect_settings.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
-        rect_settings.width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH
+        rect_settings.width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH - nudge
         rect_settings.height = self.surface.get_height()
         rect_settings.HintName = "bottom panel main"
         Utility.create_rect(self, rect_settings, ignore_side_panel=True)
