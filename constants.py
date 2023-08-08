@@ -1,19 +1,24 @@
 
 
 # constants
+import pygame
+
+
 class Constants:
     GAME_NAME = "Unhinged"
     PANEL_BUTTON_SPACING = 50    
+    BORDER_SIZE = 5
+    DEFAULT_FONT = "arialblack"
 
     # main game side panel
     SP_WIDTH = 100   
     SP_BUTTON_TEXT_SIZE = 12 
-    SP_BORDER_SIZE = 5
+    SP_BORDER_SIZE = BORDER_SIZE
 
     # main game bottom panel
     BP_HEIGHT = 100
     BP_BUTTON_TEXT_SIZE = 12 
-    
+    BP_BORDER_SIZE = BORDER_SIZE
 
     # main game window    
     RECT_SIZE = 25
@@ -22,7 +27,7 @@ class Constants:
     SCREEN_WIDTH = 1024
     SCREEN_HEIGHT = 800   
     FONT_SIZE = 20
-    BORDER_SIZE = 5
+    
     MENU_FIRST_BUTTON = 260
     MENU_SPACING = 40
     UNIT_SPAWN_X = SP_WIDTH + RECT_BORDER_SIZE + PANEL_BUTTON_SPACING
@@ -30,7 +35,8 @@ class Constants:
     GAME_MAIN_BORDER_SIZE = 5
 
     # title screen
-    TITLE_SCREEN_FONT = 48
+    TITLE_SCREEN_FONT_SIZE = 60
+    TITLE_FONT = "showcardgothic" #rage is cool
 
     # our colors
     class Colors:

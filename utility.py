@@ -1,9 +1,10 @@
 import random
+from time import sleep
 from uuid import uuid4
 import pygame
 from enum import Enum
-from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from pathfinding.core.grid import Grid
 
 # our stuff
 from constants import Constants
@@ -39,13 +40,15 @@ class Utility:
         def __init__(self):
             id = uuid4()
 
-    def draw_center_text(self, text, text_color, y, font = None, font_size = None):
+    def draw_center_text(self, text, text_color, y, font_name = None, font_size = None):
         default_font_size = Constants.FONT_SIZE
         if font_size is None:
             font_size = default_font_size            
 
-        if font is None:
+        if font_name is None:
             font = pygame.font.SysFont("arialblack", font_size)
+        else:
+            font =pygame.font.SysFont(font_name, font_size)
 
         text = font.render(text, True, text_color)
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
@@ -108,37 +111,76 @@ class Utility:
 
         return rect_settings
 
-    def draw_grid(self):
-        blockSize = Unit.UNIT_SIZE
+    # def draw_grid(self):
+    #     blockSize = 1
 
-        sp_total_width = Constants.SP_BORDER_SIZE + Constants.SP_WIDTH
-        remaining_x_total_width = Constants.SCREEN_WIDTH
+    #     sp_total_width = Constants.SP_BORDER_SIZE + Constants.SP_WIDTH
+    #     remaining_x_total_width = Constants.SCREEN_WIDTH - sp_total_width
+    #     total_height = Constants.SCREEN_HEIGHT - (Constants.SP_BORDER_SIZE * 2) - Constants.BP_HEIGHT
 
-        for x in range(sp_total_width, remaining_x_total_width, blockSize):
-            total_height = Constants.SCREEN_HEIGHT - (Constants.SP_BORDER_SIZE * 2) - Constants.BP_HEIGHT
-            for y in range(Constants.SP_BORDER_SIZE, total_height, blockSize):
-                rect = pygame.Rect(x, y, blockSize, blockSize)
-                pygame.draw.rect(self.surface, Constants.Colors.NEON_GREEN, rect, 1)
+    #     for x in range(remaining_x_total_width):
+    #         x = x + sp_total_width
+    #         for y in range(total_height):
+    #             print(f"drawing: {x}, {y}")
+    #             rect = pygame.Rect(x, y, blockSize, blockSize)
+    #             pygame.draw.rect(self.surface, Constants.Colors.NEON_GREEN, rect, 1)
+
+    def get_grid(self, obstacles):
+        UNIT_CAN_MOVE = 1
+        UNIT_CANNOT_MOVE = 0
+        total_width = Constants.SCREEN_WIDTH
+        total_height = Constants.SCREEN_HEIGHT
+        matrix = []
+        x_line = []
+        
+        num_Xs = total_width
+        num_Ys = total_height
+
+        y = 0
+        for x in range(num_Xs):
+            if x in range(0, Constants.SP_WIDTH + Constants.SP_BORDER_SIZE):
+                x_line.append(UNIT_CANNOT_MOVE)
+            else:
+                rect = pygame.Rect(x, y, 1, 1) 
+                collide = rect.collidelist(obstacles)
+                if collide == -1:
+                    x_line.append(UNIT_CAN_MOVE)
+                else:
+                    x_line.append(UNIT_CANNOT_MOVE)
+
+        for y in range(num_Ys):
+            matrix.append(x_line)
+
+        return Grid(matrix = matrix)
 
     # uses speed of unit
-    def move_unit_over_time(self, units, new_x, new_y):
-        Utility.draw_grid(self)
-        # matrix = self.
-        # grid = Grid(matrix = self.surface)
+    def move_unit_over_time(self, unit, end_x, end_y):
+        default_speed = 1
+        speed = default_speed - (unit.Type.speed * .1)        
+        start_x_grid = int(unit.Rect_Settings.x)
+        start_y_grid = int(unit.Rect_Settings.y)
+        end_x_grid = int(end_x)
+        end_y_grid = int(end_y)
 
-        # for unit in units:
-        #     print(unit.Name)
-        #     start = grid.node(unit.Rect_Settings.Rect.x, unit.Rect_Settings.Rect.y)
-        #     end = grid.node(new_x, new_y)
-        #     finder = AStarFinder()
-        #     paths, runs = finder.find_path(start, end, grid)
-        #     print(paths)
-        #     print(runs)
+        print(f"Moving {unit.Name} at {speed} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid})")
+
+        start = self.grid.node(start_x_grid, start_y_grid)
+        end = self.grid.node(end_x_grid, end_y_grid)
+        finder = AStarFinder()
+        paths, runs = finder.find_path(start, end, self.grid)
+        print(paths)
+        for path in paths:
+            print(f"Sleeping: {speed} seconds before moving {unit.Name} again")
+            sleep(speed)
+            Utility.move_unit(self, unit, path[0], path[1])
+        print(f"number runs path will take: {runs}")
 
     # moves rect x,y cords
-    def move_unit(self, rect, x, y, main_color):
-        rect.move_ip(x, y)
-        Utility.create_rect(self, rect, main_color, main_color)        
+    def move_unit(self, unit, x, y):
+        unit.Rect_Settings.x = x
+        unit.Rect_Settings.y = y
+        unit.Rect_Settings.Rect = None
+        Utility.create_rect(self, unit.Rect_Settings)        
 
     def update_selected_units_list(self, unit):
         newlist = self.selected_units

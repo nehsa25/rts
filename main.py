@@ -1,8 +1,7 @@
 # import the pygame module, so you can use it
 import random
-import pygame, sys
-import json
-from names import Names
+from threading import Thread
+import pygame
 
 # our stuff
 from utility import Utility
@@ -55,6 +54,8 @@ class rts:
 
     # game data
     player = Player()
+    matrix = None
+    grid = None
 
     def title_loop(self):
         first_open_running = True 
@@ -76,7 +77,8 @@ class rts:
                 f"{Constants.GAME_NAME} RTS", 
                 Constants.Colors.GAME_TEXT_COLOR, 
                 Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE, 
-                font_size=Constants.TITLE_SCREEN_FONT
+                font_name = Constants.TITLE_FONT, 
+                font_size = Constants.TITLE_SCREEN_FONT_SIZE
             )        
 
             Utility.draw_center_text(
@@ -239,6 +241,11 @@ class rts:
             fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             fire_rects.append(fire_rect)
 
+        obstacles = []
+        obstacles.extend(water_rects)
+        obstacles.extend(fire_rects)
+        self.grid = Utility.get_grid(self, obstacles)
+
         # be hit 60 times every seconds
         hero_unit_created = False
         while main_game_running:
@@ -277,18 +284,18 @@ class rts:
  
 
             # mouse position
-            pos = pygame.mouse.get_pos()
+            mouse_pos = pygame.mouse.get_pos()
     
             #  refresh side panel
             unit_button_list = Utility.create_side_panel(self)
 
             # check for highlighted unit buttons
             for unit_button in unit_button_list:
-                if unit_button.Rect.collidepoint(pos):
+                if unit_button.Rect.collidepoint(mouse_pos):
                     Utility.unit_button_highlighted(self, unit_button)    
 
             # add mouse pointer
-            self.surface.blit(self.mouse_pointer, pos)
+            self.surface.blit(self.mouse_pointer, mouse_pos)
 
             # continuous key movement (fast)
             key = pygame.key.get_pressed()            
@@ -316,7 +323,7 @@ class rts:
                 # scan unit for select      
                 selected_new_unit = False
                 for unit in self.player.army:
-                    if unit.Rect_Settings.Rect.collidepoint(pos):                        
+                    if unit.Rect_Settings.Rect.collidepoint(mouse_pos):                        
                         self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
                         self.selected_units.append(unit)
                         selected_new_unit = True
@@ -329,8 +336,11 @@ class rts:
                 # if we selected something new cool, if not, then the order it to move..
                 if not selected_new_unit and len(self.selected_units) > 0:
                     print(f"You wish to move these units {len(self.selected_units)} units")
-                    Utility.move_unit_over_time(self, self.selected_units, pos[0], pos[1])
-
+                    for army_unit in self.selected_units:
+                        if army_unit.Can_Move:
+                            army_unit.Can_Move = False
+                            x = Thread(target=Utility.move_unit_over_time, args=(self, army_unit, mouse_pos[0], mouse_pos[1]))
+                            x.start()
             elif mouse[1] == True:
                 pass
                 # print(f"middle mouse: {pos}")

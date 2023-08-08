@@ -73,4 +73,5 @@ class Unit:
     Name = None
     Type = None
     Rect_Settings = None
+    Can_Move = True
 
