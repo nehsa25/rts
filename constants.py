@@ -8,7 +8,7 @@ class Constants:
     GAME_NAME = "Unhinged"
     PANEL_BUTTON_SPACING = 50    
     BORDER_SIZE = 5
-    DEFAULT_FONT = "arialblack"
+    DEFAULT_FONT = "rage"
 
     # main game side panel
     SP_WIDTH = 100   

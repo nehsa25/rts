@@ -30,7 +30,7 @@ class Utility:
         Rect = None
         Text = None
         Rect = None
-        Font = "arialblack"
+        Font = Constants.DEFAULT_FONT
         Font_Size = Constants.FONT_SIZE
         BG_Color = Constants.Colors.GREEN
         Font_Color = Constants.Colors.BLACK
@@ -46,7 +46,7 @@ class Utility:
             font_size = default_font_size            
 
         if font_name is None:
-            font = pygame.font.SysFont("arialblack", font_size)
+            font = pygame.font.SysFont(Constants.DEFAULT_FONT, font_size)            
         else:
             font =pygame.font.SysFont(font_name, font_size)
 

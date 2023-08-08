@@ -48,7 +48,7 @@ class rts:
     logo = pygame.image.load("logo.png")
     pygame.display.set_icon(logo)
     pygame.display.set_caption(Constants.GAME_NAME)    
-    font = pygame.font.SysFont("arialblack", Constants.FONT_SIZE)
+    font = pygame.font.SysFont(Constants.DEFAULT_FONT, Constants.FONT_SIZE)
     surface = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
     running = True # kill everything
 
