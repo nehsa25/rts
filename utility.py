@@ -111,21 +111,29 @@ class Utility:
 
         return rect_settings
 
-    # def draw_grid(self):
-    #     blockSize = 1
+    def show_grid(self):
+        blockSize = Unit.UNIT_SIZE
 
-    #     sp_total_width = Constants.SP_BORDER_SIZE + Constants.SP_WIDTH
-    #     remaining_x_total_width = Constants.SCREEN_WIDTH - sp_total_width
-    #     total_height = Constants.SCREEN_HEIGHT - (Constants.SP_BORDER_SIZE * 2) - Constants.BP_HEIGHT
+        total_width = Constants.SCREEN_WIDTH
+        total_height = Constants.SCREEN_HEIGHT
 
-    #     for x in range(remaining_x_total_width):
-    #         x = x + sp_total_width
-    #         for y in range(total_height):
-    #             print(f"drawing: {x}, {y}")
-    #             rect = pygame.Rect(x, y, blockSize, blockSize)
-    #             pygame.draw.rect(self.surface, Constants.Colors.NEON_GREEN, rect, 1)
+        for x in range(0, total_width, blockSize): 
+            for y in range(0, total_height, blockSize):
+                print(f"drawing point: {x}, {y}") # (0, 0), (0, 15)
+                rect = pygame.Rect(x, y, blockSize-1, blockSize-1)
+                pygame.draw.rect(self.surface, Constants.Colors.BLACK, rect, blockSize)
+        pass
 
     def get_grid(self, obstacles):
+        # x's across, y's down
+        # matrix = [
+        #     [1,1,0,1], 
+        #     [1,0,0,1],
+        #     [1,1,0,1],
+        #     [1,1,1,1]
+        # ]
+
+
         UNIT_CAN_MOVE = 1
         UNIT_CANNOT_MOVE = 0
         total_width = Constants.SCREEN_WIDTH
@@ -155,7 +163,7 @@ class Utility:
 
     # uses speed of unit
     def move_unit_over_time(self, unit, end_x, end_y):
-        default_speed = 1
+        default_speed = .35
         speed = default_speed - (unit.Type.speed * .1)        
         start_x_grid = int(unit.Rect_Settings.x)
         start_y_grid = int(unit.Rect_Settings.y)

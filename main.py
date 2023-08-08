@@ -342,8 +342,7 @@ class rts:
                             x = Thread(target=Utility.move_unit_over_time, args=(self, army_unit, mouse_pos[0], mouse_pos[1]))
                             x.start()
             elif mouse[1] == True:
-                pass
-                # print(f"middle mouse: {pos}")
+                Utility.show_grid(self)
             elif mouse[2] == True:
                 pass
                 # print(f"right mouse: {pos}")
