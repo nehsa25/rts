@@ -111,64 +111,84 @@ class Utility:
 
         return rect_settings
 
+    # returns all obstablces in a single list of dictionaries
+    def create_terrain(self):
+        # create water tiles
+        water_rects = []
+        for _ in range(Constants.NUM_WATER_TILES):
+            water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            water_rects.append(water_rect)
+
+        # create fire tiles
+        fire_rects = []
+        for _ in range(Constants.NUM_FIRE_TILES):
+            fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            fire_rects.append(fire_rect)
+
+        # create fire tiles
+        mountain_rects = []
+        for _ in range(Constants.NUM_MOUNTAIN_TILES):
+            mountain_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            mountain_rects.append(mountain_rect)
+
+        obstacles = []
+        obstacles.extend([dict(name="water", rects = water_rects, is_traversable = False)])
+        obstacles.extend([dict(name="fire", rects = fire_rects, is_traversable = True)])
+        obstacles.extend([dict(name="mountain", rects = mountain_rects, is_traversable = False)])
+
+        return obstacles
+
+    def draw_enviornment(self, obstacles):
+            for obstacle in obstacles:                 
+                if obstacle["name"].lower() == "water": # create random "water" obstacles           
+                    for water_tile in obstacle["rects"]:
+                        pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
+                elif obstacle["name"].lower() == "fire": # create random "fire" obstacles 
+                    for fire_tile in obstacle["rects"]:
+                        pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
+                elif obstacle["name"].lower() == "mountain": # create random "mountain" obstacles
+                    for mountain_tile in obstacle["rects"]:
+                        pygame.draw.rect(self.surface, Constants.Colors.GRAY_DARK, mountain_tile)
+
     def show_grid(self):
-        blockSize = Unit.UNIT_SIZE
-
-        total_width = Constants.SCREEN_WIDTH
-        total_height = Constants.SCREEN_HEIGHT
-
-        for x in range(0, total_width, blockSize): 
-            for y in range(0, total_height, blockSize):
+        for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE): 
+            for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
                 print(f"drawing point: {x}, {y}") # (0, 0), (0, 15)
-                rect = pygame.Rect(x, y, blockSize-1, blockSize-1)
-                pygame.draw.rect(self.surface, Constants.Colors.BLACK, rect, blockSize)
-        pass
+                rect = pygame.Rect(x, y, Unit.UNIT_SIZE-1, Unit.UNIT_SIZE-1)
+                pygame.draw.rect(self.surface, Constants.Colors.BLACK, rect, Unit.UNIT_SIZE)
 
-    def get_grid(self, obstacles):
-        # x's across, y's down
-        # matrix = [
-        #     [1,1,0,1], 
-        #     [1,0,0,1],
-        #     [1,1,0,1],
-        #     [1,1,1,1]
-        # ]
-
-
+    def get_grid(self, obstacle_types):
         UNIT_CAN_MOVE = 1
         UNIT_CANNOT_MOVE = 0
-        total_width = Constants.SCREEN_WIDTH
-        total_height = Constants.SCREEN_HEIGHT
+        print(f"Generating grid based on {Constants.SCREEN_WIDTH}x{Constants.SCREEN_HEIGHT}")
         matrix = []
         x_line = []
-        
-        num_Xs = total_width
-        num_Ys = total_height
 
-        y = 0
-        for x in range(num_Xs):
-            if x in range(0, Constants.SP_WIDTH + Constants.SP_BORDER_SIZE):
-                x_line.append(UNIT_CANNOT_MOVE)
-            else:
-                rect = pygame.Rect(x, y, 1, 1) 
-                collide = rect.collidelist(obstacles)
-                if collide == -1:
-                    x_line.append(UNIT_CAN_MOVE)
-                else:
-                    x_line.append(UNIT_CANNOT_MOVE)
-
-        for y in range(num_Ys):
+        for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
+            for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE):
+                print(f"Point: {x}x{y}")
+                for obstacle_type in obstacle_types:
+                    rect = pygame.Rect(x, y, 1, 1)
+                    collide = rect.collidelist(obstacle_type["rects"])
+                    if collide == -1:
+                        x_line.append(UNIT_CAN_MOVE)
+                    else:
+                        x_line.append(UNIT_CANNOT_MOVE)     
             matrix.append(x_line)
+        print("Generating pathfinding grid...")
+        grid =  Grid(matrix = matrix)
+        print("Done...")
+        return grid
 
-        return Grid(matrix = matrix)
 
     # uses speed of unit
     def move_unit_over_time(self, unit, end_x, end_y):
         default_speed = .35
         speed = default_speed - (unit.Type.speed * .1)        
-        start_x_grid = int(unit.Rect_Settings.x)
-        start_y_grid = int(unit.Rect_Settings.y)
-        end_x_grid = int(end_x)
-        end_y_grid = int(end_y)
+        start_x_grid = int(unit.Rect_Settings.x  / Unit.UNIT_SIZE)
+        start_y_grid = int(unit.Rect_Settings.y  / Unit.UNIT_SIZE)
+        end_x_grid = int(end_x / Unit.UNIT_SIZE)
+        end_y_grid = int(end_y / Unit.UNIT_SIZE)
 
         print(f"Moving {unit.Name} at {speed} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid})")
 
@@ -176,12 +196,12 @@ class Utility:
         end = self.grid.node(end_x_grid, end_y_grid)
         finder = AStarFinder()
         paths, runs = finder.find_path(start, end, self.grid)
+        print(f"number \"runs\" path will take: {runs}")
         print(paths)
         for path in paths:
             print(f"Sleeping: {speed} seconds before moving {unit.Name} again")
             sleep(speed)
-            Utility.move_unit(self, unit, path[0], path[1])
-        print(f"number runs path will take: {runs}")
+            Utility.move_unit(self, unit, path[0] * Unit.UNIT_SIZE, path[1] * Unit.UNIT_SIZE)
 
     # moves rect x,y cords
     def move_unit(self, unit, x, y):
@@ -207,7 +227,7 @@ class Utility:
         return newlist
 
     # create sides panel with army troop buttons
-    def create_side_panel(self):
+    def draw_side_panel(self, mouse_pos):
         rect_settings = Utility.RectSettings()
         rect_settings.BG_Color = Constants.Colors.POOP_BROWN
         rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
@@ -240,7 +260,9 @@ class Utility:
             unit_button_list.append(rect_settings)
             i = i + 1
             
-        return unit_button_list
+        for unit_button in unit_button_list:
+            if unit_button.Rect.collidepoint(mouse_pos):
+                Utility.unit_button_highlighted(self, unit_button)    
 
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self):

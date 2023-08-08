@@ -10,6 +10,11 @@ class Constants:
     BORDER_SIZE = 5
     DEFAULT_FONT = "rage"
 
+    # Environment
+    NUM_WATER_TILES = 600
+    NUM_FIRE_TILES = 100
+    NUM_MOUNTAIN_TILES = 250
+
     # main game side panel
     SP_WIDTH = 100   
     SP_BUTTON_TEXT_SIZE = 12 
@@ -24,8 +29,8 @@ class Constants:
     RECT_SIZE = 25
     RECT_BORDER_SIZE = 2
     MOUSE_POINTER_SIZE = 5    
-    SCREEN_WIDTH = 1920
-    SCREEN_HEIGHT = 1024   
+    SCREEN_WIDTH = 1024
+    SCREEN_HEIGHT = 768   
     FONT_SIZE = 20
     
     MENU_FIRST_BUTTON = 260
@@ -77,6 +82,10 @@ class Constants:
         # yellows
         ROYAL_GOLD = (255, 188, 0)
         YELLOW = (98, 67, 41) 
+
+        # grays
+        GRAY_IRON_MOUNTAIN = (87, 85, 83)
+        GRAY_DARK = (64, 64, 64)
 
         # main colors
         GAME_MAIN_COLOR = DARK_PURPLE

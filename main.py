@@ -1,5 +1,5 @@
 # import the pygame module, so you can use it
-import random
+import time
 from threading import Thread
 import pygame
 
@@ -223,37 +223,36 @@ class rts:
             pygame.display.flip()
 
     def main_game_loop(self):        
+        game_init_start = time.perf_counter()
         main_game_running = True 
         pygame.display.set_caption(self.main_caption)
 
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
 
-        # create water tiles
-        water_rects = []
-        for _ in range(260):
-            water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            water_rects.append(water_rect)
+        obstacles = Utility.create_terrain(self)
 
-        # create fire tiles
-        fire_rects = []
-        for _ in range(30):
-            fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            fire_rects.append(fire_rect)
-
-        obstacles = []
-        obstacles.extend(water_rects)
-        obstacles.extend(fire_rects)
         self.grid = Utility.get_grid(self, obstacles)
 
         # be hit 60 times every seconds
         hero_unit_created = False
+        game_init_end = time.perf_counter()
+        print(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
         while main_game_running:
+            game_start = time.perf_counter()
+
             # slow things down
+            print(f"Setting clock to 60 FPS")
             clock.tick(60)
 
             # blank out screen so we can redraw it
             self.surface.fill(Constants.Colors.HUNTER_GREEN) 
+
+            # mouse position
+            mouse_pos = pygame.mouse.get_pos()
+
+            # create terrain environment
+            Utility.draw_enviornment(self, obstacles)
 
             # create initial unit
             if hero_unit_created:
@@ -264,35 +263,10 @@ class rts:
                 Utility.create_unit(self, self.player.selected_race.hero_character)
                 hero_unit_created = True
 
-            # create random "water" obstacles
-            for water_tile in water_rects:
-                found_collide = False
-                for army_unit in self.player.army:
-                    if water_tile.colliderect(army_unit.Rect_Settings.Rect):
-                        found_collide = True
-                if not found_collide:
-                    pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
-
-            # create random "fire" obstacles
-            for fire_tile in fire_rects:
-                found_collide = False
-                for army_unit in self.player.army:
-                    if fire_tile.colliderect(army_unit.Rect_Settings.Rect):
-                        print("YOU BURNT!")
-                if not found_collide:
-                    pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
- 
-
-            # mouse position
-            mouse_pos = pygame.mouse.get_pos()
-    
-            #  refresh side panel
-            unit_button_list = Utility.create_side_panel(self)
-
-            # check for highlighted unit buttons
-            for unit_button in unit_button_list:
-                if unit_button.Rect.collidepoint(mouse_pos):
-                    Utility.unit_button_highlighted(self, unit_button)    
+            # # check for fire damage
+            # for army_unit in self.player.army:
+            #     if obstacles.colliderect(army_unit.Rect_Settings.Rect):
+            #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
             # add mouse pointer
             self.surface.blit(self.mouse_pointer, mouse_pos)
@@ -335,17 +309,18 @@ class rts:
 
                 # if we selected something new cool, if not, then the order it to move..
                 if not selected_new_unit and len(self.selected_units) > 0:
-                    print(f"You wish to move these units {len(self.selected_units)} units")
                     for army_unit in self.selected_units:
-                        if army_unit.Can_Move:
-                            army_unit.Can_Move = False
-                            x = Thread(target=Utility.move_unit_over_time, args=(self, army_unit, mouse_pos[0], mouse_pos[1]))
-                            x.start()
+                        if army_unit.Moving_Thread is not None:
+                            army_unit.Moving_Thread = Thread(target=Utility.move_unit_over_time, args=(self, army_unit, mouse_pos[0], mouse_pos[1]))
+                            army_unit.Moving_Thread.start()
             elif mouse[1] == True:
                 Utility.show_grid(self)
             elif mouse[2] == True:
                 pass
                 # print(f"right mouse: {pos}")
+
+            #  refresh side panel / highlight a unit that's hovered over
+            Utility.draw_side_panel(self, mouse_pos)
 
             # create border last to cover anything up
             for screen_border in self.border_rects:
@@ -368,6 +343,8 @@ class rts:
                     self.running = False
 
             # print("Main game loop...")
+            game_end = time.perf_counter()
+            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):     
@@ -384,5 +361,8 @@ class rts:
 # run the main function only if this module is executed as the main script
 # (if you import this as a module then nothing is executed)
 if __name__=="__main__":
-    # call the main function
+    main_start = time.perf_counter()
     rts().main()
+    main_end = time.perf_counter()
+    print(f"Finished in {round(main_end - main_start, 2)} second(s)")
+
