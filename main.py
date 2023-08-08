@@ -1,6 +1,7 @@
 # import the pygame module, so you can use it
 import time
-from threading import Thread
+#from threading import Thread
+import concurrent.futures
 import pygame
 
 # our stuff
@@ -238,114 +239,123 @@ class rts:
         hero_unit_created = False
         game_init_end = time.perf_counter()
         print(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
+
+        unit_moving_threads = []
         while main_game_running:
-            game_start = time.perf_counter()
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                game_start = time.perf_counter()
 
-            # slow things down
-            print(f"Setting clock to 60 FPS")
-            clock.tick(60)
+                # slow things down
+                # print(f"Setting clock to 60 FPS")
+                clock.tick(60)
 
-            # blank out screen so we can redraw it
-            self.surface.fill(Constants.Colors.HUNTER_GREEN) 
+                # blank out screen so we can redraw it
+                self.surface.fill(Constants.Colors.HUNTER_GREEN) 
 
-            # mouse position
-            mouse_pos = pygame.mouse.get_pos()
+                # mouse position
+                mouse_pos = pygame.mouse.get_pos()
 
-            # create terrain environment
-            Utility.draw_enviornment(self, obstacles)
+                # create terrain environment
+                Utility.draw_enviornment(self, obstacles)
 
-            # create initial unit
-            if hero_unit_created:
-                # draw units on field
-                for army_unit in self.player.army:
-                    Utility.create_unit(self, army_unit, army_unit)
-            else:
-                Utility.create_unit(self, self.player.selected_race.hero_character)
-                hero_unit_created = True
+                # create initial unit
+                if hero_unit_created:
+                    # draw units on field
+                    for army_unit in self.player.army:
+                        Utility.create_unit(self, army_unit, army_unit)
+                else:
+                    Utility.create_unit(self, self.player.selected_race.hero_character)
+                    hero_unit_created = True
 
-            # # check for fire damage
-            # for army_unit in self.player.army:
-            #     if obstacles.colliderect(army_unit.Rect_Settings.Rect):
-            #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
+                # # check for fire damage
+                # for army_unit in self.player.army:
+                #     if obstacles.colliderect(army_unit.Rect_Settings.Rect):
+                #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
-            # add mouse pointer
-            self.surface.blit(self.mouse_pointer, mouse_pos)
+                # add mouse pointer
+                self.surface.blit(self.mouse_pointer, mouse_pos)
 
-            # continuous key movement (fast)
-            key = pygame.key.get_pressed()            
-            if key[pygame.K_a] or key[pygame.K_LEFT] == True:
-                pass
-            elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
-                pass
-            elif key[pygame.K_w] or key[pygame.K_UP] == True:
-                pass
-            elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
-                pass
+                # continuous key movement (fast)
+                key = pygame.key.get_pressed()            
+                if key[pygame.K_a] or key[pygame.K_LEFT] == True:
+                    pass
+                elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
+                    pass
+                elif key[pygame.K_w] or key[pygame.K_UP] == True:
+                    pass
+                elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
+                    pass
 
-            # scan for selected units on each redraw
-            for selected_unit in self.selected_units:
-                self, Utility.select_unit(self, selected_unit)
-                # if we have a unit selected, show it in the bottom window
-                if len(self.selected_units) > 0:
-                    Utility.create_bottom_panel(self)
-            
-            # continuous mouse movement (fast)
-            mouse = pygame.mouse.get_pressed()            
-            if mouse[0] == True:
-                # print(f"left mouse: {pos}")
+                # scan for selected units on each redraw
+                for selected_unit in self.selected_units:
+                    self, Utility.select_unit(self, selected_unit)
+                    # if we have a unit selected, show it in the bottom window
+                    if len(self.selected_units) > 0:
+                        Utility.create_bottom_panel(self)
+                
+                # continuous mouse movement (fast)
+                mouse = pygame.mouse.get_pressed()            
+                if mouse[0] == True:
+                    # print(f"left mouse: {pos}")
 
-                # scan unit for select      
-                selected_new_unit = False
-                for unit in self.player.army:
-                    if unit.Rect_Settings.Rect.collidepoint(mouse_pos):                        
-                        self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
-                        self.selected_units.append(unit)
-                        selected_new_unit = True
+                    # scan unit for select      
+                    selected_new_unit = False
+                    for unit in self.player.army:
+                        if unit.Rect_Settings.Rect.collidepoint(mouse_pos):                        
+                            self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
+                            self.selected_units.append(unit)
+                            selected_new_unit = True
 
-                        # if we any unit selected, show it in the bottom window and indicate it's selected with border
-                        if len(self.selected_units) > 0:
-                            self, Utility.select_unit(self, unit)
-                            Utility.create_bottom_panel(self)
+                            # if we any unit selected, show it in the bottom window and indicate it's selected with border
+                            if len(self.selected_units) > 0:
+                                self, Utility.select_unit(self, unit)
+                                Utility.create_bottom_panel(self)
 
-                # if we selected something new cool, if not, then the order it to move..
-                if not selected_new_unit and len(self.selected_units) > 0:
-                    for army_unit in self.selected_units:
-                        if army_unit.Moving_Thread is not None:
-                            army_unit.Moving_Thread = Thread(target=Utility.move_unit_over_time, args=(self, army_unit, mouse_pos[0], mouse_pos[1]))
-                            army_unit.Moving_Thread.start()
-            elif mouse[1] == True:
-                Utility.show_grid(self)
-            elif mouse[2] == True:
-                pass
-                # print(f"right mouse: {pos}")
+                    # if we selected something new cool, if not, then the order it to move..
+                    if not selected_new_unit and len(self.selected_units) > 0:
+                        for army_unit in self.selected_units:
+                            if army_unit.Moving_Thread is None:                        
+                                # submit - execute once, returns future
+                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, army_unit, mouse_pos[0], mouse_pos[1]))
+                elif mouse[1] == True:
+                    Utility.show_grid(self)
+                elif mouse[2] == True:
+                    pass
+                    # print(f"right mouse: {pos}")
 
-            #  refresh side panel / highlight a unit that's hovered over
-            Utility.draw_side_panel(self, mouse_pos)
+                # reset army 
+                for f in concurrent.futures.as_completed(unit_moving_threads):
+                    print(f"f: {f.result()}")
+                    army_unit.Moving_Thread = None
+                    self.grid.cleanup()
 
-            # create border last to cover anything up
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
+                #  refresh side panel / highlight a unit that's hovered over
+                Utility.draw_side_panel(self, mouse_pos)
 
-            # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    print(f"mouse down: {event}")
-                if event.type == pygame.MOUSEBUTTONUP:
-                    print(f"mouse up: {event}")
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.pause_game_menu_loop()
-                        if self.running == False:
-                            main_game_running = False
-                if event.type == pygame.QUIT:
-                    # change the value to False, to exit the main loop
-                    main_game_running = False
-                    self.running = False
+                # create border last to cover anything up
+                for screen_border in self.border_rects:
+                    pygame.draw.rect(self.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
 
-            # print("Main game loop...")
-            game_end = time.perf_counter()
-            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
-            pygame.display.flip()
+                # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        print(f"mouse down: {event}")
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        print(f"mouse up: {event}")
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            self.pause_game_menu_loop()
+                            if self.running == False:
+                                main_game_running = False
+                    if event.type == pygame.QUIT:
+                        # change the value to False, to exit the main loop
+                        main_game_running = False
+                        self.running = False
+
+                # print("Main game loop...")
+                game_end = time.perf_counter()
+                # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+                pygame.display.flip()
 
     def main(self):     
         first_opened = True

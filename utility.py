@@ -12,6 +12,7 @@ from names import Names
 from unit import Unit
 
 class Utility:
+    finder = AStarFinder()
 
     # indicates what borders to created, used by create_rect function
     class BorderSides(Enum):
@@ -161,10 +162,9 @@ class Utility:
         UNIT_CAN_MOVE = 1
         UNIT_CANNOT_MOVE = 0
         print(f"Generating grid based on {Constants.SCREEN_WIDTH}x{Constants.SCREEN_HEIGHT}")
-        matrix = []
-        x_line = []
-
+        matrix = []      
         for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
+            x_line = []
             for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE):
                 print(f"Point: {x}x{y}")
                 for obstacle_type in obstacle_types:
@@ -175,6 +175,7 @@ class Utility:
                     else:
                         x_line.append(UNIT_CANNOT_MOVE)     
             matrix.append(x_line)
+
         print("Generating pathfinding grid...")
         grid =  Grid(matrix = matrix)
         print("Done...")
@@ -194,14 +195,14 @@ class Utility:
 
         start = self.grid.node(start_x_grid, start_y_grid)
         end = self.grid.node(end_x_grid, end_y_grid)
-        finder = AStarFinder()
-        paths, runs = finder.find_path(start, end, self.grid)
+        paths, runs = Utility.finder.find_path(start, end, self.grid)
         print(f"number \"runs\" path will take: {runs}")
         print(paths)
         for path in paths:
             print(f"Sleeping: {speed} seconds before moving {unit.Name} again")
             sleep(speed)
             Utility.move_unit(self, unit, path[0] * Unit.UNIT_SIZE, path[1] * Unit.UNIT_SIZE)
+        return f"{unit.Name} done moving"
 
     # moves rect x,y cords
     def move_unit(self, unit, x, y):

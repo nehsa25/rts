@@ -11,9 +11,9 @@ class Constants:
     DEFAULT_FONT = "rage"
 
     # Environment
-    NUM_WATER_TILES = 600
-    NUM_FIRE_TILES = 100
-    NUM_MOUNTAIN_TILES = 250
+    NUM_WATER_TILES = 100
+    NUM_FIRE_TILES = 10
+    NUM_MOUNTAIN_TILES = 50
 
     # main game side panel
     SP_WIDTH = 100   
