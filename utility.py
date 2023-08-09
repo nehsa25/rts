@@ -15,6 +15,19 @@ from unit import Unit
 class Utility:
     finder = AStarFinder()
 
+    # used to determine how big of water pools to make
+    class DensityTypes(Enum):
+        Tiny = 0
+        Small = 1
+        Medium = 2
+        Large = 3
+        Huge = 4
+
+        @classmethod
+        def get_random_size(cls):
+            side = random.choice(cls._member_names_).lower()
+            return side.lower()
+
     # indicates what borders to created, used by create_rect function
     class BorderSides(Enum):
         ALL = 0
@@ -22,6 +35,12 @@ class Utility:
         TOP = 2
         RIGHT = 3
         BOTTOM = 4
+
+        # assist with building terrain
+        @classmethod
+        def get_random_side(cls):
+            side = random.choice(cls._member_names_).lower()
+            return side.lower()
 
     class RectSettings:        
         x = 0
@@ -74,6 +93,215 @@ class Utility:
             rect = text.get_rect(x=rand_x, y=y)
             self.surface.blit(text, rect)
 
+    def create_water_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+        
+        for num_complete in range(Constants.NUM_WATER_TILES):
+            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)     
+            x = rand_cord.x
+            y = rand_cord.y 
+
+            # chose a random water size
+            size = Utility.DensityTypes.get_random_size() 
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Utility.BorderSides.get_random_side()                 
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+   
+                final_x = x * Unit.UNIT_SIZE
+                final_y = y * Unit.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked water tile placement: {final_x}x{final_y}")                    
+                    obstacles.append(dict(name="water", rect = rect))
+                    num_tiles += 1
+            print(f"num water tiles placed for {density}: {num_tiles}")    
+            
+            # start next "range" of water
+            num_tiles = 0
+
+        end = time.perf_counter()
+        print(f"create_water_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+
+    def create_mountain_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+        
+        for num_complete in range(Constants.NUM_MOUNTAIN_TILES):
+            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)     
+            x = rand_cord.x
+            y = rand_cord.y 
+
+            # chose a random water size
+            size = Utility.DensityTypes.get_random_size() 
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Utility.BorderSides.get_random_side()                 
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+   
+                final_x = x * Unit.UNIT_SIZE
+                final_y = y * Unit.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)                
+                if item == -1:
+                    print(f"picked mountain tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="mountain", rect = rect))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_mountain_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+
+    def create_fire_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+        
+        for num_complete in range(Constants.NUM_FIRE_TILES):
+            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)     
+            x = rand_cord.x
+            y = rand_cord.y 
+
+            # chose a random water size
+            size = Utility.DensityTypes.get_random_size() 
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Utility.BorderSides.get_random_side()                 
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+   
+                final_x = x * Unit.UNIT_SIZE
+                final_y = y * Unit.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked fire tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="fire", rect = rect))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_fire_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+    
+    def create_swamp_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+        
+        for num_complete in range(Constants.NUM_SWAMP_TILES):
+            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)     
+            x = rand_cord.x
+            y = rand_cord.y 
+
+            # chose a random water size
+            size = Utility.DensityTypes.get_random_size() 
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Utility.BorderSides.get_random_side()                 
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+   
+                final_x = x * Unit.UNIT_SIZE
+                final_y = y * Unit.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked swamp tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="swamp", rect = rect))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_swamp_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+    
     def create_rect(self, rect_settings, ignore_side_panel = False):
         if rect_settings.Rect is None:
            rect_settings.Rect = pygame.Rect(rect_settings.x, rect_settings.y, rect_settings.width, rect_settings.height) 
@@ -135,32 +363,10 @@ class Utility:
                 obstacles.append(dict(name="panel", rect = rect))
 
         # create water tiles
-        for _ in range(Constants.NUM_WATER_TILES):
-            rand_node = random.choice(grid.nodes)
-            rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            obstacles.append(dict(name="water", rect = rect))
-
-        # create fire tiles
-        for _ in range(Constants.NUM_FIRE_TILES):
-            rand_node = random.choice(grid.nodes)
-            rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            obstacles.append(dict(name="fire", rect = rect))
-
-        # create mountain tiles
-        for _ in range(Constants.NUM_MOUNTAIN_TILES):
-            rand_node = random.choice(grid.nodes)
-            rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            obstacles.append(dict(name="mountain", rect = rect))
-
-        # create swamp tiles
-        for _ in range(Constants.NUM_SWAMP_TILES):
-            rand_node = random.choice(grid.nodes)
-            rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            obstacles.append(dict(name="swamp", rect = rect))
+        obstacles = Utility.create_water_tiles(self, grid, obstacles)
+        obstacles = Utility.create_mountain_tiles(self, grid, obstacles)
+        obstacles = Utility.create_swamp_tiles(self, grid, obstacles)
+        obstacles = Utility.create_fire_tiles(self, grid, obstacles)
 
         create_terrain_end = time.perf_counter() 
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
@@ -261,10 +467,23 @@ class Utility:
         paths, runs = Utility.finder.find_path(start, end, grid)
         print(f"number \"runs\" path will take: {runs}")
         print(paths)
+        prev_path = None
         for path in paths:
-            print(f"Sleeping: {speed} seconds before moving {unit.Name} again")
+            print(f"Sleeping: {round(speed, 3)} seconds before moving {unit.Name} again")
             sleep(speed)
             Utility.move_unit(self, unit, path[0] * Unit.UNIT_SIZE, path[1] * Unit.UNIT_SIZE)
+            
+            if prev_path is not None:
+                rs = Utility.RectSettings()
+                rs.x = prev_path[0] * Unit.UNIT_SIZE
+                rs.y = prev_path[1] * Unit.UNIT_SIZE
+                rs.BgColor = Constants.Colors.YELLOW
+                rs.Rect = None
+                rect_settings = Utility.create_rect(self, unit.Rect_Settings)
+                pygame.display.flip()
+            
+            # allows wiping out previous path 
+            prev_path = path
         return f"{unit.Name} done moving"
 
     # moves rect x,y cords

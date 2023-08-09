@@ -35,10 +35,10 @@ class Constants:
     DEFAULT_FONT_NAME = "century"
 
     # Environment
-    NUM_WATER_TILES = 700
-    NUM_FIRE_TILES = 10
-    NUM_MOUNTAIN_TILES = 50
-    NUM_SWAMP_TILES = 79
+    NUM_WATER_TILES = 25
+    NUM_FIRE_TILES = 5
+    NUM_MOUNTAIN_TILES = 90
+    NUM_SWAMP_TILES = 10
 
     # main game side panel
     SP_WIDTH = 100   

@@ -272,7 +272,6 @@ class rts:
         # update grid with nodes we cannot walk on
         obstacles = Utility.create_terrain(self, grid, side_panel_rects)
 
-
         grid = Utility.update_grid_with_terrain(self, grid, obstacles)
 
         # be hit 60 times every seconds
