@@ -30,6 +30,7 @@ class UnitTypes:
         combat_type = CombatTypes.melee
         attack_tiles = [Environment.levels.Ground, Environment.levels.Air]
         move_tiles = [Environment.levels.Ground]
+        speed = 2
         def __init__(self):
             pass
 

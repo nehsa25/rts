@@ -60,6 +60,7 @@ class rts:
     obstacles = None    
     selected_units = [] # units on the screen that have been clicked on
     loading_msg = ""
+    hero_unit_created = False
 
     # title screen
     def title_loop(self):
@@ -225,12 +226,13 @@ class rts:
             race_mouse_position = pygame.mouse.get_pos()
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
-            race_button_rect = Utility.create_rect_with_center_text(self, "Choose Race", self.font, Constants.MENU_FIRST_BUTTON, Constants.SCREEN_WIDTH)
+            pause_y = Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE
+            race_button_rect = Utility.create_rect_with_center_text(self, "Choose Race", self.font, pause_y, Constants.SCREEN_WIDTH)
             race_button = GameButton(race_button_rect, text_input="Choose Race", font=self.font, base_color="White", hovering_color="Green")
             race_button.change_color(race_mouse_position)
             race_button.update(self.surface)
 
-            quit_button_rect = Utility.create_rect_with_center_text(self, "Quit", self.font, Constants.MENU_FIRST_BUTTON + (Constants.MENU_SPACING * 1), Constants.SCREEN_WIDTH)
+            quit_button_rect = Utility.create_rect_with_center_text(self, "Quit", self.font, pause_y + (Constants.MENU_SPACING * 1), Constants.SCREEN_WIDTH)
             quit_button = GameButton(quit_button_rect, text_input="Quit", font=self.font, base_color="White", hovering_color="Green")
             quit_button.change_color(race_mouse_position)
             quit_button.update(self.surface)
@@ -240,6 +242,7 @@ class rts:
                     print(f"mouse down: {event}")
                     if race_button.check_position(race_mouse_position):
                         pause_game_menu_loop_running = False
+                        self.hero_unit_created = False
                         self.race_select_loop()
                     if quit_button.check_position(race_mouse_position):
                         pause_game_menu_loop_running = False
@@ -348,8 +351,7 @@ class rts:
 
         self.loading_screen_loop()
 
-        # be hit 60 times every seconds
-        hero_unit_created = False
+        # be hit 60 times every seconds        
         game_init_end = time.perf_counter()
         print(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
 
@@ -372,13 +374,13 @@ class rts:
                 Utility.draw_terrain(self, self.obstacles)
 
                 # create initial unit
-                if hero_unit_created:
+                if self.hero_unit_created:
                     # draw units on field
                     for army_unit in self.player.army:
                         Utility.create_unit(self, army_unit, army_unit)
                 else:
                     Utility.create_unit(self, self.player.selected_race.hero_character)
-                    hero_unit_created = True
+                    self.hero_unit_created = True
 
                 # # check for fire damage
                 # for army_unit in self.player.army:

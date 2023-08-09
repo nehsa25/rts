@@ -565,7 +565,7 @@ class Utility:
             if mouse_pos is not None:
                 for unit_button in unit_button_list:
                     if unit_button.Rect.collidepoint(mouse_pos):
-                        Utility.unit_button_highlighted(self, unit_button)    
+                        Utility.unit_button_highlighted(self, unit_button, mouse_pos)    
 
         return side_panel_rect_settings
     
@@ -611,7 +611,8 @@ class Utility:
         return unit_button_list
 
     # highlights buttons on left side panel
-    def unit_button_highlighted(self, rect_settings):
+    def unit_button_highlighted(self, rect_settings, mouse_pos):
+        self.surface.blit(self.mouse_pointer, mouse_pos)
         rect_settings.FontColor =  self.player.selected_race.hover_text_color
         pygame.draw.rect(self.surface, self.player.selected_race.hover_color, rect_settings.Rect) 
         Utility.update_rect_with_text(self, rect_settings)
