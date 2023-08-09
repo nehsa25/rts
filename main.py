@@ -1,4 +1,5 @@
 # import the pygame module, so you can use it
+import random
 import time
 #from threading import Thread
 import concurrent.futures
@@ -49,14 +50,13 @@ class rts:
     logo = pygame.image.load("logo.png")
     pygame.display.set_icon(logo)
     pygame.display.set_caption(Constants.GAME_NAME)    
-    font = pygame.font.SysFont(Constants.DEFAULT_FONT, Constants.FONT_SIZE)
+    font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, Constants.FONT_SIZE)
     surface = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
     running = True # kill everything
 
     # game data
     player = Player()
     matrix = None
-    grid = None
 
     def title_loop(self):
         first_open_running = True 
@@ -67,7 +67,7 @@ class rts:
 
             # create border
             for screen_border in self.border_rects:
-                pygame.draw.rect(self.surface, Constants.Colors.GAME_BORDER, screen_border)
+                pygame.draw.rect(self.surface, Constants.Colors.ROYAL_PURPLE, screen_border)
 
             race_mouse_position = pygame.mouse.get_pos()
             self.surface.blit(self.mouse_pointer, race_mouse_position)
@@ -82,11 +82,12 @@ class rts:
                 font_size = Constants.TITLE_SCREEN_FONT_SIZE
             )        
 
-            Utility.draw_center_text(
+            Utility.draw_center_text(                
                 self, 
                 "press SPACE or CLICK to begin!", 
-                Constants.Colors.GAME_TEXT_COLOR, 
-                Constants.SCREEN_HEIGHT - Constants.FONT_SIZE - 50
+                Constants.Colors.GAME_TEXT_COLOR,
+                Constants.SCREEN_HEIGHT - Constants.FONT_SIZE - 50,
+                font_size=16
             )
 
             # event handling, gets all event from the event queue
@@ -107,48 +108,75 @@ class rts:
             pygame.display.flip()
 
         return False
-
+    
     def race_select_loop(self):
         race_select_running = True 
         pygame.display.set_caption("Select your race")
-        base_height = Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE # true center height
-        text_height = base_height / 2
+        font_size = 60
+        base_height = Constants.SCREEN_HEIGHT / 2 - font_size # true center height # .5 of 1024 = 512
+        text_height = base_height / 2 # .5 of 512 = 256
 
         while race_select_running:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
-            # create ALICE_BLUE border
             for screen_border in self.border_rects:
-                pygame.draw.rect(self.surface, Constants.Colors.ALICE_BLUE, screen_border)
+                pygame.draw.rect(self.surface, Constants.Colors.ROYAL_PURPLE, screen_border)
 
             # get mouse info
             race_mouse_position = pygame.mouse.get_pos()
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             # buttons!
-            Utility.draw_center_text(self, "Select your race", Constants.Colors.GAME_TEXT_COLOR, text_height)
-            goblin_button_rect = Utility.create_rect_with_center_text(self, "Goblin", self.font, Constants.MENU_FIRST_BUTTON, Constants.SCREEN_WIDTH)
-            goblin_button = GameButton(goblin_button_rect, "Goblin", self.font, base_color="White", hovering_color="Green")      
+            Utility.draw_center_text(self, "Select your race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
+
+            # goblin
+            race_name = "Goblin"
+            goblin_button_rect = Utility.create_rect_with_center_text(self, 
+                                                                      race_name, 
+                                                                      pygame.font.SysFont(Goblin.font, Goblin.font_size),
+                                                                      text_height + (Constants.MENU_SPACING * 2), 
+                                                                      Constants.SCREEN_WIDTH)            
+            goblin_button = GameButton(goblin_button_rect, race_name, font=pygame.font.SysFont(Goblin.font, Goblin.font_size), base_color="White", hovering_color=Goblin.hover_text_color)      
             goblin_button.change_color(race_mouse_position)
             goblin_button.update(self.surface)
 
-            elf_button_rect = Utility.create_rect_with_center_text(self, "Elf", self.font, Constants.MENU_FIRST_BUTTON + (Constants.MENU_SPACING * 1), Constants.SCREEN_WIDTH)
-            elf_button = GameButton(elf_button_rect, text_input="Elf", font=self.font, base_color="White", hovering_color="Green")
+            race_name = "Wood Elves"
+            elf_button_rect = Utility.create_rect_with_center_text(self, 
+                                                                   race_name, 
+                                                                   pygame.font.SysFont(Elf.font, Elf.font_size), 
+                                                                   text_height + (Constants.MENU_SPACING * 3),
+                                                                   Constants.SCREEN_WIDTH)
+            elf_button = GameButton(elf_button_rect, text_input=race_name, font=pygame.font.SysFont(Elf.font, Elf.font_size), base_color="White", hovering_color=Elf.hover_text_color)
             elf_button.change_color(race_mouse_position)
             elf_button.update(self.surface)
 
-            human_button_rect = Utility.create_rect_with_center_text(self, "Human", self.font, Constants.MENU_FIRST_BUTTON + (Constants.MENU_SPACING * 2), Constants.SCREEN_WIDTH)
-            human_button = GameButton(human_button_rect, text_input="Human", font=self.font, base_color="White", hovering_color="Green")
+            race_name = "Human"
+            human_button_rect = Utility.create_rect_with_center_text(self, 
+                                                                     race_name, 
+                                                                     pygame.font.SysFont(Human.font, Human.font_size), 
+                                                                     text_height + (Constants.MENU_SPACING * 4), 
+                                                                     Constants.SCREEN_WIDTH)
+            human_button = GameButton(human_button_rect, text_input=race_name, font=pygame.font.SysFont(Human.font, Human.font_size), base_color="White", hovering_color=Human.hover_text_color)
             human_button.change_color(race_mouse_position)
             human_button.update(self.surface)
 
-            fae_button_rect = Utility.create_rect_with_center_text(self, "Fae", self.font, Constants.MENU_FIRST_BUTTON + (Constants.MENU_SPACING * 3), Constants.SCREEN_WIDTH)
-            fae_button = GameButton(fae_button_rect, text_input="Fae", font=self.font, base_color="White", hovering_color="Green")
+            race_name = "Fae"
+            fae_button_rect = Utility.create_rect_with_center_text(self, 
+                                                                   race_name, 
+                                                                   pygame.font.SysFont(Fae.font, Fae.font_size), 
+                                                                   text_height + (Constants.MENU_SPACING * 5),
+                                                                   Constants.SCREEN_WIDTH)
+            fae_button = GameButton(fae_button_rect, text_input=race_name, font=pygame.font.SysFont(Fae.font, Fae.font_size), base_color="White", hovering_color=Fae.hover_text_color)
             fae_button.change_color(race_mouse_position)
             fae_button.update(self.surface)
 
-            dwarf_button_rect = Utility.create_rect_with_center_text(self, "Dwarf", self.font, Constants.MENU_FIRST_BUTTON + (Constants.MENU_SPACING * 4), Constants.SCREEN_WIDTH)
-            dwarf_button = GameButton(dwarf_button_rect, text_input="Dwarf", font=self.font, base_color="White", hovering_color="Green")
+            race_name = "Dwarf"
+            dwarf_button_rect = Utility.create_rect_with_center_text(self, 
+                                                                     race_name.upper(), 
+                                                                     pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
+                                                                     text_height + (Constants.MENU_SPACING * 6), 
+                                                                     Constants.SCREEN_WIDTH)
+            dwarf_button = GameButton(dwarf_button_rect, text_input=race_name.upper(), font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
             dwarf_button.change_color(race_mouse_position)
             dwarf_button.update(self.surface)
 
@@ -231,9 +259,11 @@ class rts:
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
 
-        obstacles = Utility.create_terrain(self)
+        grid = Utility.get_empty_grid(self)
 
-        self.grid = Utility.get_grid(self, obstacles)
+        obstacles = Utility.create_terrain(self, grid)
+
+        grid = Utility.update_grid_with_terrain(self, grid, obstacles)
 
         # be hit 60 times every seconds
         hero_unit_created = False
@@ -293,6 +323,13 @@ class rts:
                     if len(self.selected_units) > 0:
                         Utility.create_bottom_panel(self)
                 
+                #  refresh side panel / highlight a unit that's hovered over
+                Utility.draw_side_panel(self, mouse_pos)
+
+                # create border last to cover anything up
+                for screen_border in self.border_rects:
+                    pygame.draw.rect(self.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
+
                 # continuous mouse movement (fast)
                 mouse = pygame.mouse.get_pressed()            
                 if mouse[0] == True:
@@ -316,9 +353,11 @@ class rts:
                         for army_unit in self.selected_units:
                             if army_unit.Moving_Thread is None:                        
                                 # submit - execute once, returns future
-                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, army_unit, mouse_pos[0], mouse_pos[1]))
+                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, grid, self, army_unit, mouse_pos[0], mouse_pos[1]))
                 elif mouse[1] == True:
-                    Utility.show_grid(self)
+                    Utility.show_grid(self, grid, mouse_pos)
+                    print(pygame.font.get_fonts())
+                    pass
                 elif mouse[2] == True:
                     pass
                     # print(f"right mouse: {pos}")
@@ -329,13 +368,6 @@ class rts:
                     army_unit.Moving_Thread = None
                     self.grid.cleanup()
                     unit_moving_threads.remove(f)
-
-                #  refresh side panel / highlight a unit that's hovered over
-                Utility.draw_side_panel(self, mouse_pos)
-
-                # create border last to cover anything up
-                for screen_border in self.border_rects:
-                    pygame.draw.rect(self.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
 
                 # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
                 for event in pygame.event.get():
@@ -367,6 +399,17 @@ class rts:
             elif (self.player.selected_race is None):
                 self.race_select_loop()
             else:   
+                # i = 0
+                # for f in pygame.font.get_fonts():                    
+                #     print(f)
+                #     Utility.loop_fonts(self, f, i)
+                #     i += 48
+                #     pygame.display.flip()
+                #     if i > 768:
+                #         i = 0
+                #         self.surface.fill(Constants.Colors.HUNTER_GREEN) 
+                #         time.sleep(2)
+
                 self.main_game_loop()
      
 # run the main function only if this module is executed as the main script

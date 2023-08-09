@@ -5,8 +5,10 @@ class Human(unit.Unit):
     description = "Land units focused, jack of all trades, Mid-game"
     main_color = Constants.Colors.YELLOW
     secondary_color = Constants.Colors.NAVY
-    hover_color = Constants.Colors.ALICE_BLUE 
-    hover_text_color = Constants.Colors.NAVY
+    hover_color = Constants.Colors.NAVY 
+    hover_text_color = Constants.Colors.YELLOW
+    font = "mistral"
+    font_size = 36
 
     class Farmer(unit.UnitTypes.MeleeUnit):
         def __init__(self):

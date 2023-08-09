@@ -6,9 +6,11 @@ class Goblin(unit.Unit):
     description = "Create water tiles, Sail, Pillage from other players, Strong early game, Naval"
     main_color = Constants.Colors.CRIMSON
     secondary_color = Constants.Colors.BLACK
-    hover_color = Constants.Colors.HUNTER_GREEN 
-    hover_text_color = Constants.Colors.ALICE_BLUE    
+    hover_color = Constants.Colors.ALICE_BLUE 
+    hover_text_color = Constants.Colors.CRIMSON    
     spawn_rect = None
+    font = "copperplategothic"
+    font_size = 36
 
     def __init__(self, spawn_x = Constants.SP_WIDTH):
         self.spawn_rect = pygame.Rect((spawn_x, 0, unit.Unit.UNIT_SIZE, unit.Unit.UNIT_SIZE))  

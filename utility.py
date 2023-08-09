@@ -1,5 +1,6 @@
 import random
 from time import sleep
+import time
 from uuid import uuid4
 import pygame
 from enum import Enum
@@ -31,12 +32,13 @@ class Utility:
         Rect = None
         Text = None
         Rect = None
-        Font = Constants.DEFAULT_FONT
-        Font_Size = Constants.FONT_SIZE
-        BG_Color = Constants.Colors.GREEN
-        Font_Color = Constants.Colors.BLACK
+        FontName = Constants.DEFAULT_FONT_NAME
+        FontSize = Constants.FONT_SIZE
+        BgColor = Constants.Colors.GREEN
+        FontColor = Constants.Colors.BLACK
         BorderColor = None   
         BorderSides = None  
+        BorderSize = Constants.RECT_BORDER_SIZE
         id = None   
         def __init__(self):
             id = uuid4()
@@ -47,7 +49,7 @@ class Utility:
             font_size = default_font_size            
 
         if font_name is None:
-            font = pygame.font.SysFont(Constants.DEFAULT_FONT, font_size)            
+            font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, font_size)            
         else:
             font =pygame.font.SysFont(font_name, font_size)
 
@@ -61,9 +63,16 @@ class Utility:
 
     def update_rect_with_text(self, rect_settings):
         # add text
-        font = pygame.font.Font(None, rect_settings.Font_Size)
-        unit_text = font.render(rect_settings.Text, True, rect_settings.Font_Color)
+        font = pygame.font.Font(None, rect_settings.FontSize)
+        unit_text = font.render(rect_settings.Text, True, rect_settings.FontColor)
         self.surface.blit(unit_text, rect_settings.Rect)  
+
+    def loop_fonts(self, font_name, y):
+            rand_x = random.randint(0, 800)
+            font = pygame.font.SysFont(font_name, 36)  
+            text = font.render(f"Wood Elves ({font_name})", True, 'black')
+            rect = text.get_rect(x=rand_x, y=y)
+            self.surface.blit(text, rect)
 
     def create_rect(self, rect_settings, ignore_side_panel = False):
         if rect_settings.Rect is None:
@@ -74,7 +83,7 @@ class Utility:
             if rect_settings.Rect.x < Constants.SP_WIDTH:
                 rect_settings.Rect.x = Constants.SP_WIDTH
 
-        pygame.draw.rect(self.surface, rect_settings.BG_Color, rect_settings.Rect) # this is what actually causes the rect to show up on screen
+        pygame.draw.rect(self.surface, rect_settings.BgColor, rect_settings.Rect) # this is what actually causes the rect to show up on screen
 
         if rect_settings.BorderColor is not None:
             if rect_settings.BorderSides is None:
@@ -92,110 +101,153 @@ class Utility:
 
             # left
             if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.LEFT in rect_settings.BorderSides:
-                left_border_rect = pygame.Rect((rect_settings.Rect.x-Constants.RECT_BORDER_SIZE, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
+                left_border_rect = pygame.Rect((rect_settings.Rect.x-rect_settings.BorderSize, rect_settings.Rect.y, rect_settings.BorderSize, rect_settings.Rect.height))
                 pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
 
             # bottom   
             if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.BOTTOM in rect_settings.BorderSides:     
-                bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
+                bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, rect_settings.BorderSize))
                 pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
 
             # right  
             if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.RIGHT in rect_settings.BorderSides:      
-                right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, Constants.RECT_BORDER_SIZE, rect_settings.Rect.height))
+                right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, rect_settings.BorderSize, rect_settings.Rect.height))
                 pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
 
             # top
             if Utility.BorderSides.ALL in rect_settings.BorderSides or Utility.BorderSides.TOP in rect_settings.BorderSides:        
-                top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - Constants.RECT_BORDER_SIZE, rect_settings.Rect.width, Constants.RECT_BORDER_SIZE))
+                top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - rect_settings.BorderSize, rect_settings.Rect.width, rect_settings.BorderSize))
                 pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
 
         return rect_settings
 
     # returns all obstablces in a single list of dictionaries
-    def create_terrain(self):
+    def create_terrain(self, grid):
+        create_terrain_start = time.perf_counter()  
         # create water tiles
         water_rects = []
         for _ in range(Constants.NUM_WATER_TILES):
-            water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            water_rects.append(water_rect)
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            water_rects.append(rect)
 
         # create fire tiles
         fire_rects = []
         for _ in range(Constants.NUM_FIRE_TILES):
-            fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            fire_rects.append(fire_rect)
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            fire_rects.append(rect)
 
         # create mountain tiles
         mountain_rects = []
         for _ in range(Constants.NUM_MOUNTAIN_TILES):
-            mountain_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            mountain_rects.append(mountain_rect)
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            mountain_rects.append(rect)
 
         # create swamp tiles
         swamp_rects = []
         for _ in range(Constants.NUM_SWAMP_TILES):
-            swamp_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
-            swamp_rects.append(swamp_rect)
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            swamp_rects.append(rect)
 
         obstacles = []
         obstacles.extend([dict(name="water", rects = water_rects, is_traversable = False)])
         obstacles.extend([dict(name="fire", rects = fire_rects, is_traversable = False)])
         obstacles.extend([dict(name="mountain", rects = mountain_rects, is_traversable = False)])
         obstacles.extend([dict(name="swamp", rects = swamp_rects, is_traversable = True)])
-
+        create_terrain_end = time.perf_counter() 
+        print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
         return obstacles
 
     def draw_enviornment(self, obstacles):
-            for obstacle in obstacles:                 
-                if obstacle["name"].lower() == "water": # create random "water" obstacles           
-                    for water_tile in obstacle["rects"]:
-                        pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
-                elif obstacle["name"].lower() == "fire": # create random "fire" obstacles 
-                    for fire_tile in obstacle["rects"]:
-                        pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
-                elif obstacle["name"].lower() == "mountain": # create random "mountain" obstacles
-                    for mountain_tile in obstacle["rects"]:
-                        pygame.draw.rect(self.surface, Constants.Colors.WHITE_MISTY, mountain_tile)
-                elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
-                    for swamp_tile in obstacle["rects"]:
-                        pygame.draw.rect(self.surface, Constants.Colors.GREEN_DARK, swamp_tile)
+        draw_enviornment_start = time.perf_counter() 
+        for obstacle in obstacles:                 
+            if obstacle["name"].lower() == "water": # create random "water" obstacles           
+                for water_tile in obstacle["rects"]:
+                    pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
+            elif obstacle["name"].lower() == "fire": # create random "fire" obstacles 
+                for fire_tile in obstacle["rects"]:
+                    pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
+            elif obstacle["name"].lower() == "mountain": # create random "mountain" obstacles
+                for mountain_tile in obstacle["rects"]:
+                    pygame.draw.rect(self.surface, Constants.Colors.WHITE_MISTY, mountain_tile)
+            elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
+                for swamp_tile in obstacle["rects"]:
+                    pygame.draw.rect(self.surface, Constants.Colors.GREEN_DARK, swamp_tile)
+        draw_enviornment_end = time.perf_counter() 
+        print(f"draw_enviornment timings: {round(60 - (draw_enviornment_end - draw_enviornment_start), 2)} second(s)")
 
+    def show_grid(self, grid, mouse_pos):        
+        show_grid_start = time.perf_counter()     
+        self.surface.blit(self.mouse_pointer, mouse_pos)           
+        for node in grid.nodes:
+            for item in node:
+                newx = item.x * Unit.UNIT_SIZE
+                newy = item.y * Unit.UNIT_SIZE
+                rect_settings = Utility.RectSettings()
+                rect_settings.x = newx
+                rect_settings.y = newy
+                if item.walkable:
+                    rect_settings.BgColor = Constants.Colors.GREEN_DARK
+                else:
+                    rect_settings.BgColor = Constants.Colors.BURNT_ORANGE
+                rect_settings.BorderColor = Constants.Colors.NEON_GREEN
+                rect_settings.BorderSize = 1
+                Utility.create_rect(self, rect_settings)
+        show_grid_end = time.perf_counter()
+        print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
 
+        # for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE): 
+        #     for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
+        #         print(f"drawing point: {x}, {y}") # (0, 0), (0, 15)
+        #         rect = pygame.Rect(x, y, Unit.UNIT_SIZE-1, Unit.UNIT_SIZE-1)
+        #         pygame.draw.rect(self.surface, Constants.Colors.BLACK, rect, Unit.UNIT_SIZE)
 
-    def show_grid(self):
-        for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE): 
-            for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
-                print(f"drawing point: {x}, {y}") # (0, 0), (0, 15)
-                rect = pygame.Rect(x, y, Unit.UNIT_SIZE-1, Unit.UNIT_SIZE-1)
-                pygame.draw.rect(self.surface, Constants.Colors.BLACK, rect, Unit.UNIT_SIZE)
-
-    def get_grid(self, obstacle_types):
-        UNIT_CAN_MOVE = 1
-        UNIT_CANNOT_MOVE = 0
+    def get_empty_grid(self):
+        get_empty_start = time.perf_counter()   
         print(f"Generating grid based on {Constants.SCREEN_WIDTH}x{Constants.SCREEN_HEIGHT}")
         matrix = []      
         for y in range(0, Constants.SCREEN_HEIGHT, Unit.UNIT_SIZE):
             x_line = []
             for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE):
                 print(f"Point: {x}x{y}")
-                for obstacle_type in obstacle_types:
-                    rect = pygame.Rect(x, y, 1, 1)
-                    collide = rect.collidelist(obstacle_type["rects"])
-                    if collide == -1:
-                        x_line.append(UNIT_CAN_MOVE)
-                    else:
-                        x_line.append(UNIT_CANNOT_MOVE)     
+                x_line.append(1)
             matrix.append(x_line)
 
-        print("Generating pathfinding grid...")
+        print("get_empty_grid: Generating pathfinding grid...")
         grid =  Grid(matrix = matrix)
-        print("Done...")
+        print("get_empty_grid: Done...")
+        get_empty_end = time.perf_counter()
+        print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
         return grid
 
+    def update_grid_with_terrain(self, grid, obstacle_types):
+        get_grid_start = time.perf_counter() 
+        print("get_grid: Updating pathfinding grid with terrain...")
+        UNIT_CAN_MOVE = True
+        UNIT_CANNOT_MOVE = False     
+        for node in grid.nodes:
+            for item in node:
+                for obstacle_type in obstacle_types:
+                    rect = pygame.Rect(item.x, item.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                    collide = rect.collidelist(obstacle_type["rects"])
+                    if collide == -1:
+                        item.walkable = UNIT_CAN_MOVE
+                    else:
+                        item.walkable = UNIT_CANNOT_MOVE   
+        get_grid_end = time.perf_counter()
+        print("get_grid: Done")
+        print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
+        return grid
 
     # uses speed of unit
-    def move_unit_over_time(self, unit, end_x, end_y):
+    def move_unit_over_time(self, grid, unit, end_x, end_y):
         default_speed = .35
         speed = default_speed - (unit.Type.speed * .1)        
         start_x_grid = int(unit.Rect_Settings.x  / Unit.UNIT_SIZE)
@@ -205,9 +257,9 @@ class Utility:
 
         print(f"Moving {unit.Name} at {speed} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid})")
 
-        start = self.grid.node(start_x_grid, start_y_grid)
-        end = self.grid.node(end_x_grid, end_y_grid)
-        paths, runs = Utility.finder.find_path(start, end, self.grid)
+        start = grid.node(start_x_grid, start_y_grid)
+        end = grid.node(end_x_grid, end_y_grid)
+        paths, runs = Utility.finder.find_path(start, end, grid)
         print(f"number \"runs\" path will take: {runs}")
         print(paths)
         for path in paths:
@@ -221,7 +273,8 @@ class Utility:
         unit.Rect_Settings.x = x
         unit.Rect_Settings.y = y
         unit.Rect_Settings.Rect = None
-        Utility.create_rect(self, unit.Rect_Settings)        
+        Utility.create_rect(self, unit.Rect_Settings)
+        pygame.display.flip()  
 
     def update_selected_units_list(self, unit):
         newlist = self.selected_units
@@ -242,8 +295,8 @@ class Utility:
     # create sides panel with army troop buttons
     def draw_side_panel(self, mouse_pos):
         rect_settings = Utility.RectSettings()
-        rect_settings.BG_Color = Constants.Colors.POOP_BROWN
-        rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+        rect_settings.BgColor = Constants.Colors.POOP_BROWN
+        rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
         rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, self.surface.get_height())
         rect_settings.BorderColor = Constants.Colors.GAME_BORDER
         rect_settings.BorderSides = [Utility.BorderSides.RIGHT]
@@ -260,11 +313,11 @@ class Utility:
 
             rect_settings = Utility.RectSettings()
             rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-            rect_settings.BG_Color = self.player.selected_race.main_color
+            rect_settings.BgColor = self.player.selected_race.main_color
             rect_settings.BorderColor = self.player.selected_race.secondary_color
             rect_settings.Text = unit["Name"]
             rect_settings.HintName = "unit button text"
-            rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+            rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
 
             Utility.create_rect(self, rect_settings, ignore_side_panel=True)            
             Utility.update_rect_with_text(self, rect_settings)
@@ -280,10 +333,10 @@ class Utility:
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self):
         rect_settings = Utility.RectSettings()
-        rect_settings.BG_Color = Constants.Colors.COCOA
+        rect_settings.BgColor = Constants.Colors.COCOA
         rect_settings.BorderColor = Constants.Colors.GAME_BORDER
         rect_settings.BorderSides = [Utility.BorderSides.TOP, Utility.BorderSides.LEFT]
-        rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+        rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
         nudge = 2
         rect_settings.x = Constants.SP_WIDTH  + nudge # start at end of SP panel
         rect_settings.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
@@ -303,11 +356,11 @@ class Utility:
 
             rect_settings = Utility.RectSettings()
             rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-            rect_settings.BG_Color = self.player.selected_race.main_color
+            rect_settings.BgColor = self.player.selected_race.main_color
             rect_settings.BorderColor = self.player.selected_race.secondary_color
             rect_settings.Text = unit.Name
             rect_settings.HintName = "unit button text"
-            rect_settings.Font_Size = Constants.SP_BUTTON_TEXT_SIZE
+            rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
 
             Utility.create_rect(self, rect_settings, ignore_side_panel=True)            
             Utility.update_rect_with_text(self, rect_settings)
@@ -318,8 +371,9 @@ class Utility:
             
         return unit_button_list
 
+    # highlights buttons on left side panel
     def unit_button_highlighted(self, rect_settings):
-        rect_settings.Font_Color =  self.player.selected_race.hover_text_color
+        rect_settings.FontColor =  self.player.selected_race.hover_text_color
         pygame.draw.rect(self.surface, self.player.selected_race.hover_color, rect_settings.Rect) 
         Utility.update_rect_with_text(self, rect_settings)
     
@@ -335,7 +389,7 @@ class Utility:
         if unit is None:
             unit = Unit()
             unit.Rect_Settings = Utility.RectSettings()
-            unit.Rect_Settings.BG_Color = self.player.selected_race.main_color
+            unit.Rect_Settings.BgColor = self.player.selected_race.main_color
             unit.Rect_Settings.BorderColor = self.player.selected_race.secondary_color            
             unit.Rect_Settings.x = Constants.UNIT_SPAWN_X
             unit.Rect_Settings.y = Constants.UNIT_SPAWN_Y

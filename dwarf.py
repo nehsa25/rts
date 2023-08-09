@@ -7,8 +7,10 @@ class Dwarf(unit.Unit):
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
     main_color = Constants.Colors.POOP_BROWN
     secondary_color = Constants.Colors.COCOA   
-    hover_color = Constants.Colors.BLUE 
-    hover_text_color = Constants.Colors.ALICE_BLUE
+    hover_color = Constants.Colors.COCOA 
+    hover_text_color = Constants.Colors.POOP_BROWN
+    font = "hightowertext"
+    font_size = 36
 
     class Miner(unit.UnitTypes.MeleeUnit):
         def __init__(self):

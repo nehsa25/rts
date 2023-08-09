@@ -5,8 +5,10 @@ class Elf(unit.Unit):
     description = "Can impersonate humans, sabatage, can use magic, Strong late game"     
     main_color = Constants.Colors.ALICE_BLUE
     secondary_color = Constants.Colors.YELLOW 
-    hover_color = Constants.Colors.HUNTER_GREEN
+    hover_color = Constants.Colors.ALICE_BLUE
     hover_text_color = Constants.Colors.AQUA
+    font = "frenchscript"
+    font_size = 36 + 16
 
     class Scout(unit.UnitTypes.RangedUnit):
         def __init__(self):

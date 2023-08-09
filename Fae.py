@@ -5,8 +5,10 @@ class Fae(unit.Unit):
     Discription = "Tricksters, Magic casters, Strong early to mid game"
     main_color = Constants.Colors.FUCHSIA
     secondary_color = Constants.Colors.HUNTER_GREEN 
-    hover_color = Constants.Colors.AQUA
-    hover_text_color = Constants.Colors.COCOA
+    hover_color = Constants.Colors.MAROON
+    hover_text_color = Constants.Colors.FUCHSIA
+    font = "blackadderitc"
+    font_size = 36 + 8
 
     class Shapeshifter(unit.UnitTypes.MeleeUnit):
         def __init__(self):
