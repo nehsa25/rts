@@ -58,6 +58,7 @@ class rts:
     player = Player()
     matrix = None
 
+    # title screen
     def title_loop(self):
         first_open_running = True 
         pygame.display.set_caption("Welcome!")
@@ -109,6 +110,7 @@ class rts:
 
         return False
     
+    # race select screen
     def race_select_loop(self):
         race_select_running = True 
         pygame.display.set_caption("Select your race")
@@ -205,6 +207,7 @@ class rts:
             # print("Updating options loop")
             pygame.display.flip()
 
+    # pause screen (when you press esc)
     def pause_game_menu_loop(self):
         pause_game_menu_loop_running = True 
         pygame.display.set_caption(f"Paused!")
@@ -251,6 +254,7 @@ class rts:
             
             pygame.display.flip()
 
+    # the game..
     def main_game_loop(self):        
         game_init_start = time.perf_counter()
         main_game_running = True 
@@ -353,7 +357,7 @@ class rts:
                         for army_unit in self.selected_units:
                             if army_unit.Moving_Thread is None:                        
                                 # submit - execute once, returns future
-                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, grid, self, army_unit, mouse_pos[0], mouse_pos[1]))
+                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, grid, army_unit, mouse_pos[0], mouse_pos[1]))
                 elif mouse[1] == True:
                     Utility.show_grid(self, grid, mouse_pos)
                     print(pygame.font.get_fonts())
@@ -366,7 +370,7 @@ class rts:
                 for f in concurrent.futures.as_completed(unit_moving_threads):
                     print(f"f: {f.result()}")
                     army_unit.Moving_Thread = None
-                    self.grid.cleanup()
+                    grid.cleanup()
                     unit_moving_threads.remove(f)
 
                 # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
