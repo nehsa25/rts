@@ -126,16 +126,23 @@ class Utility:
             fire_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             fire_rects.append(fire_rect)
 
-        # create fire tiles
+        # create mountain tiles
         mountain_rects = []
         for _ in range(Constants.NUM_MOUNTAIN_TILES):
             mountain_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             mountain_rects.append(mountain_rect)
 
+        # create swamp tiles
+        swamp_rects = []
+        for _ in range(Constants.NUM_SWAMP_TILES):
+            swamp_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
+            swamp_rects.append(swamp_rect)
+
         obstacles = []
         obstacles.extend([dict(name="water", rects = water_rects, is_traversable = False)])
-        obstacles.extend([dict(name="fire", rects = fire_rects, is_traversable = True)])
+        obstacles.extend([dict(name="fire", rects = fire_rects, is_traversable = False)])
         obstacles.extend([dict(name="mountain", rects = mountain_rects, is_traversable = False)])
+        obstacles.extend([dict(name="swamp", rects = swamp_rects, is_traversable = True)])
 
         return obstacles
 
@@ -149,7 +156,12 @@ class Utility:
                         pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
                 elif obstacle["name"].lower() == "mountain": # create random "mountain" obstacles
                     for mountain_tile in obstacle["rects"]:
-                        pygame.draw.rect(self.surface, Constants.Colors.GRAY_DARK, mountain_tile)
+                        pygame.draw.rect(self.surface, Constants.Colors.WHITE_MISTY, mountain_tile)
+                elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
+                    for swamp_tile in obstacle["rects"]:
+                        pygame.draw.rect(self.surface, Constants.Colors.GREEN_DARK, swamp_tile)
+
+
 
     def show_grid(self):
         for x in range(0, Constants.SCREEN_WIDTH, Unit.UNIT_SIZE): 

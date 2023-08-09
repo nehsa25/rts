@@ -328,6 +328,7 @@ class rts:
                     print(f"f: {f.result()}")
                     army_unit.Moving_Thread = None
                     self.grid.cleanup()
+                    unit_moving_threads.remove(f)
 
                 #  refresh side panel / highlight a unit that's hovered over
                 Utility.draw_side_panel(self, mouse_pos)

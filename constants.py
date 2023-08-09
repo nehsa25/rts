@@ -14,6 +14,7 @@ class Constants:
     NUM_WATER_TILES = 100
     NUM_FIRE_TILES = 10
     NUM_MOUNTAIN_TILES = 50
+    NUM_SWAMP_TILES = 79
 
     # main game side panel
     SP_WIDTH = 100   
@@ -48,7 +49,11 @@ class Constants:
 
         # rgb
         BLACK = (0, 0, 0)
+
+        #whites
         WHITE = (255, 255, 255) 
+        WHITE_MISTY = (232, 241, 241)
+
         SALMON = (250, 128, 114)    
         FUCHSIA = (255, 0, 255)
 
@@ -72,6 +77,7 @@ class Constants:
         GREEN = (0, 255, 0)
         HUNTER_GREEN = (53, 94, 59)
         NEON_GREEN = (57,255,20)
+        GREEN_DARK = (1, 50, 32)
 
         # purples
         PLUM = (221,160,221)
