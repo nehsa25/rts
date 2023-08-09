@@ -33,11 +33,12 @@ class Constants:
     PANEL_BUTTON_SPACING = 50    
     BORDER_SIZE = 5
     DEFAULT_FONT_NAME = "century"
+    LOADING_MSG = "Loading".upper()
 
     # Environment
     NUM_WATER_TILES = 25
     NUM_FIRE_TILES = 5
-    NUM_MOUNTAIN_TILES = 90
+    NUM_MOUNTAIN_TILES = 70
     NUM_SWAMP_TILES = 10
 
     # main game side panel
@@ -54,8 +55,8 @@ class Constants:
     RECT_SIZE = 25
     RECT_BORDER_SIZE = 2
     MOUSE_POINTER_SIZE = 5    
-    SCREEN_WIDTH = 1920
-    SCREEN_HEIGHT = 1024   
+    SCREEN_WIDTH = 1024
+    SCREEN_HEIGHT = 768   
     FONT_SIZE = 20
     MENU_SPACING = 60
     UNIT_SPAWN_X = SP_WIDTH + RECT_BORDER_SIZE + PANEL_BUTTON_SPACING

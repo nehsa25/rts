@@ -1,4 +1,5 @@
 # import the pygame module, so you can use it
+import queue
 import random
 import time
 #from threading import Thread
@@ -58,7 +59,7 @@ class rts:
     side_panel_rects = None
     obstacles = None    
     selected_units = [] # units on the screen that have been clicked on
-    loading_msg = None
+    loading_msg = ""
 
     # title screen
     def title_loop(self):
@@ -265,55 +266,76 @@ class rts:
         print(f"Started clock: {clock}")
 
         loading_threads = []
-        while loading_screen_loop_running:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                clock.tick(60)                
+        executor = concurrent.futures.ThreadPoolExecutor()
+        executor._max_workers = 1
+        state = ""
+        loading = False
+        show_complete = False
+        while loading_screen_loop_running:            
+            clock.tick(60)                
 
-                # blank out screen to allow refresh
-                self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
+            # blank out screen to allow refresh
+            self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
-                # mouse
-                mouse_pos = pygame.mouse.get_pos()
-                self.surface.blit(self.mouse_pointer, mouse_pos)
+            # mouse
+            mouse_pos = pygame.mouse.get_pos()
+            self.surface.blit(self.mouse_pointer, mouse_pos)
 
-                # border
-                for screen_border in self.border_rects:
-                    pygame.draw.rect(self.surface, Constants.Colors.PLUM, screen_border)
-                
-                # main font
-                font_size = 72
-                loading_rect_y = Constants.SCREEN_HEIGHT / 2 - font_size
-                text = "Loading..."
-                rect = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+            # border
+            for screen_border in self.border_rects:
+                pygame.draw.rect(self.surface, Constants.Colors.PLUM, screen_border)
+            
+            # main font
+            font_size = 72
+            loading_rect_y = Constants.SCREEN_HEIGHT / 2 - font_size
+            text = Constants.LOADING_MSG
+            rect = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
 
-                font_size = 36
-                loading_rect_y = (Constants.SCREEN_HEIGHT / 4 - font_size) * 3
-                if self.loading_msg is None:
-                    text = "Loading2..."
-                    self.loading_msg = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+            font_size = 36
+            loading_rect_y = (Constants.SCREEN_HEIGHT / 4 - font_size) * 3
+            text = ""
+            if state != "":
+                if self.loading_msg !=  "":
+                    text = self.loading_msg               
+                Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
 
-                # update entire display
-                pygame.display.flip()
+            # update entire display
+            pygame.display.flip()
 
+            if show_complete:
+                time.sleep(2)
+                loading_screen_loop_running = False
+            else:
                 # the work..
-                loading_threads.append(executor.submit(Utility.load_grid, self))
+                if not loading:
+                    loading_threads.append(executor.submit(Utility.load_grid, self))
+                    loading = True
 
                 # check if done..
-                for f in concurrent.futures.as_completed(loading_threads):
-                    print(f"loading_threads f: {f.result()}")
-                    loading_screen_loop_running = False
+                print(f"Checking if loading is complete..")
+                for future in loading_threads:
+                    state = future._state     
+                    if state == "PENDING":
+                        state = "INITIALIZING"
+                    elif state == "RUNNING":
+                        state = "LOADING"
+                    elif state == "FINISHED":                        
+                        state = "COMPLETE"
+                        self.loading_msg = "Get ready!".upper()
+                        print(self.loading_msg)                    
+                        show_complete = True
 
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        print(f"mouse down: {event}")
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        print(f"mouse up: {event}")
-                    if event.type == pygame.KEYDOWN:
-                        print(f"key down: {event}")
-                    if event.type == pygame.QUIT:
-                        # change the value to False, to exit the main loop
-                        loading_screen_loop_running = False
-                        self.running = False
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    print(f"mouse down: {event}")
+                if event.type == pygame.MOUSEBUTTONUP:
+                    print(f"mouse up: {event}")
+                if event.type == pygame.KEYDOWN:
+                    print(f"key down: {event}")
+                if event.type == pygame.QUIT:
+                    # change the value to False, to exit the main loop
+                    loading_screen_loop_running = False
+                    self.running = False
 
     # the game..
     def main_game_loop(self):        
