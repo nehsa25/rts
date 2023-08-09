@@ -122,9 +122,18 @@ class Utility:
         return rect_settings
 
     # returns all obstablces in a single list of dictionaries
-    def create_terrain(self, grid):
+    def create_terrain(self, grid, side_panel_rect):
         create_terrain_start = time.perf_counter()  
         obstacles = []
+
+        # create side panel tiles
+        for h in range(0, int(side_panel_rect.Rect.height / Unit.UNIT_SIZE)):
+            for w in range(0, int(side_panel_rect.Rect.width / Unit.UNIT_SIZE)):
+                rand_node = grid.nodes[h]
+                rand_cord = rand_node[w]
+                rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                obstacles.append(dict(name="panel", rect = rect))
+
         # create water tiles
         for _ in range(Constants.NUM_WATER_TILES):
             rand_node = random.choice(grid.nodes)
@@ -189,7 +198,7 @@ class Utility:
                     rect_settings.BgColor = Constants.Colors.BURNT_ORANGE
                 rect_settings.BorderColor = Constants.Colors.NEON_GREEN
                 rect_settings.BorderSize = 1
-                Utility.create_rect(self, rect_settings)
+                Utility.create_rect(self, rect_settings, True)
         show_grid_end = time.perf_counter()
         print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
 
@@ -263,8 +272,8 @@ class Utility:
         unit.Rect_Settings.x = x
         unit.Rect_Settings.y = y
         unit.Rect_Settings.Rect = None
-        Utility.create_rect(self, unit.Rect_Settings)
-        pygame.display.flip()  
+        rect_settings = Utility.create_rect(self, unit.Rect_Settings)
+        pygame.display.update(rect_settings.Rect)  
 
     def update_selected_units_list(self, unit):
         newlist = self.selected_units
@@ -283,14 +292,16 @@ class Utility:
         return newlist
 
     # create sides panel with army troop buttons
-    def draw_side_panel(self, mouse_pos):
-        rect_settings = Utility.RectSettings()
-        rect_settings.BgColor = Constants.Colors.POOP_BROWN
-        rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-        rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, self.surface.get_height())
-        rect_settings.BorderColor = Constants.Colors.GAME_BORDER
-        rect_settings.BorderSides = [Utility.BorderSides.RIGHT]
-        Utility.create_rect(self, rect_settings, ignore_side_panel=True)
+    def draw_side_panel(self, mouse_pos = None, rect_settings = None):
+        if rect_settings is None:
+            rect_settings = Utility.RectSettings()
+            rect_settings.BgColor = Constants.Colors.POOP_BROWN
+            rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, self.surface.get_height())
+            rect_settings.BorderColor = Constants.Colors.GAME_BORDER
+            rect_settings.BorderSides = [Utility.BorderSides.RIGHT]
+        
+        side_panel_rect_settings = Utility.create_rect(self, rect_settings, ignore_side_panel=True)
 
         # button for each guy
         i = 1
@@ -316,10 +327,13 @@ class Utility:
             unit_button_list.append(rect_settings)
             i = i + 1
             
-        for unit_button in unit_button_list:
-            if unit_button.Rect.collidepoint(mouse_pos):
-                Utility.unit_button_highlighted(self, unit_button)    
+        if mouse_pos is not None:
+            for unit_button in unit_button_list:
+                if unit_button.Rect.collidepoint(mouse_pos):
+                    Utility.unit_button_highlighted(self, unit_button)    
 
+        return side_panel_rect_settings
+    
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self):
         rect_settings = Utility.RectSettings()

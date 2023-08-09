@@ -263,9 +263,15 @@ class rts:
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
 
+        # get grid of screen based on unit size
         grid = Utility.get_empty_grid(self)
+        
+        #  refresh side panel / highlight a unit that's hovered over
+        side_panel_rects = Utility.draw_side_panel(self)
 
-        obstacles = Utility.create_terrain(self, grid)
+        # update grid with nodes we cannot walk on
+        obstacles = Utility.create_terrain(self, grid, side_panel_rects)
+
 
         grid = Utility.update_grid_with_terrain(self, grid, obstacles)
 
@@ -328,7 +334,7 @@ class rts:
                         Utility.create_bottom_panel(self)
                 
                 #  refresh side panel / highlight a unit that's hovered over
-                Utility.draw_side_panel(self, mouse_pos)
+                Utility.draw_side_panel(self, mouse_pos, side_panel_rects)
 
                 # create border last to cover anything up
                 for screen_border in self.border_rects:
