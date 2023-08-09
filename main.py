@@ -57,6 +57,9 @@ class rts:
     # game data
     player = Player()
     matrix = None
+    grid = None
+    side_panel_rects = None
+    obstacles = None
 
     # title screen
     def title_loop(self):
@@ -215,7 +218,7 @@ class rts:
         while pause_game_menu_loop_running:
             self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
-            # create ALICE_BLUE border
+            # border
             for screen_border in self.border_rects:
                 pygame.draw.rect(self.surface, Constants.Colors.PLUM, screen_border)
 
@@ -254,6 +257,54 @@ class rts:
             
             pygame.display.flip()
 
+    # loading screen
+    def loading_screen_loop(self):
+        loading_screen_loop_running = True 
+        pygame.display.set_caption(f"Loading!")
+
+        clock = pygame.time.Clock()
+        print(f"Started clock: {clock}")
+
+        loading_threads = []
+        while loading_screen_loop_running:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                clock.tick(60)
+
+                # blank out screen to allow refresh
+                self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
+
+                # border
+                for screen_border in self.border_rects:
+                    pygame.draw.rect(self.surface, Constants.Colors.PLUM, screen_border)
+
+                mouse_pos = pygame.mouse.get_pos()
+                self.surface.blit(self.mouse_pointer, mouse_pos)
+                font_size = 72
+                loading_rect_y = Constants.SCREEN_HEIGHT / 2 - font_size
+                text = "Loading..."
+                rect = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+                pygame.display.flip()
+
+                # the work..
+                loading_threads.append(executor.submit(Utility.load_grid, self))
+
+                # check if done..
+                for f in concurrent.futures.as_completed(loading_threads):
+                    print(f"loading_threads f: {f.result()}")
+                    loading_screen_loop_running = False
+
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        print(f"mouse down: {event}")
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        print(f"mouse up: {event}")
+                    if event.type == pygame.KEYDOWN:
+                        print(f"key down: {event}")
+                    if event.type == pygame.QUIT:
+                        # change the value to False, to exit the main loop
+                        loading_screen_loop_running = False
+                        self.running = False
+
     # the game..
     def main_game_loop(self):        
         game_init_start = time.perf_counter()
@@ -263,16 +314,7 @@ class rts:
         clock = pygame.time.Clock()
         print(f"Started clock: {clock}")
 
-        # get grid of screen based on unit size
-        grid = Utility.get_empty_grid(self)
-        
-        #  refresh side panel / highlight a unit that's hovered over
-        side_panel_rects = Utility.draw_side_panel(self)
-
-        # update grid with nodes we cannot walk on
-        obstacles = Utility.create_terrain(self, grid, side_panel_rects)
-
-        grid = Utility.update_grid_with_terrain(self, grid, obstacles)
+        self.loading_screen_loop()
 
         # be hit 60 times every seconds
         hero_unit_created = False
@@ -295,7 +337,7 @@ class rts:
                 mouse_pos = pygame.mouse.get_pos()
 
                 # create terrain environment
-                Utility.draw_terrain(self, obstacles)
+                Utility.draw_terrain(self, self.obstacles)
 
                 # create initial unit
                 if hero_unit_created:
@@ -333,7 +375,7 @@ class rts:
                         Utility.create_bottom_panel(self)
                 
                 #  refresh side panel / highlight a unit that's hovered over
-                Utility.draw_side_panel(self, mouse_pos, side_panel_rects)
+                Utility.draw_side_panel(self, mouse_pos, self.side_panel_rects)
 
                 # create border last to cover anything up
                 for screen_border in self.border_rects:
@@ -362,9 +404,9 @@ class rts:
                         for army_unit in self.selected_units:
                             if army_unit.Moving_Thread is None:                        
                                 # submit - execute once, returns future
-                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, grid, army_unit, mouse_pos[0], mouse_pos[1]))
+                                unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
                 elif mouse[1] == True:
-                    Utility.show_grid(self, grid, mouse_pos)
+                    Utility.show_grid(self, self.grid, mouse_pos)
                 elif mouse[2] == True:
                     pass
                     # print(f"right mouse: {pos}")
@@ -373,7 +415,7 @@ class rts:
                 for f in concurrent.futures.as_completed(unit_moving_threads):
                     print(f"f: {f.result()}")
                     army_unit.Moving_Thread = None
-                    grid.cleanup()
+                    self.grid.cleanup()
                     unit_moving_threads.remove(f)
 
                 # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous

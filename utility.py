@@ -76,9 +76,11 @@ class Utility:
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
         self.surface.blit(text, text_rect)    
 
+    # used for "gamebutton" class
     def create_rect_with_center_text(self, text, font, y, total_width):
-        text = font.render(text, True, 'black')
-        return text.get_rect(center=(total_width / 2, y))
+        font_render = font.render(text, True, 'black')
+        rect = font_render.get_rect(center=(total_width / 2, y))
+        return rect
 
     def update_rect_with_text(self, rect_settings):
         # add text
@@ -86,6 +88,18 @@ class Utility:
         unit_text = font.render(rect_settings.Text, True, rect_settings.FontColor)
         self.surface.blit(unit_text, rect_settings.Rect)  
 
+    def load_grid(self):
+                # get grid of screen based on unit size
+                self.grid = Utility.get_empty_grid(self)
+                
+                #  refresh side panel / highlight a unit that's hovered over
+                self.side_panel_rects = Utility.draw_side_panel(self)
+
+                # update grid with nodes we cannot walk on
+                self.obstacles = Utility.create_terrain(self, self.grid, self.side_panel_rects)
+
+                self.grid = Utility.update_grid_with_terrain(self, self.grid, self.obstacles)
+                
     def loop_fonts(self, font_name, y):
             rand_x = random.randint(0, 800)
             font = pygame.font.SysFont(font_name, 36)  
