@@ -95,9 +95,10 @@ class Utility:
                 #  refresh side panel / highlight a unit that's hovered over
                 self.side_panel_rects = Utility.draw_side_panel(self)
 
-                # update grid with nodes we cannot walk on
+                # generate our obstacles
                 self.obstacles = Utility.create_terrain(self, self.grid, self.side_panel_rects)
 
+                # update grid with nodes we cannot walk on
                 self.grid = Utility.update_grid_with_terrain(self, self.grid, self.obstacles)
                 
     def loop_fonts(self, font_name, y):
@@ -112,7 +113,7 @@ class Utility:
         num_tiles = 0
         
         for num_complete in range(Constants.NUM_WATER_TILES):
-            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            print(f"create_water_tiles % Complete: {round(((num_complete / Constants.NUM_WATER_TILES) * 100), 2)}")
 
             # start at a random point
             rand_node = random.choice(grid.nodes)
@@ -168,7 +169,7 @@ class Utility:
         num_tiles = 0
         
         for num_complete in range(Constants.NUM_MOUNTAIN_TILES):
-            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            print(f"create_mountain_tiles % Complete: {round(((num_complete / Constants.NUM_MOUNTAIN_TILES) * 100), 2)}")
             # start at a random point
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)     
@@ -219,7 +220,7 @@ class Utility:
         num_tiles = 0
         
         for num_complete in range(Constants.NUM_FIRE_TILES):
-            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            print(f"create_fire_tiles % Complete: {round(((num_complete / Constants.NUM_FIRE_TILES) * 100), 2)}")
             # start at a random point
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)     
@@ -270,7 +271,7 @@ class Utility:
         num_tiles = 0
         
         for num_complete in range(Constants.NUM_SWAMP_TILES):
-            print(f"% Complete: {num_complete / Constants.NUM_MOUNTAIN_TILES}")
+            print(f"create_swamp_tiles % Complete: {round(((num_complete / Constants.NUM_SWAMP_TILES) * 100), 2)}")
             # start at a random point
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)     

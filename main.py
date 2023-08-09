@@ -37,9 +37,6 @@ class rts:
     right_border_rect = pygame.Rect(Constants.SCREEN_WIDTH - Constants.GAME_MAIN_BORDER_SIZE, 0, Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_HEIGHT)
     border_rects.append(right_border_rect)
 
-    # units on the screen that have been clicked on
-    selected_units = []
-
     # mouse
     mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE, Constants.MOUSE_POINTER_SIZE))
     mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
@@ -59,7 +56,9 @@ class rts:
     matrix = None
     grid = None
     side_panel_rects = None
-    obstacles = None
+    obstacles = None    
+    selected_units = [] # units on the screen that have been clicked on
+    loading_msg = None
 
     # title screen
     def title_loop(self):
@@ -268,21 +267,32 @@ class rts:
         loading_threads = []
         while loading_screen_loop_running:
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                clock.tick(60)
+                clock.tick(60)                
 
                 # blank out screen to allow refresh
                 self.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
+                # mouse
+                mouse_pos = pygame.mouse.get_pos()
+                self.surface.blit(self.mouse_pointer, mouse_pos)
+
                 # border
                 for screen_border in self.border_rects:
                     pygame.draw.rect(self.surface, Constants.Colors.PLUM, screen_border)
-
-                mouse_pos = pygame.mouse.get_pos()
-                self.surface.blit(self.mouse_pointer, mouse_pos)
+                
+                # main font
                 font_size = 72
                 loading_rect_y = Constants.SCREEN_HEIGHT / 2 - font_size
                 text = "Loading..."
                 rect = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+
+                font_size = 36
+                loading_rect_y = (Constants.SCREEN_HEIGHT / 4 - font_size) * 3
+                if self.loading_msg is None:
+                    text = "Loading2..."
+                    self.loading_msg = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+
+                # update entire display
                 pygame.display.flip()
 
                 # the work..
