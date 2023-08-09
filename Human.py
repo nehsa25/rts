@@ -7,7 +7,7 @@ class Human(unit.Unit):
     secondary_color = Constants.Colors.NAVY
     hover_color = Constants.Colors.NAVY 
     hover_text_color = Constants.Colors.YELLOW
-    font = "mistral"
+    font = "baskervilleoldface"
     font_size = 36
 
     class Farmer(unit.UnitTypes.MeleeUnit):

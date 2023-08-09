@@ -70,7 +70,7 @@ class Utility:
     def loop_fonts(self, font_name, y):
             rand_x = random.randint(0, 800)
             font = pygame.font.SysFont(font_name, 36)  
-            text = font.render(f"Wood Elves ({font_name})", True, 'black')
+            text = font.render(f"Human ({font_name})", True, 'black')
             rect = text.get_rect(x=rand_x, y=y)
             self.surface.blit(text, rect)
 
@@ -124,64 +124,54 @@ class Utility:
     # returns all obstablces in a single list of dictionaries
     def create_terrain(self, grid):
         create_terrain_start = time.perf_counter()  
+        obstacles = []
         # create water tiles
-        water_rects = []
         for _ in range(Constants.NUM_WATER_TILES):
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            water_rects.append(rect)
+            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            obstacles.append(dict(name="water", rect = rect))
 
         # create fire tiles
-        fire_rects = []
         for _ in range(Constants.NUM_FIRE_TILES):
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            fire_rects.append(rect)
+            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            obstacles.append(dict(name="fire", rect = rect))
 
         # create mountain tiles
-        mountain_rects = []
         for _ in range(Constants.NUM_MOUNTAIN_TILES):
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            mountain_rects.append(rect)
+            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            obstacles.append(dict(name="mountain", rect = rect))
 
         # create swamp tiles
-        swamp_rects = []
         for _ in range(Constants.NUM_SWAMP_TILES):
             rand_node = random.choice(grid.nodes)
             rand_cord = random.choice(rand_node)
-            rect = pygame.Rect(rand_cord.x, rand_cord.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-            swamp_rects.append(rect)
+            rect = pygame.Rect(rand_cord.x * Unit.UNIT_SIZE, rand_cord.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+            obstacles.append(dict(name="swamp", rect = rect))
 
-        obstacles = []
-        obstacles.extend([dict(name="water", rects = water_rects, is_traversable = False)])
-        obstacles.extend([dict(name="fire", rects = fire_rects, is_traversable = False)])
-        obstacles.extend([dict(name="mountain", rects = mountain_rects, is_traversable = False)])
-        obstacles.extend([dict(name="swamp", rects = swamp_rects, is_traversable = True)])
         create_terrain_end = time.perf_counter() 
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
         return obstacles
 
-    def draw_enviornment(self, obstacles):
-        draw_enviornment_start = time.perf_counter() 
+    def draw_terrain(self, obstacles):
+        draw_terrain_start = time.perf_counter() 
         for obstacle in obstacles:                 
-            if obstacle["name"].lower() == "water": # create random "water" obstacles           
-                for water_tile in obstacle["rects"]:
-                    pygame.draw.rect(self.surface, Constants.Colors.AQUA, water_tile)
+            if obstacle["name"].lower() == "water": # create random "water" obstacles
+                pygame.draw.rect(self.surface, Constants.Colors.AQUA, obstacle["rect"])
             elif obstacle["name"].lower() == "fire": # create random "fire" obstacles 
-                for fire_tile in obstacle["rects"]:
-                    pygame.draw.rect(self.surface, Constants.Colors.FIRE, fire_tile)
+                pygame.draw.rect(self.surface, Constants.Colors.FIRE, obstacle["rect"])
             elif obstacle["name"].lower() == "mountain": # create random "mountain" obstacles
-                for mountain_tile in obstacle["rects"]:
-                    pygame.draw.rect(self.surface, Constants.Colors.WHITE_MISTY, mountain_tile)
+                pygame.draw.rect(self.surface, Constants.Colors.WHITE_MISTY, obstacle["rect"])
             elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
-                for swamp_tile in obstacle["rects"]:
-                    pygame.draw.rect(self.surface, Constants.Colors.GREEN_DARK, swamp_tile)
-        draw_enviornment_end = time.perf_counter() 
-        print(f"draw_enviornment timings: {round(60 - (draw_enviornment_end - draw_enviornment_start), 2)} second(s)")
+                pygame.draw.rect(self.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+        draw_terrain_end = time.perf_counter() 
+        # print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
+        # pygame.display.flip()
+        # pass
 
     def show_grid(self, grid, mouse_pos):        
         show_grid_start = time.perf_counter()     
@@ -234,13 +224,13 @@ class Utility:
         UNIT_CANNOT_MOVE = False     
         for node in grid.nodes:
             for item in node:
-                for obstacle_type in obstacle_types:
-                    rect = pygame.Rect(item.x, item.y, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
-                    collide = rect.collidelist(obstacle_type["rects"])
-                    if collide == -1:
-                        item.walkable = UNIT_CAN_MOVE
-                    else:
-                        item.walkable = UNIT_CANNOT_MOVE   
+                collisions = [i["rect"] for i in obstacle_types]
+                rect = pygame.Rect(item.x * Unit.UNIT_SIZE, item.y * Unit.UNIT_SIZE, Unit.UNIT_SIZE, Unit.UNIT_SIZE)
+                collide = rect.collidelist(collisions)
+                if collide == -1:
+                    item.walkable = UNIT_CAN_MOVE
+                else:
+                    item.walkable = UNIT_CANNOT_MOVE   
         get_grid_end = time.perf_counter()
         print("get_grid: Done")
         print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")

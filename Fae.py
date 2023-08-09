@@ -8,7 +8,7 @@ class Fae(unit.Unit):
     hover_color = Constants.Colors.MAROON
     hover_text_color = Constants.Colors.FUCHSIA
     font = "blackadderitc"
-    font_size = 36 + 8
+    font_size = 36 + 16
 
     class Shapeshifter(unit.UnitTypes.MeleeUnit):
         def __init__(self):

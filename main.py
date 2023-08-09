@@ -113,7 +113,7 @@ class rts:
     # race select screen
     def race_select_loop(self):
         race_select_running = True 
-        pygame.display.set_caption("Select your race")
+        pygame.display.set_caption("Select your Race")
         font_size = 60
         base_height = Constants.SCREEN_HEIGHT / 2 - font_size # true center height # .5 of 1024 = 512
         text_height = base_height / 2 # .5 of 512 = 256
@@ -129,10 +129,10 @@ class rts:
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             # buttons!
-            Utility.draw_center_text(self, "Select your race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
+            Utility.draw_center_text(self, "Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
 
             # goblin
-            race_name = "Goblin"
+            race_name = "Goblins"
             goblin_button_rect = Utility.create_rect_with_center_text(self, 
                                                                       race_name, 
                                                                       pygame.font.SysFont(Goblin.font, Goblin.font_size),
@@ -152,7 +152,7 @@ class rts:
             elf_button.change_color(race_mouse_position)
             elf_button.update(self.surface)
 
-            race_name = "Human"
+            race_name = "Humans"
             human_button_rect = Utility.create_rect_with_center_text(self, 
                                                                      race_name, 
                                                                      pygame.font.SysFont(Human.font, Human.font_size), 
@@ -172,7 +172,7 @@ class rts:
             fae_button.change_color(race_mouse_position)
             fae_button.update(self.surface)
 
-            race_name = "Dwarf"
+            race_name = "Dwarve"
             dwarf_button_rect = Utility.create_rect_with_center_text(self, 
                                                                      race_name.upper(), 
                                                                      pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
@@ -290,7 +290,7 @@ class rts:
                 mouse_pos = pygame.mouse.get_pos()
 
                 # create terrain environment
-                Utility.draw_enviornment(self, obstacles)
+                Utility.draw_terrain(self, obstacles)
 
                 # create initial unit
                 if hero_unit_created:
@@ -360,8 +360,6 @@ class rts:
                                 unit_moving_threads.append(executor.submit(Utility.move_unit_over_time, self, grid, army_unit, mouse_pos[0], mouse_pos[1]))
                 elif mouse[1] == True:
                     Utility.show_grid(self, grid, mouse_pos)
-                    print(pygame.font.get_fonts())
-                    pass
                 elif mouse[2] == True:
                     pass
                     # print(f"right mouse: {pos}")
@@ -409,10 +407,10 @@ class rts:
                 #     Utility.loop_fonts(self, f, i)
                 #     i += 48
                 #     pygame.display.flip()
-                #     if i > 768:
+                #     if i > 990:
                 #         i = 0
                 #         self.surface.fill(Constants.Colors.HUNTER_GREEN) 
-                #         time.sleep(2)
+                #         time.sleep(5)
 
                 self.main_game_loop()
      
