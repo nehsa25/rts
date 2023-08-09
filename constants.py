@@ -1,7 +1,8 @@
 
 
 # constants
-import pygame
+from enum import Enum
+import random
 
 # fonts = ['arial', 'arialblack', 'bahnschrift', 'calibri', 'cambria', 'cambriamath', 'candara', 'comicsansms', 
 # 'consolas', 'constantia', 'corbel', 'couriernew', 'ebrima', 'franklingothicmedium', 'gabriola', 'gadugi', 'georgia', 
@@ -67,6 +68,12 @@ class Constants:
     TITLE_SCREEN_FONT_SIZE = 60
     TITLE_FONT = "showcardgothic" #rage is cool
 
+    # UNIT
+    UNIT_SIZE = 15
+    UNIT_BORDER_SIZE = 5
+    UNIT_SPAWN_X = SP_WIDTH + 100
+    UNIT_SPAWN_Y = 100
+
     # our colors
     class Colors:
 
@@ -127,5 +134,28 @@ class Constants:
         GAME_MAIN_BORDER_COLOR = GAME_BORDER        
         RANDOM = 1
 
+    # indicates what borders to created, used by create_rect function
+    class BorderSides(Enum):
+        ALL = 0
+        LEFT = 1
+        TOP = 2
+        RIGHT = 3
+        BOTTOM = 4
 
-        
+        @classmethod
+        def get_random_side(cls):
+            side = random.choice(cls._member_names_).lower()
+            return side.lower()
+
+    # used to determine how big of water pools to make
+    class DensityTypes(Enum):
+        Tiny = 0
+        Small = 1
+        Medium = 2
+        Large = 3
+        Huge = 4
+
+        @classmethod
+        def get_random_size(cls):
+            size = random.choice(cls._member_names_).lower()
+            return size.lower()

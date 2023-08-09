@@ -1,6 +1,4 @@
 # import the pygame module, so you can use it
-import queue
-import random
 import time
 #from threading import Thread
 import concurrent.futures
@@ -16,6 +14,7 @@ from fae import Fae
 from dwarf import Dwarf
 from gamebutton import GameButton
 from constants import Constants
+from pygameutility import PyGameUtility
 
 class rts:
     # initialize the pygame module
@@ -78,7 +77,7 @@ class rts:
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             # title screen text
-            Utility.draw_center_text(
+            PyGameUtility.draw_center_text(
                 self, 
                 f"{Constants.GAME_NAME} RTS", 
                 Constants.Colors.GAME_TEXT_COLOR, 
@@ -87,7 +86,7 @@ class rts:
                 font_size = Constants.TITLE_SCREEN_FONT_SIZE
             )        
 
-            Utility.draw_center_text(                
+            PyGameUtility.draw_center_text(                
                 self, 
                 "press SPACE or CLICK to begin!", 
                 Constants.Colors.GAME_TEXT_COLOR,
@@ -133,11 +132,11 @@ class rts:
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             # buttons!
-            Utility.draw_center_text(self, "Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
+            PyGameUtility.draw_center_text(self, "Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
 
             # goblin
             race_name = "Goblins"
-            goblin_button_rect = Utility.create_rect_with_center_text(self, 
+            goblin_button_rect = PyGameUtility.create_rect_with_center_text(self, 
                                                                       race_name, 
                                                                       pygame.font.SysFont(Goblin.font, Goblin.font_size),
                                                                       text_height + (Constants.MENU_SPACING * 2), 
@@ -147,7 +146,7 @@ class rts:
             goblin_button.update(self.surface)
 
             race_name = "Wood Elves"
-            elf_button_rect = Utility.create_rect_with_center_text(self, 
+            elf_button_rect = PyGameUtility.create_rect_with_center_text(self, 
                                                                    race_name, 
                                                                    pygame.font.SysFont(Elf.font, Elf.font_size), 
                                                                    text_height + (Constants.MENU_SPACING * 3),
@@ -157,7 +156,7 @@ class rts:
             elf_button.update(self.surface)
 
             race_name = "Humans"
-            human_button_rect = Utility.create_rect_with_center_text(self, 
+            human_button_rect = PyGameUtility.create_rect_with_center_text(self, 
                                                                      race_name, 
                                                                      pygame.font.SysFont(Human.font, Human.font_size), 
                                                                      text_height + (Constants.MENU_SPACING * 4), 
@@ -167,7 +166,7 @@ class rts:
             human_button.update(self.surface)
 
             race_name = "Fae"
-            fae_button_rect = Utility.create_rect_with_center_text(self, 
+            fae_button_rect = PyGameUtility.create_rect_with_center_text(self, 
                                                                    race_name, 
                                                                    pygame.font.SysFont(Fae.font, Fae.font_size), 
                                                                    text_height + (Constants.MENU_SPACING * 5),
@@ -177,7 +176,7 @@ class rts:
             fae_button.update(self.surface)
 
             race_name = "Dwarve"
-            dwarf_button_rect = Utility.create_rect_with_center_text(self, 
+            dwarf_button_rect = PyGameUtility.create_rect_with_center_text(self, 
                                                                      race_name.upper(), 
                                                                      pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
                                                                      text_height + (Constants.MENU_SPACING * 6), 
@@ -227,12 +226,12 @@ class rts:
             self.surface.blit(self.mouse_pointer, race_mouse_position)
 
             pause_y = Constants.SCREEN_HEIGHT / 2 - Constants.FONT_SIZE
-            race_button_rect = Utility.create_rect_with_center_text(self, "Choose Race", self.font, pause_y, Constants.SCREEN_WIDTH)
+            race_button_rect = PyGameUtility.create_rect_with_center_text(self, "Choose Race", self.font, pause_y, Constants.SCREEN_WIDTH)
             race_button = GameButton(race_button_rect, text_input="Choose Race", font=self.font, base_color="White", hovering_color="Green")
             race_button.change_color(race_mouse_position)
             race_button.update(self.surface)
 
-            quit_button_rect = Utility.create_rect_with_center_text(self, "Quit", self.font, pause_y + (Constants.MENU_SPACING * 1), Constants.SCREEN_WIDTH)
+            quit_button_rect = PyGameUtility.create_rect_with_center_text(self, "Quit", self.font, pause_y + (Constants.MENU_SPACING * 1), Constants.SCREEN_WIDTH)
             quit_button = GameButton(quit_button_rect, text_input="Quit", font=self.font, base_color="White", hovering_color="Green")
             quit_button.change_color(race_mouse_position)
             quit_button.update(self.surface)
@@ -292,7 +291,7 @@ class rts:
             font_size = 72
             loading_rect_y = Constants.SCREEN_HEIGHT / 2 - font_size
             text = Constants.LOADING_MSG
-            rect = Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+            rect = PyGameUtility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
 
             font_size = 36
             loading_rect_y = (Constants.SCREEN_HEIGHT / 4 - font_size) * 3
@@ -300,7 +299,7 @@ class rts:
             if state != "":
                 if self.loading_msg !=  "":
                     text = self.loading_msg               
-                Utility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+                PyGameUtility.draw_center_text(self, text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
 
             # update entire display
             pygame.display.flip()

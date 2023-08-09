@@ -1,8 +1,10 @@
-# our stuff
+import pygame
 
+# our stuff
 from constants import Constants
 from combattypes import CombatTypes
 from environment import Environment
+from pygameutility import PyGameUtility
 
 # how much damage, how fast, ect
 class Stats:
@@ -69,10 +71,13 @@ class UnitTypes:
 
 # the whole can of worms
 class Unit:
-    UNIT_SIZE = 15
-    UNIT_BORDER_SIZE = 5
     Name = None
     Type = None
     Rect_Settings = None
     Moving_Thread = None # so we can change direction
+
+    def __init__(self):
+        self.Rect_Settings = PyGameUtility.RectSettings()
+        self.Rect_Settings.Rect = pygame.Rect((Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_Y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)) 
+
 
