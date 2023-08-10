@@ -4,7 +4,7 @@ import pygame
 from constants import Constants
 from combattypes import CombatTypes
 from environment import Environment
-from pygameutility import PyGameUtility
+from pygameutility import PygameUtilities
 
 # how much damage, how fast, ect
 class Stats:
@@ -77,7 +77,7 @@ class Unit:
     Moving_Thread = None # so we can change direction
 
     def __init__(self):
-        self.Rect_Settings = PyGameUtility.RectSettings()
+        self.Rect_Settings = PygameUtilities.RectSettings()
         self.Rect_Settings.Rect = pygame.Rect((Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_Y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)) 
 
 

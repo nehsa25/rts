@@ -5,7 +5,10 @@ import pygame
 from constants import Constants
 from pathfinding.core.grid import Grid
 
-class PyGameUtility:  
+class PygameUtilities:  
+    font = None
+    surface = None
+
     class RectSettings:        
         x = 0
         y = 0
@@ -25,6 +28,11 @@ class PyGameUtility:
         id = None   
         def __init__(self):
             id = uuid4()
+
+    def __init__(self):
+        pygame.init() # initialize the pygame module
+        self.font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, Constants.FONT_SIZE)
+        self.surface = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
 
     def loop_fonts(self, font_name, y):
         rand_x = random.randint(0, 800)
@@ -75,22 +83,30 @@ class PyGameUtility:
 
                 # left
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.LEFT in rect_settings.BorderSides:
-                    left_border_rect = pygame.Rect((rect_settings.Rect.x-rect_settings.BorderSize, rect_settings.Rect.y, rect_settings.BorderSize, rect_settings.Rect.height))
+                    left_x = rect_settings.Rect.x - rect_settings.BorderSize
+                    left_y = rect_settings.Rect.y
+                    left_border_rect = pygame.Rect((left_x, left_y, rect_settings.BorderSize, rect_settings.Rect.height))
                     pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
 
                 # bottom   
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.BOTTOM in rect_settings.BorderSides:     
-                    bottom_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y + rect_settings.Rect.height, rect_settings.Rect.width, rect_settings.BorderSize))
+                    bottom_x = rect_settings.Rect.x + rect_settings.BorderSize
+                    bottom_y = rect_settings.Rect.y + rect_settings.Rect.height
+                    bottom_border_rect = pygame.Rect((bottom_x, bottom_y, rect_settings.Rect.width - 2, rect_settings.BorderSize))
                     pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
 
                 # right  
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.RIGHT in rect_settings.BorderSides:      
-                    right_border_rect = pygame.Rect((rect_settings.Rect.x + rect_settings.Rect.width, rect_settings.Rect.y, rect_settings.BorderSize, rect_settings.Rect.height))
+                    right_x = rect_settings.Rect.x + rect_settings.Rect.width - rect_settings.BorderSize
+                    right_y = rect_settings.Rect.y
+                    right_border_rect = pygame.Rect((right_x, right_y, rect_settings.BorderSize, rect_settings.Rect.height))
                     pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
 
                 # top
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.TOP in rect_settings.BorderSides:        
-                    top_border_rect = pygame.Rect((rect_settings.Rect.x, rect_settings.Rect.y - rect_settings.BorderSize, rect_settings.Rect.width, rect_settings.BorderSize))
+                    top_x = rect_settings.Rect.x + rect_settings.BorderSize
+                    top_y = rect_settings.Rect.y - rect_settings.BorderSize
+                    top_border_rect = pygame.Rect((top_x, top_y, rect_settings.Rect.width - rect_settings.BorderSize, rect_settings.BorderSize))
                     pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
 
         return rect_settings
@@ -129,9 +145,9 @@ class PyGameUtility:
         self.surface.blit(self.mouse_pointer, mouse_pos)           
         for node in grid.nodes:
             for item in node:
-                newx = item.x * Unit.UNIT_SIZE
-                newy = item.y * Unit.UNIT_SIZE
-                rect_settings = self.RectSettings()
+                newx = item.x * Constants.UNIT_SIZE
+                newy = item.y * Constants.UNIT_SIZE
+                rect_settings = PygameUtilities.RectSettings()
                 rect_settings.x = newx
                 rect_settings.y = newy
                 if item.walkable:
@@ -143,5 +159,3 @@ class PyGameUtility:
                 self.create_rect(self, rect_settings, True)
         show_grid_end = time.perf_counter()
         print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
-
-

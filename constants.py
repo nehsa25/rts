@@ -39,7 +39,7 @@ class Constants:
     # Environment
     NUM_WATER_TILES = 25
     NUM_FIRE_TILES = 5
-    NUM_MOUNTAIN_TILES = 70
+    NUM_MOUNTAIN_TILES = 40
     NUM_SWAMP_TILES = 10
 
     # main game side panel
@@ -55,14 +55,16 @@ class Constants:
     # main game window    
     RECT_SIZE = 25
     RECT_BORDER_SIZE = 2
-    MOUSE_POINTER_SIZE = 5    
+      
     SCREEN_WIDTH = 1024
     SCREEN_HEIGHT = 768   
     FONT_SIZE = 20
     MENU_SPACING = 60
-    UNIT_SPAWN_X = SP_WIDTH + RECT_BORDER_SIZE + PANEL_BUTTON_SPACING
-    UNIT_SPAWN_Y = 25
     GAME_MAIN_BORDER_SIZE = 5
+
+    # mouse
+    MOUSE_POINTER_SIZE = 3
+      
 
     # title screen
     TITLE_SCREEN_FONT_SIZE = 60
@@ -71,12 +73,13 @@ class Constants:
     # UNIT
     UNIT_SIZE = 15
     UNIT_BORDER_SIZE = 5
-    UNIT_SPAWN_X = SP_WIDTH + 100
-    UNIT_SPAWN_Y = 100
+    UNIT_SPAWN_X = int(SP_WIDTH + 20)
+    UNIT_SPAWN_Y = 20
+    SPAWN_WIDTH = 50
+    SPAWN_HEIGHT = 50
 
     # our colors
     class Colors:
-
         # rgb
         BLACK = (0, 0, 0)
 
@@ -98,16 +101,20 @@ class Constants:
         NAVY = (75,104,184) 
         ALICE_BLUE = (240,248,255)  
         AQUA = (0,255,255)      
+        DODGER = (30,144,255)
 
         # browns
         COCOA = (53,40,30)
         POOP_BROWN = (123, 92, 0)    
+        SIENNA = (160,82,45)
+        MOCCASIN = (255,228,181)
 
         # greens
         GREEN = (0, 255, 0)
         HUNTER_GREEN = (53, 94, 59)
         NEON_GREEN = (57,255,20)
         GREEN_DARK = (1, 50, 32)
+        OLIVE = (128,128,0)
 
         # purples
         PLUM = (221,160,221)
@@ -128,9 +135,10 @@ class Constants:
 
         # main colors
         GAME_MAIN_COLOR = DARK_PURPLE
+        GAME_MAP_COLOR = HUNTER_GREEN
         GAME_BORDER = BLACK
         GAME_TEXT_COLOR = ROYAL_GOLD
-        MOUSE_POINTER_COLOR = WHITE
+        MOUSE_POINTER_COLOR = ROYAL_GOLD
         GAME_MAIN_BORDER_COLOR = GAME_BORDER        
         RANDOM = 1
 
