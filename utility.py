@@ -764,8 +764,8 @@ class Utility:
             unit.Rect_Settings = pgu.RectSettings()
             unit.Rect_Settings.BgColor = player.selected_race.main_color
             unit.Rect_Settings.BorderColor = player.selected_race.secondary_color
-            unit.Rect_Settings.x = Constants.UNIT_SPAWN_X
-            unit.Rect_Settings.y = Constants.UNIT_SPAWN_Y
+            unit.Rect_Settings.x = random.randint(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_X + Constants.SPAWN_WIDTH)
+            unit.Rect_Settings.y = random.randint(Constants.UNIT_SPAWN_Y, Constants.UNIT_SPAWN_Y + Constants.SCREEN_HEIGHT)
             unit.Rect_Settings.width = Constants.UNIT_SIZE
             unit.Rect_Settings.height = Constants.UNIT_SIZE
             unit.Name = Names.generate_name(self)
