@@ -606,18 +606,23 @@ class Utility:
         x = unit.Rect_Settings.Rect.x
         y = unit.Rect_Settings.Rect.y
         oldrect = None 
-              
+
+        start = time.perf_counter()              
         for path in paths:       
             newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)       
-            print(f"Sleeping: {round(speed, 3)} seconds before moving {unit.Name} again")
+            print(f"Sleeping: {round(speed, 2)} seconds before moving {unit.Name} again ({unit})")
             sleep(speed)
             newrect.x = int(path[0] * Constants.UNIT_SIZE)
             newrect.y = int(path[1] * Constants.UNIT_SIZE)
-            print(f"moving unit to ({newrect.x}x{newrect.y})")
+            if oldrect is None:
+                print(f"{unit.Name} beginning travel to ({newrect.x}x{newrect.y})")
+            else:
+                print(f"Moving {unit.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
             newrect = self.move_unit(pgu, oldrect, newrect, unit.Rect_Settings.BgColor)
             oldrect = newrect
         unit.Rect_Settings.Rect = oldrect
-        return f"{unit.Name} done moving"
+        end = time.perf_counter()
+        return f"{unit.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
 
     # moves rect x,y cords
     def move_unit(self, pgu, prevrect, newrect, bg_color):
@@ -764,8 +769,8 @@ class Utility:
             unit.Rect_Settings = pgu.RectSettings()
             unit.Rect_Settings.BgColor = player.selected_race.main_color
             unit.Rect_Settings.BorderColor = player.selected_race.secondary_color
-            unit.Rect_Settings.x = random.randint(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_X + Constants.SPAWN_WIDTH)
-            unit.Rect_Settings.y = random.randint(Constants.UNIT_SPAWN_Y, Constants.UNIT_SPAWN_Y + Constants.SCREEN_HEIGHT)
+            unit.Rect_Settings.x = random.randint(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
+            unit.Rect_Settings.y = random.randint(Constants.UNIT_SPAWN_Y, Constants.UNIT_SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
             unit.Rect_Settings.width = Constants.UNIT_SIZE
             unit.Rect_Settings.height = Constants.UNIT_SIZE
             unit.Name = Names.generate_name(self)
