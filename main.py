@@ -389,7 +389,7 @@ class rts:
                         self.ut.create_bottom_panel(self.pgu, self.player)
                 
                 #  refresh side panel / highlight a unit that's hovered over
-                self.ut.draw_side_panel(self.pgu, rect_settings=self.side_panel_rects, player=self.player)
+                self.ut.draw_side_panel(self.pgu, rs=self.side_panel_rects, player=self.player)
 
                 # refresh spawn point
                 self.ut.draw_spawn_points(self.pgu)
@@ -402,7 +402,7 @@ class rts:
                 else:
                     self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
                     self.hero_unit_created = True
-                    
+
                 # create border last to cover anything up
                 for screen_border in self.border_rects:
                     pygame.draw.rect(self.pgu.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
@@ -432,14 +432,14 @@ class rts:
                                 # submit - execute once, returns future
                                 unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
                 elif mouse[1] == True:
-                    self.pgu.show_grid(self.grid, mouse_pos)
+                    self.ut.show_grid(self.pgu, self.grid)
                 elif mouse[2] == True:
                     pass
                     # print(f"right mouse: {pos}")
 
                 # reset army 
                 for f in concurrent.futures.as_completed(unit_moving_threads):
-                    print(f"f: {f.result()}")
+                    print(f"unit_moving_threads completed: {f.result()}")
                     army_unit.Moving_Thread = None
                     self.grid.cleanup()
                     unit_moving_threads.remove(f)

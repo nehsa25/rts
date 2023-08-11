@@ -68,7 +68,10 @@ class Constants:
 
     # mouse
     MOUSE_POINTER_SIZE = 3
-      
+
+    # grid details when middle mouse is pressed
+    GRID_DETAILS_WIDTH = 200
+    GRID_DETAILS_HEIGHT = 75 
 
     # title screen
     TITLE_SCREEN_FONT_SIZE = 60
@@ -77,10 +80,11 @@ class Constants:
     # UNIT
     UNIT_SIZE = 15
     UNIT_BORDER_SIZE = 5
-    UNIT_SPAWN_X = int(SP_WIDTH + 20)
-    UNIT_SPAWN_Y = 20
+    SPAWN_X = int(SP_WIDTH + 20)
+    SPAWN_Y = 20
     SPAWN_WIDTH = UNIT_SIZE * 10
     SPAWN_HEIGHT = UNIT_SIZE * 10
+    
 
     # our colors
     class Colors:
@@ -107,6 +111,8 @@ class Constants:
         ALICE_BLUE = (240,248,255)  
         AQUA = (0,255,255)      
         DODGER = (30,144,255)
+        WATER = (212, 241, 249)
+        RAIN = (56, 60, 63)
 
         # browns
         COCOA = (53,40,30)
@@ -141,10 +147,12 @@ class Constants:
         # main colors
         GAME_MAIN_COLOR = DARK_PURPLE
         GAME_MAP_COLOR = HUNTER_GREEN
-        GAME_BORDER = BLACK
+        GAME_BORDER_COLOR = BLACK
         GAME_TEXT_COLOR = ROYAL_GOLD
         MOUSE_POINTER_COLOR = ROYAL_GOLD
-        GAME_MAIN_BORDER_COLOR = GAME_BORDER        
+        GAME_MAIN_BORDER_COLOR = GAME_BORDER_COLOR    
+        SPAWN_COLOR = BURNT_ORANGE    
+        GRID_DETAILS_COLOR = SIENNA
         RANDOM = 1
 
     # indicates what borders to created, used by create_rect function

@@ -5,6 +5,7 @@ from uuid import uuid4
 import pygame
 from enum import Enum
 from pathfinding.finder.a_star import AStarFinder
+from pathfinding.core.grid import Grid
 
 # our stuff
 from constants import Constants
@@ -14,6 +15,7 @@ from pygameutility import PygameUtilities
 
 class Utility:
     finder = AStarFinder()
+    tiles = [] # all tiles..
 
     side_panel_rects = None
     spawn_points = None
@@ -21,7 +23,6 @@ class Utility:
     # mouse
     mouse_pointer = None
     mouse_pointer_mask = None
-
 
     def __init__(self):
         self.finder = AStarFinder()
@@ -45,7 +46,7 @@ class Utility:
         usable_map = False
 
         # get grid of screen based on unit size
-        grid = pgu.get_empty_grid()
+        grid = self.get_empty_grid()
         while not usable_map:
             # generate our obstacles
             obstacles = []
@@ -81,23 +82,84 @@ class Utility:
         print(f"usable_map: {usable_map}, runs: {runs}")        
         return grid, obstacles
 
+    def get_empty_grid(self):
+        get_empty_start = time.perf_counter()   
+        print(f"Generating grid based on {Constants.SCREEN_WIDTH}x{Constants.SCREEN_HEIGHT}")
+        matrix = []      
+        for y in range(0, Constants.SCREEN_HEIGHT, Constants.UNIT_SIZE):
+            x_line = []
+            for x in range(0, Constants.SCREEN_WIDTH, Constants.UNIT_SIZE):
+                x_line.append(1)
+            matrix.append(x_line)
+
+        print("get_empty_grid: Generating pathfinding grid...")
+        grid =  Grid(matrix = matrix)
+        print("get_empty_grid: Done...")
+        get_empty_end = time.perf_counter()
+        print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
+        return grid
+
+    def show_grid(self, pgu, grid):        
+        show_grid_start = time.perf_counter()  
+        mouse_pos = self.update_mouse(pgu)       
+        tile_details = ""
+        for node in grid.nodes:
+            for item in node:                
+                rs = pgu.RectSettings()
+                rs.x = int(item.x * Constants.UNIT_SIZE)
+                rs.y = int(item.y * Constants.UNIT_SIZE)
+                tile = [i for i in self.tiles if i["coord"]==(rs.x,rs.y)]
+                rs.Font = pygame.font.SysFont('Arial', 8)
+                mouse_x = int(mouse_pos[0] / Constants.UNIT_SIZE)
+                mouse_y = int(mouse_pos[1] / Constants.UNIT_SIZE)
+                if item.x == mouse_x and item.y == mouse_y: 
+                    tile_details = f"x: {item.x}"
+                    tile_details += f"y: {item.y}"
+                    tile_details += f"walkable: {False}"
+                    if len(tile) > 0:
+                        tile_details += f"Type: {tile[0]['name']}"
+
+                if item.walkable:
+                    rs.BgColor = Constants.Colors.GREEN_DARK
+                else:
+                    rs.BgColor = Constants.Colors.BURNT_ORANGE
+                rs.BorderColor = Constants.Colors.NEON_GREEN
+                rs.BorderSize = 1
+                pgu.create_rect(rs, True)
+        show_grid_end = time.perf_counter()
+        self.update_mouse(pgu, details_text=tile_details)    
+        print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
+
     # creates section of the map free for units spawn
     def draw_spawn_points(self, pgu, really_draw = True):
         self.update_mouse(pgu)
-        rect_settings = pgu.RectSettings()
-        rect_settings.BgColor = Constants.Colors.ALICE_BLUE
-        rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-        rect_settings.BorderColor = Constants.Colors.PLUM
-        rect_settings.Rect = pygame.Rect(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)        
-        return pgu.create_rect(rect_settings, ignore_side_panel=True, really_draw=really_draw)
+        rs = pgu.RectSettings()
+        rs.BgColor = Constants.Colors.SPAWN_COLOR
+        rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+        rs.BorderColor = Constants.Colors.PLUM
+        rs.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)        
+        return pgu.create_rect(rs, ignore_side_panel=True, really_draw=really_draw)
 
-    def update_mouse(self, pgu, mouse_pos=None, mouse_pointer = None):
+    def update_mouse(self, pgu, mouse_pos=None, mouse_pointer=None, details_text=None):
         if mouse_pos is None:
             mouse_pos = pygame.mouse.get_pos()
 
         if mouse_pointer is None:
             mouse_pointer = self.mouse_pointer
 
+        if details_text is not None:            
+            rs = pgu.RectSettings()
+            rs.x = mouse_pos[0] + 2
+            rs.y = mouse_pos[1]
+            rs.Text = details_text
+            rs.Width = Constants.GRID_DETAILS_WIDTH
+            rs.Height = Constants.GRID_DETAILS_HEIGHT
+            rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
+            rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
+            rs.BorderSides = [Constants.BorderSides.LEFT]
+            rs = pgu.create_rect(rs, ignore_side_panel = False, really_draw = True)
+            pygame.display.update(rs.Rect)
+            
         pgu.surface.blit(mouse_pointer, mouse_pos)
 
         return mouse_pos
@@ -146,7 +208,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked water tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="water", rect=rect, walkable=False))
+                    obs_item = dict(name="water", rect=rect, walkable=False, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
 
             print(f"num water tiles placed for {density}: {num_tiles}")
@@ -202,7 +266,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked mountain tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="mountain", rect=rect, walkable=False))
+                    obs_item = dict(name="mountain", rect=rect, walkable=False, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -253,7 +319,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked fire tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="fire", rect=rect, walkable=False))
+                    obs_item = dict(name="fire", rect=rect, walkable=True, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -304,7 +372,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked forest tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="forest", rect=rect, walkable=False))
+                    obs_item = dict(name="forest", rect=rect, walkable=False, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -355,7 +425,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked fog tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="fog", rect=rect, walkable=True))
+                    obs_item = dict(name="fog", rect=rect, walkable=True, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -406,7 +478,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked rain tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="rain", rect=rect, walkable=True))
+                    obs_item = dict(name="rain", rect=rect, walkable=True, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -457,7 +531,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked lava tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="lava", rect=rect, walkable=False))
+                    obs_item = dict(name="lava", rect=rect, walkable=False, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -508,7 +584,9 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked swamp tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="swamp", rect=rect, walkable=True))
+                    obs_item = dict(name="swamp", rect=rect, walkable=True, coord=(final_x,final_y))
+                    obstacles.append(obs_item)
+                    self.tiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -556,11 +634,11 @@ class Utility:
             elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
                 pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
             elif obstacle["name"].lower() == "rain": # create random "mountain" obstacles
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+                pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, obstacle["rect"])
             elif obstacle["name"].lower() == "fog": # create random "mountain" obstacles
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+                pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, obstacle["rect"])
             elif obstacle["name"].lower() == "forest": # create random "mountain" obstacles
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+                pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, obstacle["rect"])
             elif obstacle["name"].lower() == "lava": # create random "mountain" obstacles
                 pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, obstacle["rect"])
         draw_terrain_end = time.perf_counter()
@@ -583,6 +661,7 @@ class Utility:
                     item.walkable = UNIT_CAN_MOVE
                 else:
                     item.walkable = UNIT_CANNOT_MOVE
+
         get_grid_end = time.perf_counter()
         print("get_grid: Done")
         print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
@@ -593,36 +672,41 @@ class Utility:
         grid.cleanup()
         default_speed = .35
         speed = default_speed - (unit.Type.speed * .1)
-        start_x_grid = int(unit.Rect_Settings.Rect.x  / Constants.UNIT_SIZE)
-        start_y_grid = int(unit.Rect_Settings.Rect.y  / Constants.UNIT_SIZE)
+        start_x_grid = int(unit.rs.Rect.x  / Constants.UNIT_SIZE)
+        start_y_grid = int(unit.rs.Rect.y  / Constants.UNIT_SIZE)
         end_x_grid = int(end_x / Constants.UNIT_SIZE)
         end_y_grid = int(end_y / Constants.UNIT_SIZE)
         start = grid.node(start_x_grid, start_y_grid)
         end = grid.node(end_x_grid, end_y_grid)
         print(f"Checking path: {start_x_grid}x{start_y_grid} to {end_x_grid}x{end_y_grid}")
         paths, runs = self.finder.find_path(start, end, grid)
-        print(f"Moving {unit.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
-        print(f"paths: {paths}")
-        x = unit.Rect_Settings.Rect.x
-        y = unit.Rect_Settings.Rect.y
-        oldrect = None 
+        return_msg = ""
+        if len(paths) < 1:
+            return_msg = f"{unit.Name}: I can't get there"
+        else:
+            print(f"Moving {unit.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
+            print(f"paths: {paths}")
+            x = unit.rs.Rect.x
+            y = unit.rs.Rect.y
+            oldrect = None 
 
-        start = time.perf_counter()              
-        for path in paths:       
-            newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)       
-            print(f"Sleeping: {round(speed, 2)} seconds before moving {unit.Name} again ({unit})")
-            sleep(speed)
-            newrect.x = int(path[0] * Constants.UNIT_SIZE)
-            newrect.y = int(path[1] * Constants.UNIT_SIZE)
-            if oldrect is None:
-                print(f"{unit.Name} beginning travel to ({newrect.x}x{newrect.y})")
-            else:
-                print(f"Moving {unit.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
-            newrect = self.move_unit(pgu, oldrect, newrect, unit.Rect_Settings.BgColor)
-            oldrect = newrect
-        unit.Rect_Settings.Rect = oldrect
-        end = time.perf_counter()
-        return f"{unit.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+            start = time.perf_counter()              
+            for path in paths:       
+                newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)       
+                print(f"Sleeping: {round(speed, 2)} seconds before moving {unit.Name} again ({unit})")
+                sleep(speed)
+                newrect.x = int(path[0] * Constants.UNIT_SIZE)
+                newrect.y = int(path[1] * Constants.UNIT_SIZE)
+                if oldrect is None:
+                    print(f"{unit.Name} beginning travel to ({newrect.x}x{newrect.y})")
+                else:
+                    print(f"Moving {unit.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
+                newrect = self.move_unit(pgu, oldrect, newrect, unit.rs.BgColor)
+                oldrect = newrect
+            unit.rs.Rect = oldrect
+            end = time.perf_counter()
+            return_msg = f"{unit.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+        return return_msg
 
     # moves rect x,y cords
     def move_unit(self, pgu, prevrect, newrect, bg_color):
@@ -665,17 +749,17 @@ class Utility:
         return newlist
 
     # create sides panel with army troop buttons
-    def draw_side_panel(self, pgu, player = None, rect_settings = None, really_draw = True):
+    def draw_side_panel(self, pgu, player = None, rs = None, really_draw = True):
         mouse_pos = self.update_mouse(pgu)
-        if rect_settings is None:
-            rect_settings = pgu.RectSettings()
-            rect_settings.BgColor = Constants.Colors.POOP_BROWN
-            rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-            rect_settings.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, pgu.surface.get_height())
-            rect_settings.BorderColor = Constants.Colors.GAME_BORDER
-            rect_settings.BorderSides = [Constants.BorderSides.RIGHT]
+        if rs is None:
+            rs = pgu.RectSettings()
+            rs.BgColor = Constants.Colors.POOP_BROWN
+            rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            rs.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, pgu.surface.get_height())
+            rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
+            rs.BorderSides = [Constants.BorderSides.RIGHT]
 
-        side_panel_rect_settings = pgu.create_rect(rect_settings, ignore_side_panel=True, really_draw=really_draw)
+        side_panel_rs = pgu.create_rect(rs, ignore_side_panel=True, really_draw=really_draw)
         if really_draw:
             # button for each guy
             i = 1
@@ -686,19 +770,19 @@ class Utility:
                 unit_width = Constants.SP_WIDTH / 2
                 unit_height = unit_width
 
-                rect_settings = pgu.RectSettings()
-                rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-                rect_settings.BgColor = player.selected_race.main_color
-                rect_settings.BorderColor = player.selected_race.secondary_color
-                rect_settings.Text = unit["Name"]
-                rect_settings.HintName = "unit button text"
-                rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-
-                pgu.create_rect(rect_settings, ignore_side_panel=True)
-                pgu.update_rect_with_text(rect_settings)
+                rs = pgu.RectSettings()
+                rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
+                rs.BgColor = player.selected_race.main_color
+                rs.BorderColor = player.selected_race.secondary_color
+                rs.Text = unit["Name"]
+                rs.HintName = "unit button text"
+                rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+                rs.Font = pygame.font.Font(None, rs.FontSize)
+                
+                pgu.create_rect(rs, ignore_side_panel=True)
 
                 # update our list to pass back
-                unit_button_list.append(rect_settings)
+                unit_button_list.append(rs)
                 i = i + 1
 
             if mouse_pos is not None:
@@ -706,79 +790,79 @@ class Utility:
                     if unit_btn_rectsettings.Rect.collidepoint(mouse_pos):
                         self.unit_button_highlighted(pgu, player, unit_btn_rectsettings)
 
-        return side_panel_rect_settings
+        return side_panel_rs
 
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self, pgu, player):
-        rect_settings = pgu.RectSettings()
-        rect_settings.BgColor = Constants.Colors.COCOA
-        rect_settings.BorderColor = Constants.Colors.GAME_BORDER
-        rect_settings.BorderSides = [Constants.BorderSides.TOP, Constants.BorderSides.LEFT]
-        rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+        rs = pgu.RectSettings()
+        rs.BgColor = Constants.Colors.COCOA
+        rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
+        rs.BorderSides = [Constants.BorderSides.TOP, Constants.BorderSides.LEFT]
+        rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
         nudge = 2
-        rect_settings.x = Constants.SP_WIDTH  + nudge # start at end of SP panel
-        rect_settings.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
-        rect_settings.width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH - nudge
-        rect_settings.height = pgu.surface.get_height()
-        rect_settings.HintName = "bottom panel main"
-        pgu.create_rect(rect_settings, ignore_side_panel=True)
+        rs.x = Constants.SP_WIDTH  + nudge # start at end of SP panel
+        rs.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
+        rs.Width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH - nudge
+        rs.Height = pgu.surface.get_height()
+        rs.HintName = "bottom panel main"
+        pgu.create_rect(rs, ignore_side_panel=True)
 
         # button for each guy
         i = 1
         unit_button_list = []
         for unit in player.army:
             unit_x = Constants.SP_WIDTH + Constants.PANEL_BUTTON_SPACING
-            unit_y = rect_settings.y + Constants.RECT_SIZE
+            unit_y = rs.y + Constants.RECT_SIZE
             unit_width = Constants.SP_WIDTH / 2
             unit_height = unit_width
 
-            rect_settings = pgu.RectSettings()
-            rect_settings.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-            rect_settings.BgColor = player.selected_race.main_color
-            rect_settings.BorderColor = player.selected_race.secondary_color
-            rect_settings.Text = unit.Name
-            rect_settings.HintName = "unit button text"
-            rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            rs = pgu.RectSettings()
+            rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
+            rs.BgColor = player.selected_race.main_color
+            rs.BorderColor = player.selected_race.secondary_color
+            rs.Text = unit.Name
+            rs.HintName = "unit button text"
+            rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
 
-            pgu.create_rect(rect_settings, ignore_side_panel=True)
-            pgu.update_rect_with_text(rect_settings)
+            pgu.create_rect(rs, ignore_side_panel=True)
+            pgu.update_rect_with_text(rs)
 
             # update our list to pass back
-            unit_button_list.append(rect_settings)
+            unit_button_list.append(rs)
             i = i + 1
 
         return unit_button_list
 
     # highlights buttons on left side panel
-    def unit_button_highlighted(self, pgu, player, unit_btn_rectsettings):
+    def unit_button_highlighted(self, pgu, player, rs):
+        rs.FontColor = player.selected_race.hover_text_color
+        rs.BgColor = player.selected_race.hover_color
+        pgu.create_rect(rs, ignore_side_panel=True, really_draw=True)
         self.update_mouse(pgu)
-        unit_btn_rectsettings.FontColor =  player.selected_race.hover_text_color
-        pygame.draw.rect(pgu.surface, player.selected_race.hover_color, unit_btn_rectsettings.Rect)
-        pgu.update_rect_with_text(unit_btn_rectsettings)
 
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, pgu, unit):
-        unit.Rect_Settings.BorderColor = Constants.Colors.RANDOM
-        unit.Rect_Settings = pgu.create_rect(unit.Rect_Settings)
+        unit.rs.BorderColor = Constants.Colors.RANDOM
+        unit.rs = pgu.create_rect(unit.rs)
         return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, pgu, player, unit_type, unit = None):
         if unit is None:
             unit = Unit()
-            unit.Rect_Settings = pgu.RectSettings()
-            unit.Rect_Settings.BgColor = player.selected_race.main_color
-            unit.Rect_Settings.BorderColor = player.selected_race.secondary_color
-            unit.Rect_Settings.x = random.randint(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
-            unit.Rect_Settings.y = random.randint(Constants.UNIT_SPAWN_Y, Constants.UNIT_SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
-            unit.Rect_Settings.width = Constants.UNIT_SIZE
-            unit.Rect_Settings.height = Constants.UNIT_SIZE
+            unit.rs = pgu.RectSettings()
+            unit.rs.BgColor = player.selected_race.main_color
+            unit.rs.BorderColor = player.selected_race.secondary_color
+            unit.rs.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
+            unit.rs.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
+            unit.rs.Width = Constants.UNIT_SIZE
+            unit.rs.Height = Constants.UNIT_SIZE
             unit.Name = Names.generate_name(self)
             unit.Type = unit_type
-            unit.Rect_Settings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
+            unit.rs.HintName = f"army unit on field: {unit.Name}" # just used for debugging
 
         # create new unit for this guy
-        unit.Rect_Settings = pgu.create_rect(unit.Rect_Settings)
+        unit.rs = pgu.create_rect(unit.rs)
 
         # add to our army list
         found_unit = False

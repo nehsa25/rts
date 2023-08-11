@@ -78,6 +78,6 @@ class Unit:
 
     def __init__(self):
         self.Rect_Settings = PygameUtilities.RectSettings()
-        self.Rect_Settings.Rect = pygame.Rect((Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_Y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)) 
+        self.Rect_Settings.Rect = pygame.Rect((Constants.SPAWN_X, Constants.SPAWN_Y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)) 
 
 
