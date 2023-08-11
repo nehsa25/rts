@@ -41,6 +41,10 @@ class Constants:
     NUM_FIRE_TILES = 5
     NUM_MOUNTAIN_TILES = 40
     NUM_SWAMP_TILES = 10
+    NUM_FOREST_TILES = 25
+    NUM_FOG_TILES = 40 # walkable
+    NUM_RAIN_TILES = 10 # walkable
+    NUM_LAVA_TILES = 3
 
     # main game side panel
     SP_WIDTH = 100   
@@ -75,8 +79,8 @@ class Constants:
     UNIT_BORDER_SIZE = 5
     UNIT_SPAWN_X = int(SP_WIDTH + 20)
     UNIT_SPAWN_Y = 20
-    SPAWN_WIDTH = 50
-    SPAWN_HEIGHT = 50
+    SPAWN_WIDTH = UNIT_SIZE * 10
+    SPAWN_HEIGHT = UNIT_SIZE * 10
 
     # our colors
     class Colors:
@@ -95,6 +99,7 @@ class Constants:
         SCARLET = (255, 36, 0)
         CRIMSON = (139, 0, 0)    
         FIRE = (255,90,0)   
+        LAVA = (207, 16, 32)
 
         # blues
         BLUE = (0, 0, 255)

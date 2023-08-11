@@ -66,8 +66,8 @@ class PygameUtilities:
 
         if really_draw:
             pygame.draw.rect(self.surface, rect_settings.BgColor, rect_settings.Rect) # this is what actually causes the rect to show up on screen
-
             if rect_settings.BorderColor is not None:
+                pygame.draw.rect(self.surface, rect_settings.BgColor, rect_settings.Rect)
                 if rect_settings.BorderSides is None:
                     rect_settings.BorderSides = [Constants.BorderSides.ALL]
                 if rect_settings.BorderColor is not Constants.Colors.RANDOM:
@@ -83,31 +83,31 @@ class PygameUtilities:
 
                 # left
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.LEFT in rect_settings.BorderSides:
-                    left_x = rect_settings.Rect.x - rect_settings.BorderSize
+                    left_x = rect_settings.Rect.x
                     left_y = rect_settings.Rect.y
-                    left_border_rect = pygame.Rect((left_x, left_y, rect_settings.BorderSize, rect_settings.Rect.height))
-                    pygame.draw.rect(self.surface, left_border_color, left_border_rect) 
+                    rect = pygame.Rect((left_x, left_y, rect_settings.BorderSize, rect_settings.Rect.height))
+                    pygame.draw.rect(self.surface, left_border_color, rect) 
 
                 # bottom   
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.BOTTOM in rect_settings.BorderSides:     
                     bottom_x = rect_settings.Rect.x + rect_settings.BorderSize
-                    bottom_y = rect_settings.Rect.y + rect_settings.Rect.height
-                    bottom_border_rect = pygame.Rect((bottom_x, bottom_y, rect_settings.Rect.width - 2, rect_settings.BorderSize))
-                    pygame.draw.rect(self.surface, bottom_border_color, bottom_border_rect)
+                    bottom_y = rect_settings.Rect.y + rect_settings.Rect.height - rect_settings.BorderSize
+                    rect = pygame.Rect((bottom_x, bottom_y, rect_settings.Rect.width - rect_settings.BorderSize, rect_settings.BorderSize))
+                    pygame.draw.rect(self.surface, bottom_border_color, rect)
 
                 # right  
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.RIGHT in rect_settings.BorderSides:      
                     right_x = rect_settings.Rect.x + rect_settings.Rect.width - rect_settings.BorderSize
                     right_y = rect_settings.Rect.y
-                    right_border_rect = pygame.Rect((right_x, right_y, rect_settings.BorderSize, rect_settings.Rect.height))
-                    pygame.draw.rect(self.surface, right_border_color, right_border_rect) 
+                    rect = pygame.Rect((right_x, right_y, rect_settings.BorderSize, rect_settings.Rect.height))
+                    pygame.draw.rect(self.surface, right_border_color, rect) 
 
                 # top
                 if Constants.BorderSides.ALL in rect_settings.BorderSides or Constants.BorderSides.TOP in rect_settings.BorderSides:        
                     top_x = rect_settings.Rect.x + rect_settings.BorderSize
-                    top_y = rect_settings.Rect.y - rect_settings.BorderSize
-                    top_border_rect = pygame.Rect((top_x, top_y, rect_settings.Rect.width - rect_settings.BorderSize, rect_settings.BorderSize))
-                    pygame.draw.rect(self.surface, top_border_color, top_border_rect) 
+                    top_y = rect_settings.Rect.y
+                    rect = pygame.Rect((top_x, top_y, rect_settings.Rect.width - rect_settings.BorderSize, rect_settings.BorderSize))
+                    pygame.draw.rect(self.surface, top_border_color, rect) 
 
         return rect_settings
 

@@ -326,12 +326,13 @@ class rts:
     def main_game_loop(self):        
         game_init_start = time.perf_counter()
         main_game_running = True 
-        pygame.display.set_caption(self.main_caption)
 
         clock = pygame.time.Clock()
         print(f"main_game_loop: Started clock: {clock}")
 
         self.loading_screen_loop()
+
+        pygame.display.set_caption(self.main_caption)
 
         # similate army
         for i in range(0, 3):
@@ -360,15 +361,6 @@ class rts:
 
                 # create terrain environment
                 self.ut.draw_terrain(self.pgu, self.obstacles)
-
-                # create initial unit
-                if self.hero_unit_created:
-                    # draw units on field
-                    for army_unit in self.player.army:
-                        self.ut.create_unit(self.pgu, self.player, army_unit, army_unit)
-                else:
-                    self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
-                    self.hero_unit_created = True
 
                 # # check for fire damage
                 # for army_unit in self.player.army:
@@ -399,6 +391,18 @@ class rts:
                 #  refresh side panel / highlight a unit that's hovered over
                 self.ut.draw_side_panel(self.pgu, rect_settings=self.side_panel_rects, player=self.player)
 
+                # refresh spawn point
+                self.ut.draw_spawn_points(self.pgu)
+
+                # create initial unit
+                if self.hero_unit_created:
+                    # draw units on field
+                    for army_unit in self.player.army:
+                        self.ut.create_unit(self.pgu, self.player, army_unit, army_unit)
+                else:
+                    self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
+                    self.hero_unit_created = True
+                    
                 # create border last to cover anything up
                 for screen_border in self.border_rects:
                     pygame.draw.rect(self.pgu.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)

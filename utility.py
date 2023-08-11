@@ -15,6 +15,9 @@ from pygameutility import PygameUtilities
 class Utility:
     finder = AStarFinder()
 
+    side_panel_rects = None
+    spawn_points = None
+
     # mouse
     mouse_pointer = None
     mouse_pointer_mask = None
@@ -28,14 +31,16 @@ class Utility:
         self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
 
         # hides mouse pointer provided by pygame
-        pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+        # pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
 
     def load_grid(self, pgu, grid, load_env = True):
         #  refresh side panel / highlight a unit that's hovered over
-        self.side_panel_rects = self.draw_side_panel(pgu, really_draw=False)
+        if self.side_panel_rects is None:
+            self.side_panel_rects = self.draw_side_panel(pgu, really_draw=False)
 
         # spawn points
-        self.spawn_points = self.create_spawn_points(pgu, really_draw=False)
+        if self.spawn_points is None:
+            self.spawn_points = self.draw_spawn_points(pgu, really_draw=False)
 
         usable_map = False
 
@@ -45,7 +50,10 @@ class Utility:
             # generate our obstacles
             obstacles = []
             if load_env:
-                obstacles = self.create_terrain(grid, self.side_panel_rects)
+                menu_list = []
+                menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
+                menu_list.append(dict(rects=self.spawn_points, walkable=True))
+                obstacles = self.create_terrain(grid, menu_list)
 
                 # # update grid with nodes we cannot walk on
                 grid = self.update_grid_with_terrain(grid, obstacles)
@@ -74,15 +82,14 @@ class Utility:
         return grid, obstacles
 
     # creates section of the map free for units spawn
-    def create_spawn_points(self, pgu, really_draw):
+    def draw_spawn_points(self, pgu, really_draw = True):
         self.update_mouse(pgu)
         rect_settings = pgu.RectSettings()
-        rect_settings.BgColor = Constants.Colors.POOP_BROWN
+        rect_settings.BgColor = Constants.Colors.ALICE_BLUE
         rect_settings.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-        rect_settings.BorderColor = Constants.Colors.GAME_BORDER
-        rect_settings.BorderSides = [Constants.BorderSides.RIGHT]
+        rect_settings.BorderColor = Constants.Colors.PLUM
         rect_settings.Rect = pygame.Rect(Constants.UNIT_SPAWN_X, Constants.UNIT_SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)        
-        pgu.create_rect(rect_settings, ignore_side_panel=True, really_draw=really_draw)
+        return pgu.create_rect(rect_settings, ignore_side_panel=True, really_draw=really_draw)
 
     def update_mouse(self, pgu, mouse_pos=None, mouse_pointer = None):
         if mouse_pos is None:
@@ -139,7 +146,7 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked water tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="water", rect = rect))
+                    obstacles.append(dict(name="water", rect=rect, walkable=False))
                     num_tiles += 1
 
             print(f"num water tiles placed for {density}: {num_tiles}")
@@ -195,7 +202,7 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked mountain tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="mountain", rect = rect))
+                    obstacles.append(dict(name="mountain", rect=rect, walkable=False))
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -246,13 +253,217 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked fire tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="fire", rect = rect))
+                    obstacles.append(dict(name="fire", rect=rect, walkable=False))
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
         print(f"create_fire_tiles: {round(60 - (end - start), 2)} second(s)")
         return obstacles
 
+    def create_forest_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+
+        for num_complete in range(Constants.NUM_FOREST_TILES):
+            print(f"create_forest_tiles % Complete: {round(((num_complete / Constants.NUM_FOREST_TILES) * 100), 2)}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            x = rand_cord.x
+            y = rand_cord.y
+
+            # chose a random water size
+            size = Constants.DensityTypes.get_random_size()
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Constants.BorderSides.get_random_side()
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+
+                final_x = x * Constants.UNIT_SIZE
+                final_y = y * Constants.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked forest tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="forest", rect=rect, walkable=False))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_forest_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+
+    def create_fog_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+
+        for num_complete in range(Constants.NUM_FOG_TILES):
+            print(f"create_fog_tiles % Complete: {round(((num_complete / Constants.NUM_FOG_TILES) * 100), 2)}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            x = rand_cord.x
+            y = rand_cord.y
+
+            # chose a random water size
+            size = Constants.DensityTypes.get_random_size()
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Constants.BorderSides.get_random_side()
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+
+                final_x = x * Constants.UNIT_SIZE
+                final_y = y * Constants.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked fog tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="fog", rect=rect, walkable=True))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_fog_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+    
+    def create_rain_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+
+        for num_complete in range(Constants.NUM_RAIN_TILES):
+            print(f"create_rain_tiles % Complete: {round(((num_complete / Constants.NUM_RAIN_TILES) * 100), 2)}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            x = rand_cord.x
+            y = rand_cord.y
+
+            # chose a random water size
+            size = Constants.DensityTypes.get_random_size()
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Constants.BorderSides.get_random_side()
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+
+                final_x = x * Constants.UNIT_SIZE
+                final_y = y * Constants.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked rain tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="rain", rect=rect, walkable=True))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_rain_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+    
+    def create_lava_tiles(self, grid, obstacles):
+        start = time.perf_counter()
+        num_tiles = 0
+
+        for num_complete in range(Constants.NUM_LAVA_TILES):
+            print(f"create_lava_tiles % Complete: {round(((num_complete / Constants.NUM_LAVA_TILES) * 100), 2)}")
+            # start at a random point
+            rand_node = random.choice(grid.nodes)
+            rand_cord = random.choice(rand_node)
+            x = rand_cord.x
+            y = rand_cord.y
+
+            # chose a random water size
+            size = Constants.DensityTypes.get_random_size()
+            density = 0
+            if size == "tiny":
+                density = random.randint(1, 2)
+            elif size == "small":
+                density = random.randint(2, 6)
+            elif size == "medium":
+                density = random.randint(6, 10)
+            elif size == "large":
+                density = random.randint(10, 30)
+            elif size == "huge":
+                density = random.randint(30, 100)
+
+            while num_tiles <= density:
+                side = Constants.BorderSides.get_random_side()
+                if side == "left":
+                    x += -1
+                elif side == "right":
+                    x += 1
+                elif side == "top":
+                    y += 1
+                elif side == "bottom":
+                    y += -1
+
+                final_x = x * Constants.UNIT_SIZE
+                final_y = y * Constants.UNIT_SIZE
+                rect = pygame.Rect(final_x, final_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                collisions = [i["rect"] for i in obstacles]
+                item = rect.collidelist(collisions)
+                if item == -1:
+                    print(f"picked lava tile placement: {final_x}x{final_y}")
+                    obstacles.append(dict(name="lava", rect=rect, walkable=False))
+                    num_tiles += 1
+            num_tiles = 0
+        end = time.perf_counter()
+        print(f"create_lava_tiles: {round(60 - (end - start), 2)} second(s)")
+        return obstacles
+    
     def create_swamp_tiles(self, grid, obstacles):
         start = time.perf_counter()
         num_tiles = 0
@@ -297,7 +508,7 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked swamp tile placement: {final_x}x{final_y}")
-                    obstacles.append(dict(name="swamp", rect = rect))
+                    obstacles.append(dict(name="swamp", rect=rect, walkable=True))
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -305,23 +516,29 @@ class Utility:
         return obstacles
 
     # returns all obstablces in a single list of dictionaries
-    def create_terrain(self, grid, side_panel_rect):
+    def create_terrain(self, grid, menu_rects):
         create_terrain_start = time.perf_counter()
         obstacles = []
 
-        # create side panel tiles
-        for h in range(0, int(side_panel_rect.Rect.height / Constants.UNIT_SIZE)):
-            for w in range(0, int(side_panel_rect.Rect.width / Constants.UNIT_SIZE)):
-                rand_node = grid.nodes[h]
-                rand_cord = rand_node[w]
-                rect = pygame.Rect(rand_cord.x * Constants.UNIT_SIZE, rand_cord.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-                obstacles.append(dict(name="panel", rect = rect))
+        for r in menu_rects:
+            walkable = r["walkable"]
+            # create side panel tiles
+            for h in range(0, int(r["rects"].Rect.height / Constants.UNIT_SIZE)):
+                for w in range(0, int(r["rects"].Rect.width / Constants.UNIT_SIZE)):
+                    rand_node = grid.nodes[h]
+                    rand_cord = rand_node[w]
+                    rect = pygame.Rect(rand_cord.x * Constants.UNIT_SIZE, rand_cord.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                    obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
 
         # create water tiles
         obstacles = self.create_water_tiles(grid, obstacles)
         obstacles = self.create_mountain_tiles(grid, obstacles)
         obstacles = self.create_swamp_tiles(grid, obstacles)
         obstacles = self.create_fire_tiles(grid, obstacles)
+        obstacles = self.create_forest_tiles(grid, obstacles)
+        obstacles = self.create_fog_tiles(grid, obstacles)
+        obstacles = self.create_rain_tiles(grid, obstacles)
+        obstacles = self.create_lava_tiles(grid, obstacles)
 
         create_terrain_end = time.perf_counter()
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
@@ -338,6 +555,14 @@ class Utility:
                 pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, obstacle["rect"])
             elif obstacle["name"].lower() == "swamp": # create random "mountain" obstacles
                 pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+            elif obstacle["name"].lower() == "rain": # create random "mountain" obstacles
+                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+            elif obstacle["name"].lower() == "fog": # create random "mountain" obstacles
+                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+            elif obstacle["name"].lower() == "forest": # create random "mountain" obstacles
+                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
+            elif obstacle["name"].lower() == "lava": # create random "mountain" obstacles
+                pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, obstacle["rect"])
         draw_terrain_end = time.perf_counter()
         # print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
         # pygame.display.flip()
@@ -348,9 +573,10 @@ class Utility:
         print("get_grid: Updating pathfinding grid with terrain...")
         UNIT_CAN_MOVE = True
         UNIT_CANNOT_MOVE = False
+
+        collisions = [i["rect"] for i in obstacle_types if i["walkable"] == False]
         for node in grid.nodes:
             for item in node:
-                collisions = [i["rect"] for i in obstacle_types]
                 rect = pygame.Rect(item.x * Constants.UNIT_SIZE, item.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
                 collide = rect.collidelist(collisions)
                 if collide == -1:
@@ -528,14 +754,14 @@ class Utility:
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, pgu, unit):
         unit.Rect_Settings.BorderColor = Constants.Colors.RANDOM
-        unit.Rect_settings = pgu.create_rect(unit.Rect_Settings)
+        unit.Rect_Settings = pgu.create_rect(unit.Rect_Settings)
         return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, pgu, player, unit_type, unit = None):
         if unit is None:
             unit = Unit()
-            unit.Rect_Settings = PygameUtilities.RectSettings()
+            unit.Rect_Settings = pgu.RectSettings()
             unit.Rect_Settings.BgColor = player.selected_race.main_color
             unit.Rect_Settings.BorderColor = player.selected_race.secondary_color
             unit.Rect_Settings.x = Constants.UNIT_SPAWN_X
