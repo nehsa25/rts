@@ -34,10 +34,11 @@ class Constants:
     PANEL_BUTTON_SPACING = 50    
     BORDER_SIZE = 5
     DEFAULT_FONT_NAME = "century"
+    DEFAULT_FONT_SIZE = 8
     LOADING_MSG = "Loading".upper()
 
     # Environment
-    NUM_WATER_TILES = 25
+    NUM_WATER_TILES = 10
     NUM_FIRE_TILES = 5
     NUM_MOUNTAIN_TILES = 40
     NUM_SWAMP_TILES = 10
@@ -65,13 +66,14 @@ class Constants:
     FONT_SIZE = 20
     MENU_SPACING = 60
     GAME_MAIN_BORDER_SIZE = 5
+    WORD_SPACING = 5
 
     # mouse
     MOUSE_POINTER_SIZE = 3
 
     # grid details when middle mouse is pressed
-    GRID_DETAILS_WIDTH = 200
-    GRID_DETAILS_HEIGHT = 75 
+    GRID_DETAILS_WIDTH = 150
+    GRID_DETAILS_HEIGHT = 125 
 
     # title screen
     TITLE_SCREEN_FONT_SIZE = 60
@@ -165,7 +167,9 @@ class Constants:
 
         @classmethod
         def get_random_side(cls):
-            side = random.choice(cls._member_names_).lower()
+            side = 'all'
+            while side == 'all':
+                side = random.choice(cls._member_names_).lower()
             return side.lower()
 
     # used to determine how big of water pools to make

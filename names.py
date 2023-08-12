@@ -18,6 +18,7 @@ class Names:
         names.append("Ethan")
         names.append("Pinf")
         names.append("Logoc")
+        names.append("Yerb")
         name_choice = random.randint(0, len(names) -1)
 
         # title list
@@ -33,6 +34,8 @@ class Names:
         titles.append("the Scholar")
         titles.append("the Loyal")
         titles.append("Stone")      
+        titles.append("Flatfoot") 
+        titles.append("") 
 
         title_choice = random.randint(0, len(titles) -1)
 

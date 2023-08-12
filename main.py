@@ -1,7 +1,4 @@
-# import the pygame module, so you can use it
-import random
 import time
-#from threading import Thread
 import concurrent.futures
 import pygame
 
@@ -16,45 +13,30 @@ from dwarf import Dwarf
 from gamebutton import GameButton
 from constants import Constants
 from pygameutility import PygameUtilities
+from gridutilities import GridUtilities
 
-class rts:
-    pgu = PygameUtilities()
-    ut = Utility()
-    
+class unhingedrts:
     # main window title
     main_caption = f"{Constants.GAME_NAME} - GLHF!"
-
-    # screen border
-    border_rects = []
-    top_border_rect = pygame.Rect(0, 0, Constants.SCREEN_WIDTH, Constants.GAME_MAIN_BORDER_SIZE)
-    border_rects.append(top_border_rect)
-
-    bottom_border_rect = pygame.Rect(0, Constants.SCREEN_HEIGHT-Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_WIDTH, Constants.GAME_MAIN_BORDER_SIZE)
-    border_rects.append(bottom_border_rect)
-
-    left_border_rect = pygame.Rect(0, 0, Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_WIDTH)
-    border_rects.append(left_border_rect)
-
-    right_border_rect = pygame.Rect(Constants.SCREEN_WIDTH - Constants.GAME_MAIN_BORDER_SIZE, 0, Constants.GAME_MAIN_BORDER_SIZE, Constants.SCREEN_HEIGHT)
-    border_rects.append(right_border_rect)
-
-    #logo
-    logo = pygame.image.load("logo.png")
-    pygame.display.set_icon(logo)
-    pygame.display.set_caption(Constants.GAME_NAME)    
-
-    running = True # kill everything if this gets set to false
-
-    # game data
-    player = Player()
-    matrix = None
-    grid = None
-    side_panel_rects = None
-    obstacles = None    
-    selected_units = [] # units on the screen that have been clicked on
-    loading_msg = ""
+    logo = None
+    running = True
+    player = None
     hero_unit_created = False
-
+    loading_msg = ""
+      
+    selected_units = [] # units on the screen that have been clicked on
+    
+    def __init__(self):
+        self.pgu = PygameUtilities()
+        self.ut = Utility(self.pgu)
+        self.gu = GridUtilities()
+        self.player = Player()  
+        
+        #logo
+        self.logo = pygame.image.load("logo.png")
+        pygame.display.set_icon(self.logo)
+        pygame.display.set_caption(Constants.GAME_NAME) 
+        
     # title screen
     def title_loop(self):
         first_open_running = True 
@@ -63,11 +45,10 @@ class rts:
         while first_open_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
-            # create border
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.pgu.surface, Constants.Colors.ROYAL_PURPLE, screen_border)
+            # draw border
+            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
 
-            self.ut.update_mouse(self.pgu)
+            self.pgu.update_mouse()
 
             # title screen text
             self.pgu.draw_center_text(
@@ -115,12 +96,12 @@ class rts:
         while race_select_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.pgu.surface, Constants.Colors.ROYAL_PURPLE, screen_border)
+            # draw border
+            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
 
             # get mouse info
             mouse_pos = pygame.mouse.get_pos()          
-            self.ut.update_mouse(self.pgu, mouse_pos)
+            self.pgu.update_mouse(mouse_pos)
 
             # buttons!
             self.pgu.draw_center_text("Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.DEFAULT_FONT_NAME, font_size)
@@ -266,11 +247,10 @@ class rts:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
             # mouse
-            self.ut.update_mouse(self.pgu)
+            self.pgu.update_mouse()
 
-            # border
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.pgu.surface, Constants.Colors.PLUM, screen_border)
+            # draw border
+            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
             
             # main font
             font_size = 72
@@ -292,7 +272,7 @@ class rts:
             # the work..
             if not loading:
                 load_env = True # load obstacles or not
-                loading_threads.append(executor.submit(self.ut.load_grid, self.pgu, self.grid, load_env))
+                loading_threads.append(executor.submit(self.gu.load_grid, self.pgu, self.ut, self.player, load_env))
                 loading = True # whether thread started
 
             # check if done..
@@ -306,7 +286,7 @@ class rts:
                     state = "COMPLETE"
                     self.loading_msg = "Get ready!".upper()  
                     result = future.result()
-                    self.grid = result[0]  
+                    self.gu.grid = result[0]  
                     self.obstacles = result[1]      
                     loading_screen_loop_running = False
 
@@ -335,135 +315,140 @@ class rts:
         pygame.display.set_caption(self.main_caption)
 
         # similate army
-        for i in range(0, 3):
-            troop = random.choice(self.player.selected_race.units)
-            self.ut.create_unit(self.pgu, self.player, troop["Type"])
-            pass
+        # for i in range(0, 3):
+        #     troop = random.choice(self.player.selected_race.units)
+        #     self.ut.create_unit(self.pgu, self.player, troop["Type"])
+        #     pass
 
         # be hit 60 times every seconds        
         game_init_end = time.perf_counter()
         print(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
 
         unit_moving_threads = []
+        executor = concurrent.futures.ThreadPoolExecutor()
+        executor._max_workers = 1
         while main_game_running:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                game_start = time.perf_counter()
+            game_start = time.perf_counter()
 
-                # slow things down
-                # print(f"Setting clock to 60 FPS")
-                clock.tick(60)
+            # slow things down
+            # print(f"Setting clock to 60 FPS")
+            clock.tick(60)
 
-                # blank out screen so we can redraw it
-                self.pgu.surface.fill(Constants.Colors.GAME_MAP_COLOR) 
+            # blank out screen so we can redraw it
+            self.pgu.surface.fill(Constants.Colors.GAME_MAP_COLOR) 
 
-                # mouse position
-                mouse_pos = pygame.mouse.get_pos()
+            # mouse position
+            mouse_pos = pygame.mouse.get_pos()
 
-                # create terrain environment
-                self.ut.draw_terrain(self.pgu, self.obstacles)
+            # create terrain environment
+            self.ut.draw_terrain(self.pgu, self.obstacles)
 
-                # # check for fire damage
-                # for army_unit in self.player.army:
-                #     if obstacles.colliderect(army_unit.Rect_Settings.Rect):
-                #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
+            # # check for fire damage
+            # for army_unit in self.player.army:
+            #     if obstacles.colliderect(army_unit.rs.Rect):
+            #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
-                # add mouse pointer
-                self.ut.update_mouse(self.pgu, mouse_pos, self.ut.mouse_pointer)
-                
-                # continuous key movement (fast)
-                key = pygame.key.get_pressed()            
-                if key[pygame.K_a] or key[pygame.K_LEFT] == True:
-                    pass
-                elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
-                    pass
-                elif key[pygame.K_w] or key[pygame.K_UP] == True:
-                    pass
-                elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
-                    pass
+            # add mouse pointer
+            self.pgu.update_mouse(mouse_pos, self.pgu.mouse_pointer)
+            
+            # continuous key movement (fast)
+            key = pygame.key.get_pressed()            
+            if key[pygame.K_a] or key[pygame.K_LEFT] == True:
+                pass
+            elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
+                pass
+            elif key[pygame.K_w] or key[pygame.K_UP] == True:
+                pass
+            elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
+                pass
 
-                # scan for selected units on each redraw
-                for selected_unit in self.selected_units:
-                    self.ut.select_unit(self.pgu, selected_unit)
-                    # if we have a unit selected, show it in the bottom window
-                    if len(self.selected_units) > 0:
-                        self.ut.create_bottom_panel(self.pgu, self.player)
-                
-                #  refresh side panel / highlight a unit that's hovered over
-                self.ut.draw_side_panel(self.pgu, rs=self.side_panel_rects, player=self.player)
+            # scan for selected units on each redraw
+            for selected_unit in self.selected_units:
+                self.ut.select_unit(self.pgu, selected_unit)
+                # if we have a unit selected, show it in the bottom window
+                if len(self.selected_units) > 0:
+                    self.ut.create_bottom_panel(self.pgu, self.player)
+            
+            #  refresh side panel / highlight a unit that's hovered over
+            self.ut.draw_side_panel(self.pgu, player=self.player)
 
-                # refresh spawn point
-                self.ut.draw_spawn_points(self.pgu)
+            # refresh spawn point
+            self.ut.draw_spawn_points(self.pgu)
 
-                # create initial unit
-                if self.hero_unit_created:
-                    # draw units on field
-                    for army_unit in self.player.army:
-                        self.ut.create_unit(self.pgu, self.player, army_unit, army_unit)
-                else:
-                    self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
-                    self.hero_unit_created = True
+            # create initial unit
+            if self.hero_unit_created:
+                # draw units on field
+                for army_unit in self.player.army:
+                    self.ut.create_unit(self.pgu, self.player, army_unit, army_unit)
+            else:
+                self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
+                self.hero_unit_created = True
 
-                # create border last to cover anything up
-                for screen_border in self.border_rects:
-                    pygame.draw.rect(self.pgu.surface, Constants.Colors.GAME_MAIN_BORDER_COLOR, screen_border)
+            # draw border last to cover anything up
+            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
 
-                # continuous mouse movement (fast)
-                mouse = pygame.mouse.get_pressed()            
-                if mouse[0] == True:
-                    # print(f"left mouse: {pos}")
+            # continuous mouse movement (fast)
+            mouse = pygame.mouse.get_pressed()            
+            if mouse[0] == True:
+                # print(f"left mouse: {pos}")
 
-                    # scan unit for select      
-                    selected_new_unit = False
-                    for unit in self.player.army:
-                        if unit.Rect_Settings.Rect.collidepoint(mouse_pos):                        
-                            self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
-                            self.selected_units.append(unit)
-                            selected_new_unit = True
+                # scan unit for select      
+                selected_new_unit = False
+                for unit in self.player.army:
+                    if unit.rs.Rect.collidepoint(mouse_pos):                        
+                        self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
+                        self.selected_units.append(unit)
+                        selected_new_unit = True
 
-                            # if we any unit selected, show it in the bottom window and indicate it's selected with border
-                            if len(self.selected_units) > 0:
-                                self.ut.select_unit(self.pgu, unit)
-                                self.ut.create_bottom_panel(self.pgu, self.player)
+                        # if we any unit selected, show it in the bottom window and indicate it's selected with border
+                        if len(self.selected_units) > 0:
+                            self.ut.select_unit(self.pgu, unit)
+                            self.ut.create_bottom_panel(self.pgu, self.player)
 
-                    # if we selected something new cool, if not, then the order it to move..
-                    if not selected_new_unit and len(self.selected_units) > 0:
-                        for army_unit in self.selected_units:
-                            if army_unit.Moving_Thread is None:                        
-                                # submit - execute once, returns future
-                                unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
-                elif mouse[1] == True:
-                    self.ut.show_grid(self.pgu, self.grid)
-                elif mouse[2] == True:
-                    pass
-                    # print(f"right mouse: {pos}")
+                # if we selected something new cool, if not, then the order it to move..
+                if not selected_new_unit and len(self.selected_units) > 0:
+                    for army_unit in self.selected_units:
+                        if army_unit.Moving_Thread is None:                        
+                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu.grid, army_unit, mouse_pos[0], mouse_pos[1]))
+            elif mouse[1] == True:
+                self.ut.show_grid(self.pgu, self.gu.grid)
+            elif mouse[2] == True:
+                print(f"right mouse")
 
-                # reset army 
-                for f in concurrent.futures.as_completed(unit_moving_threads):
-                    print(f"unit_moving_threads completed: {f.result()}")
-                    army_unit.Moving_Thread = None
-                    self.grid.cleanup()
-                    unit_moving_threads.remove(f)
+            # check if units done moving..
+            for future in unit_moving_threads:
+                state = future._state     
+                if state == "PENDING":
+                    state = "INITIALIZING"
+                elif state == "RUNNING":
+                    state = "LOADING"
+                elif state == "FINISHED":                        
+                    state = "COMPLETE"
+                    print(f"unit_moving_threads future state: {state}")
+                    result = future.result()
+                    print(f"Unit moving result: {result}")
 
-                # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        print(f"mouse down: {event}")
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        print(f"mouse up: {event}")
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.pause_game_menu_loop()
-                            if self.running == False:
-                                main_game_running = False
-                    if event.type == pygame.QUIT:
-                        # change the value to False, to exit the main loop
-                        main_game_running = False
-                        self.running = False
 
-                # print("Main game loop...")
-                game_end = time.perf_counter()
-                # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
-                pygame.display.flip()
+            # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    print(f"mouse down: {event}")
+                if event.type == pygame.MOUSEBUTTONUP:
+                    print(f"mouse up: {event}")
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.pause_game_menu_loop()
+                        if self.running == False:
+                            main_game_running = False
+                if event.type == pygame.QUIT:
+                    # change the value to False, to exit the main loop
+                    main_game_running = False
+                    self.running = False
+
+            # print("Main game loop...")
+            game_end = time.perf_counter()
+            # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            pygame.display.flip()
 
     def main(self):     
         first_opened = True
@@ -490,7 +475,8 @@ class rts:
 # (if you import this as a module then nothing is executed)
 if __name__=="__main__":
     main_start = time.perf_counter()
-    rts().main()
+    unhinged = unhingedrts()
+    unhinged.main()
     main_end = time.perf_counter()
     print(f"Finished in {round(main_end - main_start, 2)} second(s)")
 

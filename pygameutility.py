@@ -1,5 +1,4 @@
 import random
-import time
 from uuid import uuid4
 import pygame
 from constants import Constants
@@ -7,6 +6,10 @@ from constants import Constants
 class PygameUtilities:  
     font = None
     surface = None
+
+    # mouse
+    mouse_pointer = None
+    mouse_pointer_mask = None
 
     class RectSettings:        
         x = 0
@@ -24,7 +27,7 @@ class PygameUtilities:
         FontColor = Constants.Colors.BLACK
         BorderColor = None   
         BorderSides = None  
-        BorderSize = Constants.RECT_BORDER_SIZE
+        BorderWidth = Constants.RECT_BORDER_SIZE
         id = None   
         def __init__(self):
             self.id = uuid4()
@@ -34,6 +37,39 @@ class PygameUtilities:
         self.font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, Constants.FONT_SIZE)
         self.surface = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
 
+        self.mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE, Constants.MOUSE_POINTER_SIZE))
+        self.mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
+        self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
+
+        # hides mouse pointer provided by pygame
+        pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+
+
+    def update_mouse(self, mouse_pos=None, mouse_pointer=None, details_text=None):
+        if mouse_pos is None:
+            mouse_pos = pygame.mouse.get_pos()
+
+        if mouse_pointer is None:
+            mouse_pointer = self.mouse_pointer
+
+        if details_text is not None:            
+            rs = self.RectSettings()
+            rs.x = mouse_pos[0] + Constants.WORD_SPACING
+            rs.y = mouse_pos[1] + Constants.WORD_SPACING
+            rs.FontSize = 12
+            rs.Text = details_text
+            rs.Width = Constants.GRID_DETAILS_WIDTH
+            rs.Height = Constants.GRID_DETAILS_HEIGHT
+            rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
+            rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
+            rs.BorderSides = [Constants.BorderSides.LEFT]
+            rs = self.create_rect(rs, ignore_side_panel = False, really_draw = True)
+            pygame.display.update(rs.Rect)
+            
+        self.surface.blit(mouse_pointer, mouse_pos)
+
+        return mouse_pos
+    
     def loop_fonts(self, font_name, y):
         rand_x = random.randint(0, 800)
         font = pygame.font.SysFont(font_name, 36)  
@@ -71,63 +107,29 @@ class PygameUtilities:
                 rs.Rect.x = Constants.SP_WIDTH
 
         if really_draw:
-            pygame.draw.rect(self.surface, rs.BgColor, rs.Rect) # this is what actually causes the rect to show up on screen
-            if rs.BorderColor is not None:
+            if rs.BorderColor is None:
                 pygame.draw.rect(self.surface, rs.BgColor, rs.Rect)
-                if rs.BorderSides is None:
-                    rs.BorderSides = [Constants.BorderSides.ALL]
-                if rs.BorderColor is not Constants.Colors.RANDOM:
-                    left_border_color = rs.BorderColor
-                    bottom_border_color = rs.BorderColor
-                    right_border_color = rs.BorderColor
-                    top_border_color = rs.BorderColor
-                else:                
-                    left_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
-                    bottom_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
-                    right_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))                
-                    top_border_color = (random.choice(range(256)), random.choice(range(256)), random.choice(range(256)))
-
-                # left
-                if Constants.BorderSides.ALL in rs.BorderSides or Constants.BorderSides.LEFT in rs.BorderSides:
-                    left_x = rs.Rect.x
-                    left_y = rs.Rect.y
-                    rect = pygame.Rect((left_x, left_y, rs.BorderSize, rs.Rect.height))
-                    pygame.draw.rect(self.surface, left_border_color, rect) 
-
-                # bottom   
-                if Constants.BorderSides.ALL in rs.BorderSides or Constants.BorderSides.BOTTOM in rs.BorderSides:     
-                    bottom_x = rs.Rect.x + rs.BorderSize
-                    bottom_y = rs.Rect.y + rs.Rect.height - rs.BorderSize
-                    rect = pygame.Rect((bottom_x, bottom_y, rs.Rect.width - rs.BorderSize, rs.BorderSize))
-                    pygame.draw.rect(self.surface, bottom_border_color, rect)
-
-                # right  
-                if Constants.BorderSides.ALL in rs.BorderSides or Constants.BorderSides.RIGHT in rs.BorderSides:      
-                    right_x = rs.Rect.x + rs.Rect.width - rs.BorderSize
-                    right_y = rs.Rect.y
-                    rect = pygame.Rect((right_x, right_y, rs.BorderSize, rs.Rect.height))
-                    pygame.draw.rect(self.surface, right_border_color, rect) 
-
-                # top
-                if Constants.BorderSides.ALL in rs.BorderSides or Constants.BorderSides.TOP in rs.BorderSides:        
-                    top_x = rs.Rect.x + rs.BorderSize
-                    top_y = rs.Rect.y
-                    rect = pygame.Rect((top_x, top_y, rs.Rect.width - rs.BorderSize, rs.BorderSize))
-                    pygame.draw.rect(self.surface, top_border_color, rect) 
+            else:
+                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, rs.BorderWidth)
 
         # add text
         if rs.Text is not None:  
             if rs.FontColor is None:
                 rs.FontColor = Constants.Colors.NEON_GREEN
-            if rs.Font is None:
+
+            if rs.FontName is not None:
+                if rs.FontSize is None:
+                    rs.FontSize == Constants.DEFAULT_FONT_SIZE                    
+                rs.Font = pygame.font.SysFont(rs.FontName, rs.FontSize)
+            elif rs.Font is None:
                 rs.Font =  self.font
 
-            # unit_text = rs.Font.render(rs.Text, True, rs.FontColor)
-            # rect = unit_text.get_rect(x=rs.x, y=rs.y)
-            # self.surface.blit(unit_text, rect)
-
-            self.place_text(rs.Text, rs.x, rs.y, font=rs.Font, color=rs.FontColor)
-
+            if "\n" in rs.Text:
+                self.place_text(rs.Text, rs.Rect.width, rs.x, rs.y, font=rs.Font, color=rs.FontColor)
+            else:
+                unit_text = rs.Font.render(rs.Text, True, rs.FontColor)
+                rect = unit_text.get_rect(x=rs.x, y=rs.y)
+                self.surface.blit(unit_text, rect)
         return rs
 
     # used for "gamebutton" class
@@ -136,20 +138,28 @@ class PygameUtilities:
         rect = font_render.get_rect(center=(total_width / 2, y))
         return rect
 
-    def place_text(self, text, initial_x, initial_y, font, color=pygame.Color('black')):
-        words = [word.split(' ') for word in text.splitlines()] 
+    def place_text(self, text, width, initial_x, initial_y, font, color=pygame.Color('black')):
+        words = text.split(' ')
         space = font.size(' ')[0]
-        max_width, max_height = self.surface.get_size()
+        initial_x += Constants.WORD_SPACING
+        initial_y += Constants.WORD_SPACING
         x = initial_x
         y = initial_y
-        for line in words:
-            for word in line:
-                word_surface = font.render(word, 0, color)
+        for word in words:
+            newlines = word.split("\n")
+            for i in range(0, len(newlines)):
+                word_surface = font.render(newlines[i], 0, color)
                 word_width, word_height = word_surface.get_size()
-                if x + word_width >= max_width:
-                    x = initial_x  # Reset the x.
-                    y += word_height  # Start on new row.
+                word_height += Constants.WORD_SPACING
+                print(newlines[i])
+
+                if i > 0: # a new line
+                    x = initial_x
+                    y += word_height
+                else:
+                    if x + word_width >= (x + width - Constants.WORD_SPACING):
+                        x = initial_x
+                        y += word_height
                 self.surface.blit(word_surface, (x, y))
                 x += word_width + space
-            x = initial_x # Reset the x.
-            y += word_height  # Start on new row.
+

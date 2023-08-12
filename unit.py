@@ -73,11 +73,8 @@ class UnitTypes:
 class Unit:
     Name = None
     Type = None
-    Rect_Settings = None
+    rs = None
     Moving_Thread = None # so we can change direction
 
     def __init__(self):
-        self.Rect_Settings = PygameUtilities.RectSettings()
-        self.Rect_Settings.Rect = pygame.Rect((Constants.SPAWN_X, Constants.SPAWN_Y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)) 
-
-
+        self.rs = PygameUtilities.RectSettings()

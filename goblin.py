@@ -12,7 +12,7 @@ class Goblin(Unit):
 
     def __init__(self):
         super().__init__()
-        self.Rect_Settings.BgColor = self.main_color
+        self.rs.BgColor = self.main_color
 
     class Sailor(UnitTypes.MeleeUnit):
         def __init__(self):
