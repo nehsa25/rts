@@ -9,42 +9,46 @@ from constants import Constants
 from pygameutility import PygameUtilities
 from names import Names
 from unit import Unit
+from tile import Tiles, Tile
+from environment import Environment
 
 class Utility:
-    screen_border_rs = None
-    menu_rects = []
-    tiles = [] # all tiles.. not used yet..
+    screen_border_rs = None # border
+    sp_menu_rs = None # side panel
+    spawn_rs = None # spawn point
+    MenuTiles = [] 
+    MapTiles = Tiles # all tiles on map
     spawn_points = None
     obstacles = None  
-    side_panel_main_rect = None
-    spawn_point_rect = None
 
     def __init__(self, pgu):
-        # create border
-        screen_border_rs = pgu.RectSettings()
-        screen_border_rs.Width = Constants.SCREEN_WIDTH - (Constants.BORDER_SIZE)
-        screen_border_rs.Height = Constants.SCREEN_HEIGHT - (Constants.BORDER_SIZE)
-        screen_border_rs.BgColor = Constants.Colors.ROYAL_PURPLE
-        screen_border_rs.BorderColor = Constants.Colors.AQUA
-        screen_border_rs.BorderWidth = Constants.BORDER_SIZE
-        screen_border_rs = pgu.create_rect(screen_border_rs, ignore_side_panel=True, really_draw=True)
-        self.screen_border_rs = screen_border_rs
-        self.menu_rects.append(screen_border_rs.Rect)
+        self.MapTiles = Tiles()
+
+    def create_border(self, pgu):
+        if self.screen_border_rs is None:
+            # create border
+            self.screen_border_rs = pgu.RectSettings()
+            self.screen_border_rs.Width = Constants.SCREEN_WIDTH
+            self.screen_border_rs.Height = Constants.SCREEN_HEIGHT
+            self.screen_border_rs.BgColor = Constants.Colors.ROYAL_PURPLE
+            self.screen_border_rs.BorderColor = Constants.Colors.AQUA
+            self.screen_border_rs.BorderWidth = Constants.BORDER_SIZE
+        self.screen_border_rs = pgu.create_rect(self.screen_border_rs, ignore_side_panel=True, really_draw=True)
 
     # creates section of the map free for units spawn
     def draw_spawn_points(self, pgu, really_draw=True):
         pgu.update_mouse()
 
-        if self.spawn_point_rect is None:
-            self.spawn_point_rect = pgu.RectSettings()
-            self.spawn_point_rect.BgColor = Constants.Colors.SPAWN_COLOR
-            self.spawn_point_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-            self.spawn_point_rect.BorderColor = Constants.Colors.PLUM
-            self.spawn_point_rect.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)  
-            pgu.create_rect(self.spawn_point_rect, ignore_side_panel=True, really_draw=really_draw)
-        return self.spawn_point_rect
+        if self.spawn_rs is None:
+            spawn_point_rect = pgu.RectSettings()
+            spawn_point_rect.BgColor = Constants.Colors.SPAWN_COLOR
+            spawn_point_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            spawn_point_rect.BorderColor = Constants.Colors.PLUM
+            spawn_point_rect.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT) 
+            self.spawn_rs = spawn_point_rect
+        self.spawn_rs = pgu.create_rect(self.spawn_rs, ignore_side_panel=True, really_draw=really_draw)
 
-    def create_water_tiles(self, grid, obstacles):
+    def create_water_tiles(self, pgu, grid, obstacles):
         start = time.perf_counter()
         num_tiles = 0
         for num_complete in range(Constants.NUM_WATER_TILES):
@@ -89,9 +93,16 @@ class Utility:
                 item = rect.collidelist(collisions)
                 if item == -1:
                     print(f"picked water tile placement: {pixel_x}x{pixel_y}")
-                    obs_item = dict(name="water", rect=rect, walkable=False, coord=(pixel_x,pixel_y))
-                    obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+
+                    t = Tile()
+                    t.Type = Environment.TileType.Water
+                    t.Walkable = False
+                    t.x = pixel_x
+                    t.y = pixel_y
+                    t.RectSettings = pgu.RectSettings()
+                    t.RectSettings.Rect = rect
+                    obstacles.append(t)
+                    self.MapTiles.append(t)
                     num_tiles += 1
                     num_tiles_remaining -= 1
 
@@ -155,7 +166,7 @@ class Utility:
                     print(f"picked mountain tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="mountain", rect=rect, walkable=False, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -208,7 +219,7 @@ class Utility:
                     print(f"picked fire tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="fire", rect=rect, walkable=True, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -261,7 +272,7 @@ class Utility:
                     print(f"picked forest tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="forest", rect=rect, walkable=False, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -314,7 +325,7 @@ class Utility:
                     print(f"picked fog tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="fog", rect=rect, walkable=True, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -367,7 +378,7 @@ class Utility:
                     print(f"picked rain tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="rain", rect=rect, walkable=True, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -420,7 +431,7 @@ class Utility:
                     print(f"picked lava tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="lava", rect=rect, walkable=False, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -473,7 +484,7 @@ class Utility:
                     print(f"picked swamp tile placement: {final_x}x{final_y}")
                     obs_item = dict(name="swamp", rect=rect, walkable=True, coord=(final_x,final_y))
                     obstacles.append(obs_item)
-                    self.tiles.append(obs_item)
+                    self.MapTiles.append(obs_item)
                     num_tiles += 1
             num_tiles = 0
         end = time.perf_counter()
@@ -481,31 +492,31 @@ class Utility:
         return obstacles, grid
 
     # returns all obstablces in a single list of dictionaries
-    def create_terrain(self, grid, menu_rects):
+    def create_terrain(self, pgu, grid):
         create_terrain_start = time.perf_counter()
         obstacles = []
 
-        for r in menu_rects:
-            walkable = r["walkable"]
-            # create side panel tiles
-            height_start = 0
-            height_end = int(r["rects"].Rect.height / Constants.UNIT_SIZE)
-            width_start = 0
-            width_end = int(r["rects"].Rect.width / Constants.UNIT_SIZE)
+        # for r in menu_rects:
+        #     walkable = r["walkable"]
+        #     # create side panel tiles
+        #     height_start = 0
+        #     height_end = int(r["rects"].Rect.height / Constants.UNIT_SIZE)
+        #     width_start = 0
+        #     width_end = int(r["rects"].Rect.width / Constants.UNIT_SIZE)
             
-            for w in range(width_start, width_end):
-                for h in range(height_start, height_end):
-                    print(f"(w,h): ({h},{w})")
-                    current_node = grid.nodes[h]
-                    current_coord = current_node[w]
-                    grid.node(current_coord.x, current_coord.y).walkable = False
-                    # rect_x = current_coord.x * Constants.UNIT_SIZE
-                    # rect_y = current_coord.y * Constants.UNIT_SIZE
-                    # rect = pygame.Rect(rect_x, rect_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-                    # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
+        #     for w in range(width_start, width_end):
+        #         for h in range(height_start, height_end):
+        #             print(f"(w,h): ({h},{w})")
+        #             current_node = grid.nodes[h]
+        #             current_coord = current_node[w]
+        #             grid.node(current_coord.x, current_coord.y).walkable = False
+        #             # rect_x = current_coord.x * Constants.UNIT_SIZE
+        #             # rect_y = current_coord.y * Constants.UNIT_SIZE
+        #             # rect = pygame.Rect(rect_x, rect_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+        #             # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
 
         # create water tiles
-        obstacles, grid = self.create_water_tiles(grid, obstacles)
+        obstacles, grid = self.create_water_tiles(pgu, grid, obstacles)
         # obstacles, grid = self.create_mountain_tiles(grid, obstacles)
         # obstacles, grid = self.create_swamp_tiles(grid, obstacles)
         # obstacles, grid = self.create_fire_tiles(grid, obstacles)
@@ -656,15 +667,16 @@ class Utility:
     # create sides panel with army troop buttons
     def draw_side_panel(self, pgu, player, really_draw=True):
         mouse_pos = pgu.update_mouse()
-        if self.side_panel_main_rect is None:
-            self.side_panel_main_rect = pgu.RectSettings()
-            self.side_panel_main_rect.BgColor = Constants.Colors.POOP_BROWN
-            self.side_panel_main_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-            self.side_panel_main_rect.Rect = pygame.Rect(0, 0, Constants.SP_WIDTH, pgu.surface.get_height())
-            self.side_panel_main_rect.BorderColor = Constants.Colors.GAME_BORDER_COLOR
-            self.side_panel_main_rect.BorderSides = [Constants.BorderSides.RIGHT]
-
-        self.side_panel_main_rect = pgu.create_rect(self.side_panel_main_rect, ignore_side_panel=True, really_draw=really_draw)
+        if self.sp_menu_rs is None:
+            sp_menu_rs = pgu.RectSettings()
+            sp_menu_rs.BgColor = Constants.Colors.POOP_BROWN
+            sp_menu_rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            sp_menu_rs.Width = Constants.SP_WIDTH
+            sp_menu_rs.Height = pgu.surface.get_height()
+            sp_menu_rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
+            sp_menu_rs.BorderSides = [Constants.BorderSides.RIGHT]
+            self.sp_menu_rs = sp_menu_rs
+        self.sp_menu_rs = pgu.create_rect(self.sp_menu_rs, ignore_side_panel=True, really_draw=really_draw)
 
         # also draw guys..
         if really_draw:
@@ -675,7 +687,6 @@ class Utility:
                 unit_y = 60 * i
                 unit_width = Constants.SP_WIDTH / 2
                 unit_height = unit_width
-
                 rs = pgu.RectSettings()
                 rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
                 rs.BgColor = player.selected_race.main_color
@@ -683,8 +694,7 @@ class Utility:
                 rs.Text = unit["Name"]
                 rs.HintName = "unit button text"
                 rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-                rs.Font = pygame.font.Font(None, rs.FontSize)
-                
+                rs.Font = pygame.font.Font(None, rs.FontSize)                
                 pgu.create_rect(rs, ignore_side_panel=True)
 
                 # update our list to pass back
@@ -695,8 +705,6 @@ class Utility:
                 for unit_btn_rectsettings in unit_button_list:
                     if unit_btn_rectsettings.Rect.collidepoint(mouse_pos):
                         self.unit_button_highlighted(pgu, player, unit_btn_rectsettings)
-
-        return self.side_panel_main_rect
 
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self, pgu, player):

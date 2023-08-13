@@ -1,11 +1,15 @@
 import random
 from uuid import uuid4
 import pygame
+
+# our stuff
 from constants import Constants
+from tile import Tile
 
 class PygameUtilities:  
     font = None
     surface = None
+    screen_border_rs = None
 
     # mouse
     mouse_pointer = None
@@ -43,7 +47,6 @@ class PygameUtilities:
 
         # hides mouse pointer provided by pygame
         pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
-
 
     def update_mouse(self, mouse_pos=None, mouse_pointer=None, details_text=None):
         if mouse_pos is None:

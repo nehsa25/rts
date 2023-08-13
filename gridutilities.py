@@ -2,39 +2,43 @@ import time
 import pygame
 from pathfinding.finder.a_star import AStarFinder
 from pathfinding.core.grid import Grid
+from typing import List
 
 # our stuff
 from constants import Constants
+from tile import Tile
 
 class GridUtilities:
     finder = None
     grid = None
+    obstacles = []
 
     def __init__(self):
         self.finder = AStarFinder()
 
     def load_grid(self, pgu, ut, player, load_env = True):
+        tiles = None
+
         #  refresh side panel / highlight a unit that's hovered over
-        self.side_panel_rects = ut.draw_side_panel(pgu, player, really_draw=False)
+        ut.draw_side_panel(pgu, player, really_draw=False)
 
         # spawn points
-        self.spawn_points = ut.draw_spawn_points(pgu, really_draw=False)
+        ut.draw_spawn_points(pgu, really_draw=False)
 
         usable_map = False
 
         # get grid of screen based on unit size
-        self.grid = self.get_empty_grid()
+        self.grid, tiles = self.get_empty_grid()
         while not usable_map:
             # generate our obstacles
-            obstacles = []
             if load_env:
-                menu_list = []
-                menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
-                menu_list.append(dict(rects=self.spawn_points, walkable=True))
-                obstacles, self.grid = ut.create_terrain(self.grid, menu_list)
+                # menu_list = []
+                # menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
+                # menu_list.append(dict(rects=self.spawn_points, walkable=True))
+                self.obstacles, self.grid = ut.create_terrain(pgu, self.grid)
 
                 # # update grid with nodes we cannot walk on
-                self.grid = ut.update_grid_with_terrain(self.grid, obstacles)
+                self.grid = ut.update_grid_with_terrain(self.grid, self.obstacles)
 
             usable_map = True
             runs = 0
@@ -57,7 +61,7 @@ class GridUtilities:
             self.grid.cleanup()
 
         print(f"usable_map: {usable_map}, runs: {runs}")        
-        return self.grid, obstacles
+        return tiles
     
     def get_empty_grid(self):
         get_empty_start = time.perf_counter()   
@@ -73,26 +77,32 @@ class GridUtilities:
         grid =  Grid(matrix = matrix)
         grid.walkable = True
 
+        tiles = []
         for node in grid.nodes:
             for item in node:   
                 item.walkable = True
 
+                # create a "basic" tile
+                x = int(item.x * Constants.UNIT_SIZE)
+                y = int(item.y * Constants.UNIT_SIZE)
+                tiles.append(Tile(x,y, item.x, item.y))
+
         print("get_empty_grid: Done...")
         get_empty_end = time.perf_counter()
         print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
-        return grid
+        return grid, tiles
 
-    def show_grid(self, pgu):     
+    def show_grid(self, pgu, ut):     
         show_grid_start = time.perf_counter()  
         print("Showing grid")   
-        mouse_pos = self.update_mouse()       
+        mouse_pos = pgu.update_mouse()       
         tile_details = ""
         for node in self.grid.nodes:
             for item in node:                
                 rs = pgu.RectSettings()
                 rs.x = int(item.x * Constants.UNIT_SIZE)
                 rs.y = int(item.y * Constants.UNIT_SIZE)
-                tile = [i for i in self.tiles if i["coord"]==(rs.x,rs.y)]
+                tile = [i for i in ut.tiles if i["coord"]==(rs.x,rs.y)]
                 rs.Font = pygame.font.SysFont('Arial', 8)
                 mouse_x = int(mouse_pos[0] / Constants.UNIT_SIZE)
                 mouse_y = int(mouse_pos[1] / Constants.UNIT_SIZE)
@@ -110,6 +120,6 @@ class GridUtilities:
                 rs.BorderSize = 1
                 pgu.create_rect(rs, True)
         show_grid_end = time.perf_counter()
-        self.update_mouse(details_text=tile_details)    
+        pgu.update_mouse(details_text=tile_details)    
         print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
 

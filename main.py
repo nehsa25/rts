@@ -46,7 +46,7 @@ class unhingedrts:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
             # draw border
-            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
+            self.ut.create_border(self.pgu)
 
             self.pgu.update_mouse()
 
@@ -97,7 +97,7 @@ class unhingedrts:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
             # draw border
-            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
+            self.ut.create_border(self.pgu)
 
             # get mouse info
             mouse_pos = pygame.mouse.get_pos()          
@@ -185,9 +185,8 @@ class unhingedrts:
         while pause_game_menu_loop_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
 
-            # border
-            for screen_border in self.border_rects:
-                pygame.draw.rect(self.pgu.surface, Constants.Colors.PLUM, screen_border)
+            # draw border
+            self.ut.create_border(self.pgu)
 
             race_mouse_position = pygame.mouse.get_pos()
             self.pgu.surface.blit(self.mouse_pointer, race_mouse_position)
@@ -246,11 +245,11 @@ class unhingedrts:
             # blank out screen to allow refresh
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
 
+            # draw border
+            self.ut.create_border(self.pgu)
+
             # mouse
             self.pgu.update_mouse()
-
-            # draw border
-            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
             
             # main font
             font_size = 72
@@ -285,9 +284,9 @@ class unhingedrts:
                 elif state == "FINISHED":                        
                     state = "COMPLETE"
                     self.loading_msg = "Get ready!".upper()  
-                    result = future.result()
-                    self.gu.grid = result[0]  
-                    self.obstacles = result[1]      
+                    result = future.result()                     
+                    self.obstacles = result[0]
+                    self.gu.grid = result[1]
                     loading_screen_loop_running = False
 
         for event in pygame.event.get():
@@ -385,7 +384,7 @@ class unhingedrts:
                 self.hero_unit_created = True
 
             # draw border last to cover anything up
-            self.pgu.create_rect(self.ut.screen_border_rs, ignore_side_panel=True, really_draw=True)
+            self.ut.create_border(self.pgu)
 
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
@@ -411,7 +410,7 @@ class unhingedrts:
                         if army_unit.Moving_Thread is None:                        
                             unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu.grid, army_unit, mouse_pos[0], mouse_pos[1]))
             elif mouse[1] == True:
-                self.ut.show_grid(self.pgu, self.gu.grid)
+                self.gu.show_grid(self.pgu, self.ut)
             elif mouse[2] == True:
                 print(f"right mouse")
 
