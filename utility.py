@@ -47,7 +47,7 @@ class Utility:
             self.spawn_rs = spawn_point_rect
         self.spawn_rs = pgu.create_rect(self.spawn_rs, ignore_side_panel=True, really_draw=really_draw)
 
-    def create_water_tiles(self, pgu, grid, obstacles):
+    def create_water_tiles(self, pgu, gu, obstacles):
         start = time.perf_counter()
         num_tiles = 0
         for num_complete in range(Constants.NUM_WATER_TILES):
@@ -55,7 +55,7 @@ class Utility:
             num_tiles_remaining = Constants.NUM_WATER_TILES
 
             # start at a random point
-            rand_node = random.choice(grid.nodes)
+            rand_node = random.choice(gu.Grid.nodes)
             rand_cord = random.choice(rand_node)
             grid_x = rand_cord.x
             grid_y = rand_cord.y
@@ -117,7 +117,7 @@ class Utility:
 
         end = time.perf_counter()
         print(f"create_water_tiles: {round(60 - (end - start), 2)} second(s)")
-        return obstacles, grid
+        return obstacles, gu
 
     def create_mountain_tiles(self, grid, obstacles):
         start = time.perf_counter()
@@ -526,7 +526,7 @@ class Utility:
 
         create_terrain_end = time.perf_counter()
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
-        return grid, tiles
+        return tiles
 
     def draw_terrain(self, pgu, tiles):
         draw_terrain_start = time.perf_counter()
@@ -552,45 +552,28 @@ class Utility:
         draw_terrain_end = time.perf_counter()
         print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
 
-    def update_grid_with_terrain(self, grid, tiles):
-        get_grid_start = time.perf_counter()
-        print("get_grid: Updating pathfinding grid with terrain...")
-        UNIT_CANNOT_MOVE = False
-
-        collisions = [i for i in tiles if i.Walkable == False]
-        for node in grid.nodes:
-            for item in node:
-                rect = pygame.Rect(item.x * Constants.UNIT_SIZE, item.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-                collide = rect.collidelist(collisions)
-                if collide != -1:
-                    item.walkable = UNIT_CANNOT_MOVE
-
-        get_grid_end = time.perf_counter()
-        print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
-        return grid
-
     # uses speed of unit
     # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
-    def move_unit_over_time(self, pgu, grid, unit, end_x, end_y):
-        grid.cleanup()
+    def move_unit_over_time(self, pgu, gu, unit, end_x, end_y):
+        gu.Grid.cleanup()
         default_speed = .35
         speed = default_speed - (unit.Type.speed * .1)
         start_x_grid = int(unit.rs.Rect.x  / Constants.UNIT_SIZE)
         start_y_grid = int(unit.rs.Rect.y  / Constants.UNIT_SIZE)
         end_x_grid = int(end_x / Constants.UNIT_SIZE)
         end_y_grid = int(end_y / Constants.UNIT_SIZE)
-        start = grid.node(start_x_grid, start_y_grid)
-        end = grid.node(end_x_grid, end_y_grid)
+        start = gu.Grid.node(start_x_grid, start_y_grid)
+        end = gu.Grid.node(end_x_grid, end_y_grid)
         print(f"Checking path: {start_x_grid}x{start_y_grid} to {end_x_grid}x{end_y_grid}")
         try:
-            paths, runs = self.finder.find_path(start, end, grid)
+            paths, runs = gu.Finder.find_path(start, end, gu.Grid)
         except Exception as e:
             print("find_path exception:")
             # print(f"paths: {str(paths)}")
             # print(f"runs: {str(runs)}")
             print(f"start: {str(start)}")
             print(f"end: {str(end)}")
-            print(f"grid: {str(grid)}")
+            print(f"Grid: {str(gu.Grid)}")
             print(str(e))
             traceback.print_exc()
 
@@ -633,7 +616,6 @@ class Utility:
             rs.Rect = prevrect
             pgu.create_rect(rs)  
             pygame.display.update(prevrect)
-            pygame.display.flip()
 
         # new
         rs = pgu.RectSettings()
@@ -643,7 +625,6 @@ class Utility:
         pgu.create_rect(rs)      
         
         pygame.display.update(newrect)
-        pygame.display.flip()
         return newrect
 
     def update_selected_units_list(self, unit):

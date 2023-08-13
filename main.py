@@ -400,8 +400,10 @@ class unhingedrts:
                 # if we selected something new cool, if not, then the order it to move..
                 if not selected_new_unit and len(self.selected_units) > 0:
                     for army_unit in self.selected_units:
-                        if army_unit.Moving_Thread is None:                        
-                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu.Grid, army_unit, mouse_pos[0], mouse_pos[1]))
+                        if army_unit.Moving_Thread is None:
+                            dest_x = mouse_pos[0]
+                            dest_y = mouse_pos[1]
+                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu, army_unit, dest_x, dest_y))
             elif mouse[1] == True:
                 self.gu.show_grid(self.pgu, self.ut)
             elif mouse[2] == True:
