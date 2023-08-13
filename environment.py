@@ -16,3 +16,4 @@ class Environment:
         Forest = 5
         Swamp = 6
         Basic = 7 # nothing special
+        Fire = 8

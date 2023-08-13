@@ -23,12 +23,12 @@ class unhingedrts:
     player = None
     hero_unit_created = False
     loading_msg = ""
-      
+    MapTiles = None # all tiles on map      
     selected_units = [] # units on the screen that have been clicked on
     
     def __init__(self):
         self.pgu = PygameUtilities()
-        self.ut = Utility(self.pgu)
+        self.ut = Utility()
         self.gu = GridUtilities()
         self.player = Player()  
         
@@ -79,10 +79,7 @@ class unhingedrts:
                     first_open_running = False
                     self.running = False
                     break
-
-            # print("first_open loop...")
             pygame.display.flip()
-
         return False
     
     # race select screen
@@ -173,8 +170,6 @@ class unhingedrts:
                 if event.type == pygame.QUIT:
                     race_select_running = False
                     self.running = False
-            
-            # print("Updating options loop")
             pygame.display.flip()
 
     # pause screen (when you press esc)
@@ -284,9 +279,10 @@ class unhingedrts:
                 elif state == "FINISHED":                        
                     state = "COMPLETE"
                     self.loading_msg = "Get ready!".upper()  
-                    result = future.result()                     
-                    self.obstacles = result[0]
-                    self.gu.grid = result[1]
+                    result = future.result()        
+                    print(f"Loading complete: {result}")             
+                    # self.MapTiles = result[0]
+                    # self.gu.grid = result[1]
                     loading_screen_loop_running = False
 
         for event in pygame.event.get():
@@ -330,7 +326,6 @@ class unhingedrts:
             game_start = time.perf_counter()
 
             # slow things down
-            # print(f"Setting clock to 60 FPS")
             clock.tick(60)
 
             # blank out screen so we can redraw it
@@ -340,7 +335,7 @@ class unhingedrts:
             mouse_pos = pygame.mouse.get_pos()
 
             # create terrain environment
-            self.ut.draw_terrain(self.pgu, self.obstacles)
+            self.ut.draw_terrain(self.pgu, self.gu.Tiles)
 
             # # check for fire damage
             # for army_unit in self.player.army:
@@ -389,8 +384,6 @@ class unhingedrts:
             # continuous mouse movement (fast)
             mouse = pygame.mouse.get_pressed()            
             if mouse[0] == True:
-                # print(f"left mouse: {pos}")
-
                 # scan unit for select      
                 selected_new_unit = False
                 for unit in self.player.army:
@@ -408,7 +401,7 @@ class unhingedrts:
                 if not selected_new_unit and len(self.selected_units) > 0:
                     for army_unit in self.selected_units:
                         if army_unit.Moving_Thread is None:                        
-                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu.grid, army_unit, mouse_pos[0], mouse_pos[1]))
+                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu.Grid, army_unit, mouse_pos[0], mouse_pos[1]))
             elif mouse[1] == True:
                 self.gu.show_grid(self.pgu, self.ut)
             elif mouse[2] == True:
@@ -444,9 +437,8 @@ class unhingedrts:
                     main_game_running = False
                     self.running = False
 
-            # print("Main game loop...")
             game_end = time.perf_counter()
-            # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):     

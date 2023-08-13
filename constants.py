@@ -121,6 +121,7 @@ class Constants:
         POOP_BROWN = (123, 92, 0)    
         SIENNA = (160,82,45)
         MOCCASIN = (255,228,181)
+        SANDY_BROWN = (244, 164, 96)
 
         # greens
         GREEN = (0, 255, 0)

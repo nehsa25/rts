@@ -17,11 +17,10 @@ class Utility:
     sp_menu_rs = None # side panel
     spawn_rs = None # spawn point
     MenuTiles = [] 
-    MapTiles = Tiles # all tiles on map
     spawn_points = None
     obstacles = None  
 
-    def __init__(self, pgu):
+    def __init__(self):
         self.MapTiles = Tiles()
 
     def create_border(self, pgu):
@@ -492,7 +491,7 @@ class Utility:
         return obstacles, grid
 
     # returns all obstablces in a single list of dictionaries
-    def create_terrain(self, pgu, grid):
+    def create_terrain(self, pgu, grid, tiles):
         create_terrain_start = time.perf_counter()
         obstacles = []
 
@@ -516,7 +515,7 @@ class Utility:
         #             # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
 
         # create water tiles
-        obstacles, grid = self.create_water_tiles(pgu, grid, obstacles)
+        # obstacles, grid = self.create_water_tiles(pgu, grid, obstacles)
         # obstacles, grid = self.create_mountain_tiles(grid, obstacles)
         # obstacles, grid = self.create_swamp_tiles(grid, obstacles)
         # obstacles, grid = self.create_fire_tiles(grid, obstacles)
@@ -527,38 +526,38 @@ class Utility:
 
         create_terrain_end = time.perf_counter()
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
-        return obstacles, grid
+        return grid, tiles
 
-    def draw_terrain(self, pgu, obstacles):
+    def draw_terrain(self, pgu, tiles):
         draw_terrain_start = time.perf_counter()
-        for obstacle in obstacles:
-            if obstacle["name"].lower() == "water":
-                pygame.draw.rect(pgu.surface, Constants.Colors.AQUA, obstacle["rect"])
-            elif obstacle["name"].lower() == "fire":
-                pygame.draw.rect(pgu.surface, Constants.Colors.FIRE, obstacle["rect"])
-            elif obstacle["name"].lower() == "mountain":
-                pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, obstacle["rect"])
-            elif obstacle["name"].lower() == "swamp":
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, obstacle["rect"])
-            elif obstacle["name"].lower() == "rain":
-                pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, obstacle["rect"])
-            elif obstacle["name"].lower() == "fog":
-                pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, obstacle["rect"])
-            elif obstacle["name"].lower() == "forest":
-                pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, obstacle["rect"])
-            elif obstacle["name"].lower() == "lava":
-                pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, obstacle["rect"])
+        for tile in tiles:
+            if tile.Type == Environment.TileType.Water:
+                pygame.draw.rect(pgu.surface, Constants.Colors.AQUA, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Fire:
+                pygame.draw.rect(pgu.surface, Constants.Colors.FIRE, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Mountain:
+                pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Forest:
+                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Rain:
+                pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Fog:
+                pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Swamp:
+                pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Lava:
+                pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, tile.RectSettings.Rect)
+            elif tile.Type == Environment.TileType.Basic:
+                pygame.draw.rect(pgu.surface, Constants.Colors.SANDY_BROWN, tile.RectSettings.Rect)
         draw_terrain_end = time.perf_counter()
-        # print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
-        # pygame.display.flip()
-        # pass
+        print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
 
-    def update_grid_with_terrain(self, grid, obstacle_types):
+    def update_grid_with_terrain(self, grid, tiles):
         get_grid_start = time.perf_counter()
         print("get_grid: Updating pathfinding grid with terrain...")
         UNIT_CANNOT_MOVE = False
 
-        collisions = [i["rect"] for i in obstacle_types if i["walkable"] == False]
+        collisions = [i for i in tiles if i.Walkable == False]
         for node in grid.nodes:
             for item in node:
                 rect = pygame.Rect(item.x * Constants.UNIT_SIZE, item.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
@@ -567,7 +566,6 @@ class Utility:
                     item.walkable = UNIT_CANNOT_MOVE
 
         get_grid_end = time.perf_counter()
-        print("get_grid: Done")
         print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
         return grid
 

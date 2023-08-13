@@ -6,19 +6,19 @@ from typing import List
 
 # our stuff
 from constants import Constants
-from tile import Tile
+from tile import Tile, Tiles
+from environment import Environment
 
 class GridUtilities:
-    finder = None
-    grid = None
-    obstacles = []
+    Finder = None
+    Grid = None
+    Tiles = None
 
     def __init__(self):
-        self.finder = AStarFinder()
+        self.Finder = AStarFinder()
+        self.Tiles = Tiles()
 
     def load_grid(self, pgu, ut, player, load_env = True):
-        tiles = None
-
         #  refresh side panel / highlight a unit that's hovered over
         ut.draw_side_panel(pgu, player, really_draw=False)
 
@@ -28,17 +28,17 @@ class GridUtilities:
         usable_map = False
 
         # get grid of screen based on unit size
-        self.grid, tiles = self.get_empty_grid()
+        self.Grid, self.Tiles = self.get_empty_grid(pgu)
         while not usable_map:
             # generate our obstacles
             if load_env:
                 # menu_list = []
                 # menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
                 # menu_list.append(dict(rects=self.spawn_points, walkable=True))
-                self.obstacles, self.grid = ut.create_terrain(pgu, self.grid)
+                self.Grid, self.Tiles = ut.create_terrain(pgu, self.Grid, self.Tiles)
 
                 # # update grid with nodes we cannot walk on
-                self.grid = ut.update_grid_with_terrain(self.grid, self.obstacles)
+                self.Grid = ut.update_grid_with_terrain(self.Grid, self.Tiles)
 
             usable_map = True
             runs = 0
@@ -58,12 +58,11 @@ class GridUtilities:
             #     usable_map = False
 
             print(f"Map created is: {usable_map}")
-            self.grid.cleanup()
+            self.Grid.cleanup()
 
-        print(f"usable_map: {usable_map}, runs: {runs}")        
-        return tiles
+        return "usable_map: {usable_map}, runs: {runs}"
     
-    def get_empty_grid(self):
+    def get_empty_grid(self, pgu):
         get_empty_start = time.perf_counter()   
         print(f"Generating grid based on {Constants.SCREEN_WIDTH}x{Constants.SCREEN_HEIGHT}")
         matrix = []      
@@ -77,32 +76,32 @@ class GridUtilities:
         grid =  Grid(matrix = matrix)
         grid.walkable = True
 
-        tiles = []
+
+        self.Tiles = Tiles()
         for node in grid.nodes:
             for item in node:   
                 item.walkable = True
 
-                # create a "basic" tile
-                x = int(item.x * Constants.UNIT_SIZE)
-                y = int(item.y * Constants.UNIT_SIZE)
-                tiles.append(Tile(x,y, item.x, item.y))
+                t = self.Tiles.CreateNewTile(pgu, gridx=item.x, gridy=item.y)
+                print(f"get_empty_grid: created basic tile: ({t.x}x{t.y})")
+                self.Tiles.MapTiles.append(t)
 
         print("get_empty_grid: Done...")
         get_empty_end = time.perf_counter()
         print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
-        return grid, tiles
+        return grid, self.Tiles
 
     def show_grid(self, pgu, ut):     
         show_grid_start = time.perf_counter()  
         print("Showing grid")   
         mouse_pos = pgu.update_mouse()       
         tile_details = ""
-        for node in self.grid.nodes:
+        for node in self.Grid.nodes:
             for item in node:                
                 rs = pgu.RectSettings()
                 rs.x = int(item.x * Constants.UNIT_SIZE)
                 rs.y = int(item.y * Constants.UNIT_SIZE)
-                tile = [i for i in ut.tiles if i["coord"]==(rs.x,rs.y)]
+                tile = [i for i in ut.self.Tiles if i["coord"]==(rs.x,rs.y)]
                 rs.Font = pygame.font.SysFont('Arial', 8)
                 mouse_x = int(mouse_pos[0] / Constants.UNIT_SIZE)
                 mouse_y = int(mouse_pos[1] / Constants.UNIT_SIZE)
