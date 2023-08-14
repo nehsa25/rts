@@ -86,13 +86,10 @@ class Tiles:
         print("get_empty_grid: Generating pathfinding grid...")
         self.GridMatrix = matrix
         self.Grid =  Grid(matrix = self.GridMatrix)
-        # grid.walkable = True
-
         self.Tiles = Tiles()
         for node in self.Grid.nodes:
             for item in node:   
-                item.walkable == True
-
+                item.walkable = True
                 t = self.Tiles.CreateTile(pgu, gridx=item.x, gridy=item.y, walkable=True)
                 t.GridNode = item
                 print(f"get_empty_grid: created basic tile: ({t.x}x{t.y})")
@@ -102,7 +99,7 @@ class Tiles:
         get_empty_end = time.perf_counter()
         print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
 
-    def show_grid(self, pgu, ut):     
+    def show_grid(self, pgu):     
         show_grid_start = time.perf_counter()  
         print("Showing grid")   
         mouse_pos = pgu.update_mouse()   
@@ -116,7 +113,7 @@ class Tiles:
         print(f"show_grid tile: {details_node}")
         tile_details = f"Coordinates: ({details_node.x}, {details_node.y})\n"
         tile_details += f"Grid node: ({details_node.Grid_x}, {details_node.Grid_y})\n"
-        tile_details += f"walkable: {details_node.Walkable}\n"
+        tile_details += f"walkable: {details_node.GridNode.walkable}\n"
         tile_details += f"Type: {details_node.Type}\n"
         details_node.RectSettings.Text = tile_details
         pgu.update_mouse(details_text=tile_details)   
@@ -178,7 +175,7 @@ class Tiles:
         start = time.perf_counter()
         body_num_tiles = 0
         for num_complete in range(type_num):
-            print(f"CreateRandomTiles ({terrain_type.name}) % Complete: {round(((num_complete / type_num) * 100), 2)}")
+            print(f"CreateRandomTiles2 ({terrain_type.name}) % Complete: {round(((num_complete / type_num) * 100), 2)}")
             num_tiles_remaining = type_num
 
             # start at a random point
@@ -218,12 +215,12 @@ class Tiles:
                 if tile is None:
                     break
 
+                # if the tile is basic we can use it for something else..
                 if tile.Type == Tile.Type.Basic:
                     coords = tile.ConvertGridCoordToXYCoord()
                     print(f"picked {terrain_type} tile placement: {grid_x}x{grid_y} ({coords[0]}x{coords[1]})")
                     t = self.Tiles.CreateTile(pgu, gridx=grid_x, gridy=grid_y, walkable=False)
                     t.Type = terrain_type
-                    t.Walkable = False
                     t.RectSettings = pgu.RectSettings(t)
                     t.RectSettings = pgu.create_rect(t.RectSettings) # update with .Rect
                     self.Tiles.UpdateTile(t)
@@ -339,8 +336,7 @@ class Tiles:
                 elif tile.Type == Tile.Type.Basic:
                     pygame.draw.rect(pgu.surface, Constants.Colors.SANDY_BROWN, tile.RectSettings.Rect)
             draw_terrain_end = time.perf_counter()
-            print(f"DrawTerrainTiles timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
-
+            # print(f"DrawTerrainTiles timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
 
 class Tile:
     Level = None

@@ -13,7 +13,8 @@ from dwarf import Dwarf
 from gamebutton import GameButton
 from constants import Constants
 from pygameutility import PygameUtilities
-from tile import Tile, Tiles
+from tile import Tiles
+from logutiliites import LogUtilities
 
 class unhingedrts:
     # main window title
@@ -31,6 +32,7 @@ class unhingedrts:
         self.ut = Utility()
         self.player = Player()  
         self.tiles = Tiles()
+        self.logutils = LogUtilities()
         
         #logo
         self.logo = pygame.image.load("logo.png")
@@ -40,6 +42,7 @@ class unhingedrts:
     # title screen
     def title_loop(self):
         first_open_running = True 
+        self.logutils.log.debug("Inside title_loop")
         pygame.display.set_caption("Welcome!")
 
         while first_open_running:
@@ -405,7 +408,7 @@ class unhingedrts:
                             dest_y = mouse_pos[1]
                             unit_moving_threads.append(executor.submit(army_unit.MoveUnitOverTime, self.pgu, self.tiles, dest_x, dest_y))
             elif mouse[1] == True:
-                self.gu.show_grid(self.pgu, self.ut)
+                self.tiles.show_grid(self.pgu)
             elif mouse[2] == True:
                 print(f"right mouse")
 
@@ -441,7 +444,7 @@ class unhingedrts:
                     self.running = False
 
             game_end = time.perf_counter()
-            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):     
