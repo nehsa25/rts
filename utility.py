@@ -9,8 +9,7 @@ from constants import Constants
 from pygameutility import PygameUtilities
 from names import Names
 from unit import Unit
-from tile import Tiles, Tile
-from terrain import Terrain
+from tile import Tiles
 
 class Utility:
     screen_border_rs = None # border
@@ -46,143 +45,6 @@ class Utility:
             spawn_point_rect.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)
             self.spawn_rs = spawn_point_rect
         self.spawn_rs = pgu.create_rect(self.spawn_rs, ignore_side_panel=True, really_draw=really_draw)
-
-    # returns all obstablces in a single list of dictionaries
-    def create_terrain(self, pgu, grid, tiles):
-        create_terrain_start = time.perf_counter()
-        obstacles = []
-
-        # for r in menu_rects:
-        #     walkable = r["walkable"]
-        #     # create side panel tiles
-        #     height_start = 0
-        #     height_end = int(r["rects"].Rect.height / Constants.UNIT_SIZE)
-        #     width_start = 0
-        #     width_end = int(r["rects"].Rect.width / Constants.UNIT_SIZE)
-
-        #     for w in range(width_start, width_end):
-        #         for h in range(height_start, height_end):
-        #             print(f"(w,h): ({h},{w})")
-        #             current_node = grid.nodes[h]
-        #             current_coord = current_node[w]
-        #             grid.node(current_coord.x, current_coord.y).walkable = False
-        #             # rect_x = current_coord.x * Constants.UNIT_SIZE
-        #             # rect_y = current_coord.y * Constants.UNIT_SIZE
-        #             # rect = pygame.Rect(rect_x, rect_y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-        #             # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
-
-        # create water tiles
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Water, Constants.NUM_WATER_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Mountain, Constants.NUM_MOUNTAIN_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Swamp, Constants.NUM_SWAMP_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Fire, Constants.NUM_FIRE_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Forest, Constants.NUM_FOREST_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Fog, Constants.NUM_FOG_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Rain, Constants.NUM_RAIN_TILES)
-        tiles.MapTiles = Terrain.create_random_tiles(pgu, grid, tiles, Terrain.Type.Lava, Constants.NUM_LAVA_TILES)
-
-        create_terrain_end = time.perf_counter()
-        print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
-        return tiles.MapTiles
-
-    def draw_terrain(self, pgu, tiles):
-        draw_terrain_start = time.perf_counter()
-        for tile in tiles.MapTiles:
-            if tile.Type == Terrain.Type.Water:
-                pygame.draw.rect(pgu.surface, Constants.Colors.AQUA, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Fire:
-                pygame.draw.rect(pgu.surface, Constants.Colors.FIRE, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Mountain:
-                pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Forest:
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Rain:
-                pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Fog:
-                pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Swamp:
-                pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Lava:
-                pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, tile.RectSettings.Rect)
-            elif tile.Type == Terrain.Type.Basic:
-                pygame.draw.rect(pgu.surface, Constants.Colors.SANDY_BROWN, tile.RectSettings.Rect)
-        draw_terrain_end = time.perf_counter()
-        print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
-
-    # uses speed of unit
-    # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
-    def move_unit_over_time(self, pgu, gu, unit, end_x, end_y):
-        gu.Grid.cleanup()
-        default_speed = .35
-        speed = default_speed - (unit.Type.speed * .1)
-        start_x_grid = int(unit.rs.Rect.x  / Constants.UNIT_SIZE)
-        start_y_grid = int(unit.rs.Rect.y  / Constants.UNIT_SIZE)
-        end_x_grid = int(end_x / Constants.UNIT_SIZE)
-        end_y_grid = int(end_y / Constants.UNIT_SIZE)
-        start = gu.Grid.node(start_x_grid, start_y_grid)
-        end = gu.Grid.node(end_x_grid, end_y_grid)
-        print(f"Checking path: {start_x_grid}x{start_y_grid} to {end_x_grid}x{end_y_grid}")
-        try:
-            paths, runs = gu.Finder.find_path(start, end, gu.Grid)
-        except Exception as e:
-            print("find_path exception:")
-            # print(f"paths: {str(paths)}")
-            # print(f"runs: {str(runs)}")
-            print(f"start: {str(start)}")
-            print(f"end: {str(end)}")
-            print(f"Grid: {str(gu.Grid)}")
-            print(str(e))
-            traceback.print_exc()
-
-        return_msg = ""
-        if len(paths) < 1:
-            return_msg = f"{unit.Name}: I can't get there"
-        else:
-            print(f"Moving {unit.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
-            print(f"paths: {paths}")
-            x = unit.rs.Rect.x
-            y = unit.rs.Rect.y
-            oldrect = None
-
-            start = time.perf_counter()
-            for path in paths:
-                newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-                print(f"Sleeping: {round(speed, 2)} seconds before moving {unit.Name} again ({unit})")
-                sleep(speed)
-                newrect.x = int(path[0] * Constants.UNIT_SIZE)
-                newrect.y = int(path[1] * Constants.UNIT_SIZE)
-                if oldrect is None:
-                    print(f"{unit.Name} beginning travel to ({newrect.x}x{newrect.y})")
-                else:
-                    print(f"Moving {unit.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
-                newrect = self.move_unit(pgu, oldrect, newrect, unit.rs.BgColor)
-                oldrect = newrect
-            unit.rs.Rect = oldrect
-            end = time.perf_counter()
-            return_msg = f"{unit.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
-        return return_msg
-
-    # moves rect x,y cords
-    def move_unit(self, pgu, prevrect, newrect, bg_color):
-
-        # previous
-        if prevrect is not None:
-            rs = pgu.RectSettings()
-            rs.BgColor = Constants.Colors.GAME_MAP_COLOR
-            rs.BorderColor = Constants.Colors.GAME_MAP_COLOR
-            rs.Rect = prevrect
-            pgu.create_rect(rs)
-            #pygame.display.update(prevrect)
-
-        # new
-        rs = pgu.RectSettings()
-        rs.BorderColor = Constants.Colors.GAME_MAP_COLOR
-        rs.Rect = newrect
-        rs.BgColor = bg_color
-        pgu.create_rect(rs)
-
-        pygame.display.update(newrect)
-        return newrect
 
     def update_selected_units_list(self, unit):
         newlist = self.selected_units
@@ -289,27 +151,27 @@ class Utility:
 
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, pgu, unit):
-        unit.rs.BorderColor = Constants.Colors.RANDOM
-        unit.rs = pgu.create_rect(unit.rs)
+        unit.RectSettings.BorderColor = Constants.Colors.RANDOM
+        unit.RectSettings = pgu.create_rect(unit.RectSettings)
         return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, pgu, player, unit_type, unit = None):
         if unit is None:
             unit = Unit()
-            unit.rs = pgu.RectSettings()
-            unit.rs.BgColor = player.selected_race.main_color
-            unit.rs.BorderColor = player.selected_race.secondary_color
-            unit.rs.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
-            unit.rs.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
-            unit.rs.Width = Constants.UNIT_SIZE
-            unit.rs.Height = Constants.UNIT_SIZE
+            unit.RectSettings = pgu.RectSettings()
+            unit.RectSettings.BgColor = player.selected_race.main_color
+            unit.RectSettings.BorderColor = player.selected_race.secondary_color
+            unit.RectSettings.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
+            unit.RectSettings.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
+            unit.RectSettings.Width = Constants.UNIT_SIZE
+            unit.RectSettings.Height = Constants.UNIT_SIZE
             unit.Name = Names.generate_name(self)
             unit.Type = unit_type
-            unit.rs.HintName = f"army unit on field: {unit.Name}" # just used for debugging
+            unit.RectSettings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
 
         # create new unit for this guy
-        unit.rs = pgu.create_rect(unit.rs)
+        unit.RectSettings = pgu.create_rect(unit.RectSettings)
 
         # add to our army list
         found_unit = False

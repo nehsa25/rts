@@ -1,10 +1,12 @@
+import time
+import traceback
 import pygame
 
 # our stuff
-from constants import Constants
 from combattypes import CombatTypes
 from pygameutility import PygameUtilities
-from terrain import Terrain
+from tile import Tile
+from constants import Constants
 
 # how much damage, how fast, ect
 class Stats:
@@ -30,8 +32,8 @@ class Stats:
 class UnitTypes:
     class Hero(Stats):
         combat_type = CombatTypes.melee
-        attack_tiles = [Terrain.Level.Ground, Terrain.Level.Air]
-        move_tiles = [Terrain.Level.Ground]
+        attack_tiles = [Tile.Level.Ground, Tile.Level.Air]
+        move_tiles = [Tile.Level.Ground]
         speed = 2
         def __init__(self):
             pass
@@ -42,8 +44,8 @@ class UnitTypes:
         combat_damage_low = 4
         combat_damage_high = 7
         speed = 3
-        attack_tiles = [Terrain.Level.Ground]
-        move_tiles = [Terrain.Level.Ground]
+        attack_tiles = [Tile.Level.Ground]
+        move_tiles = [Tile.Level.Ground]
         def __init__(self):
             pass
 
@@ -53,8 +55,8 @@ class UnitTypes:
         combat_damage_low = 3
         combat_damage_high = 6
         speed = 2
-        attack_tiles = [Terrain.Level.Ground]
-        move_tiles = [Terrain.Level.Ground]
+        attack_tiles = [Tile.Level.Ground]
+        move_tiles = [Tile.Level.Ground]
         def __init__(self):
             pass
 
@@ -64,8 +66,8 @@ class UnitTypes:
         combat_damage_low = 3
         combat_damage_high = 6
         speed = 1
-        attack_tiles = [Terrain.Level.Sea, Terrain.Level.Ground, Terrain.Level.Air]
-        move_tiles = [Terrain.Level.Ground]
+        attack_tiles = [Tile.Level.Sea, Tile.Level.Ground, Tile.Level.Air]
+        move_tiles = [Tile.Level.Ground]
         def __init__(self):
             pass
 
@@ -73,8 +75,82 @@ class UnitTypes:
 class Unit:
     Name = None
     Type = None
-    rs = None
+    RectSettings = None
     Moving_Thread = None # so we can change direction
 
     def __init__(self):
-        self.rs = PygameUtilities.RectSettings()
+        self.RectSettings = PygameUtilities.RectSettings()
+
+    # uses speed of unit
+    # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
+    def MoveUnitOverTime(self, pgu, tiles, end_x, end_y):
+        tiles.Grid.cleanup()
+        default_speed = .35
+        speed = default_speed - (self.Type.speed * .1)
+        start_x_grid = int(self.RectSettings.Rect.x  / Constants.UNIT_SIZE)
+        start_y_grid = int(self.RectSettings.Rect.y  / Constants.UNIT_SIZE)
+        end_x_grid = int(end_x / Constants.UNIT_SIZE)
+        end_y_grid = int(end_y / Constants.UNIT_SIZE)
+        start = tiles.Grid.node(start_x_grid, start_y_grid)
+        end = tiles.Grid.node(end_x_grid, end_y_grid)
+        print(f"Checking path: {start_x_grid}x{start_y_grid} to {end_x_grid}x{end_y_grid}")
+        try:
+            paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
+        except Exception as e:
+            print("find_path exception:")
+            # print(f"paths: {str(paths)}")
+            # print(f"runs: {str(runs)}")
+            print(f"start: {str(start)}")
+            print(f"end: {str(end)}")
+            print(f"Grid: {str(tiles.Grid)}")
+            print(str(e))
+            traceback.print_exc()
+
+        return_msg = ""
+        if len(paths) < 1:
+            return_msg = f"{self.Name}: I can't get there"
+        else:
+            print(f"Moving {self.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
+            print(f"paths: {paths}")
+            x = self.RectSettings.Rect.x
+            y = self.RectSettings.Rect.y
+            oldrect = None
+
+            start = time.perf_counter()
+            for path in paths:
+                newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                print(f"Sleeping: {round(speed, 2)} seconds before moving {self.Name} again ({self})")
+                time.sleep(speed)
+                newrect.x = int(path[0] * Constants.UNIT_SIZE)
+                newrect.y = int(path[1] * Constants.UNIT_SIZE)
+                if oldrect is None:
+                    print(f"{self.Name} beginning travel to ({newrect.x}x{newrect.y})")
+                else:
+                    print(f"Moving {self.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
+                newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
+                oldrect = newrect
+            self.RectSettings.Rect = oldrect
+            end = time.perf_counter()
+            return_msg = f"{self.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+        return return_msg
+
+    # moves rect x,y cords
+    def move_unit(self, pgu, prevrect, newrect, bg_color):
+        # previous
+        if prevrect is not None:
+            rs = pgu.RectSettings()
+            rs.BgColor = Constants.Colors.GAME_MAP_COLOR
+            rs.BorderColor = Constants.Colors.GAME_MAP_COLOR
+            rs.Rect = prevrect
+            pgu.create_rect(rs)
+            #pygame.display.update(prevrect)
+
+        # new
+        rs = pgu.RectSettings()
+        rs.BorderColor = Constants.Colors.GAME_MAP_COLOR
+        rs.Rect = newrect
+        rs.BgColor = bg_color
+        pgu.create_rect(rs)
+
+        pygame.display.update(newrect)
+        return newrect

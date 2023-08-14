@@ -13,7 +13,7 @@ from dwarf import Dwarf
 from gamebutton import GameButton
 from constants import Constants
 from pygameutility import PygameUtilities
-from gridutilities import GridUtilities
+from tile import Tile, Tiles
 
 class unhingedrts:
     # main window title
@@ -29,8 +29,8 @@ class unhingedrts:
     def __init__(self):
         self.pgu = PygameUtilities()
         self.ut = Utility()
-        self.gu = GridUtilities()
         self.player = Player()  
+        self.tiles = Tiles()
         
         #logo
         self.logo = pygame.image.load("logo.png")
@@ -266,7 +266,7 @@ class unhingedrts:
             # the work..
             if not loading:
                 load_env = True # load obstacles or not
-                loading_threads.append(executor.submit(self.gu.load_grid, self.pgu, self.ut, self.player, load_env))
+                loading_threads.append(executor.submit(self.tiles.load_grid, self.pgu, self.ut, self.player, load_env))
                 loading = True # whether thread started
 
             # check if done..
@@ -335,11 +335,11 @@ class unhingedrts:
             mouse_pos = pygame.mouse.get_pos()
 
             # create terrain environment
-            self.ut.draw_terrain(self.pgu, self.gu.Tiles)
+            Tile.draw_terrain_tile(self.pgu, self.tiles)
 
             # # check for fire damage
             # for army_unit in self.player.army:
-            #     if obstacles.colliderect(army_unit.rs.Rect):
+            #     if obstacles.colliderect(army_unit.RectSettings.Rect):
             #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
             # add mouse pointer
@@ -387,7 +387,7 @@ class unhingedrts:
                 # scan unit for select      
                 selected_new_unit = False
                 for unit in self.player.army:
-                    if unit.rs.Rect.collidepoint(mouse_pos):                        
+                    if unit.RectSettings.Rect.collidepoint(mouse_pos):                        
                         self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
                         self.selected_units.append(unit)
                         selected_new_unit = True
@@ -403,7 +403,7 @@ class unhingedrts:
                         if army_unit.Moving_Thread is None:
                             dest_x = mouse_pos[0]
                             dest_y = mouse_pos[1]
-                            unit_moving_threads.append(executor.submit(self.ut.move_unit_over_time, self.pgu, self.gu, army_unit, dest_x, dest_y))
+                            unit_moving_threads.append(executor.submit(army_unit.MoveUnitOverTime, self.pgu, self.tiles, dest_x, dest_y))
             elif mouse[1] == True:
                 self.gu.show_grid(self.pgu, self.ut)
             elif mouse[2] == True:
