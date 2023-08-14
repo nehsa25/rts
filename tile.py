@@ -161,7 +161,6 @@ class Tiles:
                 if current_node.Type not in unwalkable_tiletypes:
                     item.walkable = UNIT_CANNOT_MOVE
 
-
         get_grid_end = time.perf_counter()
         print(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
 
@@ -175,11 +174,11 @@ class Tiles:
         
         return tile
 
-    def create_random_tiles(self, pgu, terrain_type, type_num):
+    def CreateRandomTiles(self, pgu, terrain_type, type_num):
         start = time.perf_counter()
         body_num_tiles = 0
         for num_complete in range(type_num):
-            print(f"create_random_tiles ({terrain_type.name}) % Complete: {round(((num_complete / type_num) * 100), 2)}")
+            print(f"CreateRandomTiles ({terrain_type.name}) % Complete: {round(((num_complete / type_num) * 100), 2)}")
             num_tiles_remaining = type_num
 
             # start at a random point
@@ -242,7 +241,7 @@ class Tiles:
             body_num_tiles = 0
 
         end = time.perf_counter()
-        print(f"create_random_tiles ({terrain_type.name}): {round(60 - (end - start), 2)} second(s)")
+        print(f"CreateRandomTiles ({terrain_type.name}): {round(60 - (end - start), 2)} second(s)")
 
     # returns all obstablces in a single list of dictionaries
     def CreateTerrainTiles(self, pgu):
@@ -268,14 +267,14 @@ class Tiles:
         #             # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
 
         # create water tiles
-        self.create_random_tiles(pgu, Tile.Type.Water, Constants.NUM_WATER_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Mountain, Constants.NUM_MOUNTAIN_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Swamp, Constants.NUM_SWAMP_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Fire, Constants.NUM_FIRE_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Forest, Constants.NUM_FOREST_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Fog, Constants.NUM_FOG_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Rain, Constants.NUM_RAIN_TILES)
-        self.create_random_tiles(pgu, Tile.Type.Lava, Constants.NUM_LAVA_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Water, Constants.NUM_WATER_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Mountain, Constants.NUM_MOUNTAIN_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Swamp, Constants.NUM_SWAMP_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Fire, Constants.NUM_FIRE_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Forest, Constants.NUM_FOREST_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Fog, Constants.NUM_FOG_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Rain, Constants.NUM_RAIN_TILES)
+        self.CreateRandomTiles(pgu, Tile.Type.Lava, Constants.NUM_LAVA_TILES)
 
         create_terrain_end = time.perf_counter()
         print(f"create_terrain timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
@@ -317,6 +316,30 @@ class Tiles:
         if len(tiles) > 0:
             tile = tiles[0]
         return tile            
+
+    def DrawTerrainTiles(self, pgu):
+            draw_terrain_start = time.perf_counter()
+            for tile in self.Tiles.MapTiles:
+                if tile.Type == Tile.Type.Water:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.AQUA, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Fire:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.FIRE, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Mountain:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Forest:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Rain:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Fog:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Swamp:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Lava:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, tile.RectSettings.Rect)
+                elif tile.Type == Tile.Type.Basic:
+                    pygame.draw.rect(pgu.surface, Constants.Colors.SANDY_BROWN, tile.RectSettings.Rect)
+            draw_terrain_end = time.perf_counter()
+            print(f"DrawTerrainTiles timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
 
 
 class Tile:
@@ -362,27 +385,3 @@ class Tile:
     
     def ConvertXYCoordToGridCoord(self):
         return int(self.x / Constants.UNIT_SIZE), int(self.y / Constants.UNIT_SIZE)
-
-    def draw_terrain_tile(pgu, tiles):
-        draw_terrain_start = time.perf_counter()
-        for tile in tiles.MapTiles:
-            if tile.Type == Tile.Type.Water:
-                pygame.draw.rect(pgu.surface, Constants.Colors.AQUA, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Fire:
-                pygame.draw.rect(pgu.surface, Constants.Colors.FIRE, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Mountain:
-                pygame.draw.rect(pgu.surface, Constants.Colors.WHITE_MISTY, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Forest:
-                pygame.draw.rect(pgu.surface, Constants.Colors.GREEN_DARK, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Rain:
-                pygame.draw.rect(pgu.surface, Constants.Colors.RAIN, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Fog:
-                pygame.draw.rect(pgu.surface, Constants.Colors.GRAY_IRON_MOUNTAIN, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Swamp:
-                pygame.draw.rect(pgu.surface, Constants.Colors.OLIVE, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Lava:
-                pygame.draw.rect(pgu.surface, Constants.Colors.LAVA, tile.RectSettings.Rect)
-            elif tile.Type == Tile.Type.Basic:
-                pygame.draw.rect(pgu.surface, Constants.Colors.SANDY_BROWN, tile.RectSettings.Rect)
-        draw_terrain_end = time.perf_counter()
-        print(f"draw_terrain timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")

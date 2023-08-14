@@ -335,7 +335,7 @@ class unhingedrts:
             mouse_pos = pygame.mouse.get_pos()
 
             # create terrain environment
-            Tile.draw_terrain_tile(self.pgu, self.tiles)
+            self.tiles.DrawTerrainTiles(self.pgu)
 
             # # check for fire damage
             # for army_unit in self.player.army:

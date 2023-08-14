@@ -183,5 +183,3 @@ class Utility:
             player.army.append(unit)
 
         return unit
-
-
