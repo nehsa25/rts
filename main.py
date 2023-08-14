@@ -448,9 +448,9 @@ class unhingedrts:
                     state = "LOADING"
                 elif state == "FINISHED":                        
                     state = "COMPLETE"
-                    self.logutils.log.debug(f"unit_moving_threads future state: {state}")
+                    self.logutils.log.info(f"unit_moving_threads future state: {state}")
                     result = future.result()
-                    self.logutils.log.debug(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
+                    self.logutils.log.info(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
                     unit_moving_threads.remove(future)
 
 
@@ -471,7 +471,7 @@ class unhingedrts:
                     self.running = False
 
             game_end = time.perf_counter()
-            # self.logutils.log.debug(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):    

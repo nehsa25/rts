@@ -159,14 +159,14 @@ class Tiles:
         self.logutils.log.debug(f"Inside UpdateGridWithTerrain: {inspect.currentframe().f_code.co_name}")
         get_grid_start = time.perf_counter()
         self.logutils.log.debug("get_grid: Updating pathfinding grid with terrain...")
-        UNIT_CANNOT_MOVE = False
-
         for node in self.Grid.nodes:
             for item in node:
                 current_node = self.Tiles.GetTileByNodeCoord(item.x, item.y)
                 unwalkable_tiletypes = [i for i in Tile.Type if i.value["Walkable"] == False]
-                if current_node.Type not in unwalkable_tiletypes:
-                    item.walkable = UNIT_CANNOT_MOVE
+                if current_node.Type in unwalkable_tiletypes:
+                    item.walkable = False
+                else:
+                    item.walkable = True
 
         get_grid_end = time.perf_counter()
         self.logutils.log.debug(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")

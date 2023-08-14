@@ -92,54 +92,52 @@ class Unit:
     # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
     def MoveUnitOverTime(self, pgu, tiles, end_x, end_y):
         self.logutils.log.debug(f"Inside MoveUnitOverTime: {inspect.currentframe().f_code.co_name}")
-        tiles.Grid.cleanup()
-        default_speed = .35
-        speed = default_speed - (self.Type.speed * .1)
-        start_x_grid = int(self.RectSettings.Rect.x  / Constants.UNIT_SIZE)
-        start_y_grid = int(self.RectSettings.Rect.y  / Constants.UNIT_SIZE)
-        end_x_grid = int(end_x / Constants.UNIT_SIZE)
-        end_y_grid = int(end_y / Constants.UNIT_SIZE)
-        start = tiles.Grid.node(start_x_grid, start_y_grid)
-        end = tiles.Grid.node(end_x_grid, end_y_grid)
-        self.logutils.log.debug(f"Checking path: {start_x_grid}x{start_y_grid} to {end_x_grid}x{end_y_grid}")
-        try:
-            paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
-        except Exception as e:
-            self.logutils.log.debug("find_path exception:")
-            # self.logutils.log.debug(f"paths: {str(paths)}")
-            # self.logutils.log.debug(f"runs: {str(runs)}")
-            self.logutils.log.debug(f"start: {str(start)}")
-            self.logutils.log.debug(f"end: {str(end)}")
-            self.logutils.log.debug(f"Grid: {str(tiles.Grid)}")
-            self.logutils.log.debug(str(e))
-            traceback.print_exc()
-
         return_msg = ""
-        if len(paths) < 1:
-            return_msg = f"{self.Name}: I can't get there"
-        else:
-            self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
-            self.logutils.log.debug(f"paths: {paths}")
-            x = self.RectSettings.Rect.x
-            y = self.RectSettings.Rect.y
-            oldrect = None
+        try:
+            tiles.Grid.cleanup()
+            default_speed = .35
+            speed = default_speed - (self.Type.speed * .1)
+            start_x_grid = int(self.RectSettings.Rect.x  / Constants.UNIT_SIZE)
+            start_y_grid = int(self.RectSettings.Rect.y  / Constants.UNIT_SIZE)
+            end_x_grid = int(end_x / Constants.UNIT_SIZE)
+            end_y_grid = int(end_y / Constants.UNIT_SIZE)
+            start = tiles.Grid.node(start_x_grid, start_y_grid)
+            end = tiles.Grid.node(end_x_grid, end_y_grid)
+            self.logutils.log.info(f"{self.Name}: Can I get from ({start_x_grid}x{start_y_grid}) to ({end_x_grid}x{end_y_grid})?")        
+            paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
+            self.logutils.log.info(f"operations: {runs}, path length: {len(paths)}")
+            self.logutils.log.info(tiles.Grid.grid_str(path=paths, start=start, end=end))
+            if len(paths) < 1:
+                return_msg = f"{self.Name}: I can't get there"
+            else:
+                self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
+                self.logutils.log.debug(f"paths: {paths}")
+                x = self.RectSettings.Rect.x
+                y = self.RectSettings.Rect.y
+                oldrect = None
 
-            start = time.perf_counter()
-            for path in paths:
-                newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
-                self.logutils.log.debug(f"Sleeping: {round(speed, 2)} seconds before moving {self.Name} again ({self})")
-                time.sleep(speed)
-                newrect.x = int(path[0] * Constants.UNIT_SIZE)
-                newrect.y = int(path[1] * Constants.UNIT_SIZE)
-                if oldrect is None:
-                    self.logutils.log.debug(f"{self.Name} beginning travel to ({newrect.x}x{newrect.y})")
-                else:
-                    self.logutils.log.debug(f"Moving {self.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
-                newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
-                oldrect = newrect
-            self.RectSettings.Rect = oldrect
-            end = time.perf_counter()
-            return_msg = f"{self.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+                start = time.perf_counter()
+                for path in paths:
+                    newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                    self.logutils.log.debug(f"Sleeping: {round(speed, 2)} seconds before moving {self.Name} again ({self})")
+                    time.sleep(speed)
+                    newrect.x = int(path[0] * Constants.UNIT_SIZE)
+                    newrect.y = int(path[1] * Constants.UNIT_SIZE)
+                    if oldrect is None:
+                        self.logutils.log.debug(f"{self.Name} beginning travel to ({newrect.x}x{newrect.y})")
+                    else:
+                        self.logutils.log.debug(f"Moving {self.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
+                    newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
+                    oldrect = newrect
+                self.RectSettings.Rect = oldrect
+                end = time.perf_counter()
+                return_msg = f"{self.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+        except:
+            details = "find_path exception:"
+            details += f"start: {str(start)}"
+            details += f"end: {str(end)}"
+            details += f"Grid: {str(tiles.Grid)}"
+            self.logutils.log.exception("An exception occured in MoveUnitOverTime: {details}")
         return return_msg
 
     # moves rect x,y cords
