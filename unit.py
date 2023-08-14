@@ -4,7 +4,7 @@ import pygame
 from constants import Constants
 from combattypes import CombatTypes
 from pygameutility import PygameUtilities
-from environment import Environment
+from terrain import Terrain
 
 # how much damage, how fast, ect
 class Stats:
@@ -30,8 +30,8 @@ class Stats:
 class UnitTypes:
     class Hero(Stats):
         combat_type = CombatTypes.melee
-        attack_tiles = [Environment.Level.Ground, Environment.Level.Air]
-        move_tiles = [Environment.Level.Ground]
+        attack_tiles = [Terrain.Level.Ground, Terrain.Level.Air]
+        move_tiles = [Terrain.Level.Ground]
         speed = 2
         def __init__(self):
             pass
@@ -42,8 +42,8 @@ class UnitTypes:
         combat_damage_low = 4
         combat_damage_high = 7
         speed = 3
-        attack_tiles = [Environment.Level.Ground]
-        move_tiles = [Environment.Level.Ground]
+        attack_tiles = [Terrain.Level.Ground]
+        move_tiles = [Terrain.Level.Ground]
         def __init__(self):
             pass
 
@@ -53,8 +53,8 @@ class UnitTypes:
         combat_damage_low = 3
         combat_damage_high = 6
         speed = 2
-        attack_tiles = [Environment.Level.Ground]
-        move_tiles = [Environment.Level.Ground]
+        attack_tiles = [Terrain.Level.Ground]
+        move_tiles = [Terrain.Level.Ground]
         def __init__(self):
             pass
 
@@ -64,8 +64,8 @@ class UnitTypes:
         combat_damage_low = 3
         combat_damage_high = 6
         speed = 1
-        attack_tiles = [Environment.Level.Sea, Environment.Level.Ground, Environment.Level.Air]
-        move_tiles = [Environment.Level.Ground]
+        attack_tiles = [Terrain.Level.Sea, Terrain.Level.Ground, Terrain.Level.Air]
+        move_tiles = [Terrain.Level.Ground]
         def __init__(self):
             pass
 

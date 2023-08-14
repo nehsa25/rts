@@ -3,7 +3,7 @@ from typing import List
 
 # our stuff
 from constants import Constants
-from environment import Environment
+from terrain import Terrain
 
 class Tiles(list):
     MapTiles = []
@@ -11,7 +11,27 @@ class Tiles(list):
     def __init__(self):
         self.MapTiles = list[Tile]()
 
-    def CreateNewTile(self, pgu, x=None, y=None, gridx=None, gridy=None):
+    def ConvertXYCoordToGridCoord(self, gridx, gridy):
+        return int(gridx / Constants.UNIT_SIZE), int(gridy / Constants.UNIT_SIZE)
+    
+    def UpdateTile(self, NewTile):
+        prev_tile = [i for i in self.MapTiles if (i.Grid_x == NewTile.Grid_x and i.Grid_y == NewTile.Grid_y) or (i.x == NewTile.x and i.y == NewTile.y)]
+        if prev_tile is not []:
+            self.MapTiles.remove(prev_tile[0])
+
+        self.MapTiles.append(NewTile)
+
+    def GetTile(self, gridx, gridy):
+        tiles = [i for i in self.MapTiles if gridx == i.Grid_x and gridy == i.Grid_y]
+        tile = None
+        if len(tiles) > 0:
+            tile = tiles[0]
+        else:
+            print(f"No tile found for grid coordinates: ({gridx}x{gridy})")
+        
+        return tile
+
+    def CreateTile(self, pgu, x=None, y=None, gridx=None, gridy=None):
         t = Tile()
         if x is not None:
             t.x = x
@@ -28,6 +48,9 @@ class Tiles(list):
         if gridy is not None:
             t.y = int(gridy * Constants.UNIT_SIZE)
             t.Grid_y = gridy
+
+        if (t.x is None and t.y is None) or (t.Grid_x is None and t.Grid_y is None):
+            raise Exception("You must pass either x/y or gridx/gridy coordinates")
 
         rs = pgu.RectSettings()
         rs.x = t.x
@@ -59,18 +82,17 @@ class Tile:
 
     def __init__(self, x=None, y=None, gridx=None, gridy=None):
         self.Walkable = True
-        self.Level = Environment.Level.Ground
-        self.Type = Environment.TileType.Basic
+        self.Level = Terrain.Level.Ground
+        self.Type = Terrain.Type.Basic
         self.x = x
         self.y = y
         self.Grid_x = gridx
         self.Grid_y = gridy
 
-    ### Returns tuple of coords in XY coordinate form
-    def ConvertGridCoordToXYCoord(self, gridx, gridy):
-        return int(gridx * Constants.UNIT_SIZE), int(gridy * Constants.UNIT_SIZE)
     
-    ### Returns tuple of coords in grid XY coordinate form
-    def ConvertXYCoordToGridCoords(self, x, y):
-        return int(x / Constants.UNIT_SIZE), int(y / Constants.UNIT_SIZE)
+    def ConvertGridCoordToXYCoord(self):
+        return int(self.Grid_x * Constants.UNIT_SIZE), int(self.Grid_y * Constants.UNIT_SIZE)
+    
+    def ConvertXYCoordToGridCoord(self):
+        return int(self.x / Constants.UNIT_SIZE), int(self.y / Constants.UNIT_SIZE)
     

@@ -420,7 +420,8 @@ class unhingedrts:
                     state = "COMPLETE"
                     print(f"unit_moving_threads future state: {state}")
                     result = future.result()
-                    print(f"Unit moving result: {result}")
+                    print(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
+                    unit_moving_threads.remove(future)
 
 
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous

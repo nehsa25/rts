@@ -11,6 +11,7 @@ class GridUtilities:
     Finder = None
     Grid = None
     Tiles = None
+    GridMatrix = None
 
     def __init__(self):
         self.Finder = AStarFinder()
@@ -26,17 +27,17 @@ class GridUtilities:
         usable_map = False
 
         # get grid of screen based on unit size
-        self.Grid, self.Tiles = self.get_empty_grid(pgu)
+        self.Grid, self.Tiles.MapTiles = self.get_empty_grid(pgu)
         while not usable_map:
             # generate our obstacles
             if load_env:
                 # menu_list = []
                 # menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
                 # menu_list.append(dict(rects=self.spawn_points, walkable=True))
-                self.Tiles = ut.create_terrain(pgu, self.Grid, self.Tiles)
+                self.Tiles.MapTiles  = ut.create_terrain(pgu, self.Grid, self.Tiles)
 
                 # # update grid with nodes we cannot walk on
-                self.update_grid_with_terrain()
+                # self.update_grid_with_terrain()
 
             usable_map = True
             runs = 0
@@ -71,7 +72,8 @@ class GridUtilities:
             matrix.append(x_line)
 
         print("get_empty_grid: Generating pathfinding grid...")
-        grid =  Grid(matrix = matrix)
+        self.GridMatrix = matrix
+        grid =  Grid(matrix = self.GridMatrix)
         # grid.walkable = True
 
         self.Tiles = Tiles()
@@ -79,23 +81,39 @@ class GridUtilities:
             for item in node:   
                 # item.walkable = True
 
-                t = self.Tiles.CreateNewTile(pgu, gridx=item.x, gridy=item.y)
+                t = self.Tiles.CreateTile(pgu, gridx=item.x, gridy=item.y)
                 print(f"get_empty_grid: created basic tile: ({t.x}x{t.y})")
                 self.Tiles.MapTiles.append(t)
 
         print("get_empty_grid: Done...")
         get_empty_end = time.perf_counter()
         print(f"get_empty_grid timings: {round(60 - (get_empty_end - get_empty_start), 2)} second(s)")
-        return grid, self.Tiles
+        return grid, self.Tiles.MapTiles
 
     def show_grid(self, pgu, ut):     
         show_grid_start = time.perf_counter()  
         print("Showing grid")   
-        mouse_pos = pgu.update_mouse()       
+        mouse_pos = pgu.update_mouse()   
+        mouse_x = mouse_pos[0]
+        mouse_y = mouse_pos[1]    
+        
         tile_details = ""
-        for tile in self.Tiles:
-            rs = pgu.RectSettings()
-            pass
+        
+        gridcord = self.Tiles.ConvertXYCoordToGridCoord(mouse_x, mouse_y)
+        details_node = self.Tiles.GetTile(gridcord[0], gridcord[1])
+        print(f"show_grid tile: {details_node}")
+        tile_details = f"Coordinates: ({details_node.x}, {details_node.y})\n"
+        tile_details += f"Grid node: ({details_node.Grid_x}, {details_node.Grid_y})\n"
+        tile_details += f"walkable: {details_node.Walkable}\n"
+        tile_details += f"Type: {details_node.Type}\n"
+        details_node.RectSettings.Text = tile_details
+        pgu.update_mouse(details_text=tile_details)   
+
+        for tile in self.Tiles.MapTiles:
+            print(f"tile.x == mouse_pos[0]: {tile.x == mouse_pos[0]}, tile.y == mouse_pos[1]: {tile.y == mouse_pos[1]}")
+ 
+            #rs = pgu.RectSettings()
+
             # rs.x = int(item.x * Constants.UNIT_SIZE)
             # rs.y = int(item.y * Constants.UNIT_SIZE)
             # tile = [i for i in ut.self.Tiles if i["coord"]==(rs.x,rs.y)]
@@ -116,7 +134,7 @@ class GridUtilities:
             # rs.BorderSize = 1
             # pgu.create_rect(rs, True)
         show_grid_end = time.perf_counter()
-        pgu.update_mouse(details_text=tile_details)    
+        
         print(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
 
     def update_grid_with_terrain(self):
@@ -124,7 +142,7 @@ class GridUtilities:
         print("get_grid: Updating pathfinding grid with terrain...")
         UNIT_CANNOT_MOVE = False
 
-        collisions = [i for i in self.Tiles if i.Walkable == False]
+        collisions = [i for i in self.Tiles.MapTiles if i.Walkable == False]
         for node in self.Grid.nodes:
             for item in node:
                 rect = pygame.Rect(item.x * Constants.UNIT_SIZE, item.y * Constants.UNIT_SIZE, Constants.UNIT_SIZE, Constants.UNIT_SIZE)

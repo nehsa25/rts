@@ -33,8 +33,15 @@ class PygameUtilities:
         BorderSides = None  
         BorderWidth = Constants.RECT_BORDER_SIZE
         id = None   
-        def __init__(self):
+        def __init__(self, tile=None):
             self.id = uuid4()
+
+            if tile is not None:
+                self.x = tile.x
+                self.y = tile.y
+                self.Width = tile.Width
+                self.Height = tile.Height
+                self.BgColor = tile.Type.value["BgColor"]
 
     def __init__(self):
         pygame.init() # initialize the pygame module
@@ -94,7 +101,7 @@ class PygameUtilities:
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
         self.surface.blit(text, text_rect)    
 
-    def create_rect(self, rs, ignore_side_panel = False, really_draw = True):
+    def create_rect(self, rs, ignore_side_panel=False, really_draw=True):
         if rs.Rect is None:
            rs.Rect = pygame.Rect(rs.x, rs.y, rs.Width, rs.Height) 
 
