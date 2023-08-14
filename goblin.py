@@ -9,33 +9,36 @@ class Goblin(Unit):
     hover_text_color = Constants.Colors.CRIMSON    
     font = "copperplategothic"
     font_size = 36
+    logutils = None
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logutils):
+        self.logutils = logutils
+        self.logutils.log.debug("Initializing Goblin() class")
+        super().__init__(self.logutils)
         self.RectSettings.BgColor = self.main_color
 
     class Sailor(UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Sailor() class")
 
     class Pillager(UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range - 1 
         combat_damage_high = UnitTypes.RangedUnit.combat_damage_high + 1
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Pillager() class")
 
     class GoblinCaptain(UnitTypes.MeleeUnit):
         combat_damage_low = UnitTypes.MeleeUnit.combat_damage_low + 2
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 2
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing GoblinCaptain() class")
 
     class King(UnitTypes.Hero):
         combat_damage_low = UnitTypes.MeleeUnit.combat_damage_low + 3
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 3
         speed = UnitTypes.MeleeUnit.speed + 1
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing King() class")
 
     hero_character = King
 

@@ -9,23 +9,30 @@ class Fae(unit.Unit):
     hover_text_color = Constants.Colors.FUCHSIA
     font = "blackadderitc"
     font_size = 36 + 16
+    logutils = None
+
+    def __init__(self, logutils):
+        self.logutils = logutils
+        self.logutils.log.debug("Initializing Fae() class")
+        super().__init__(self.logutils)
+        self.RectSettings.BgColor = self.main_color
 
     class Shapeshifter(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Shapeshifter() class")
 
     class Littlefolk(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Littlefolk() class")
 
     class HighFae(unit.UnitTypes.Hero):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing HighFae() class")
 
     class BlightedFae(unit.UnitTypes.MeleeUnit):
         speed = unit.UnitTypes.MountedUnit.speed + 1 # fast motherfuckers, they can run down horses
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing BlightedFae() class")
 
     hero_character = HighFae
 

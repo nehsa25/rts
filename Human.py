@@ -9,30 +9,37 @@ class Human(unit.Unit):
     hover_text_color = Constants.Colors.YELLOW
     font = "baskervilleoldface"
     font_size = 36
+    logutils = None
+
+    def __init__(self, logutils):
+        self.logutils = logutils
+        self.logutils.log.debug("Initializing Human() class")
+        super().__init__(self.logutils)
+        self.RectSettings.BgColor = self.main_color
 
     class Farmer(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Farmer() class")
 
     class Miner(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Miner() class")
 
     class Fisherman(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Fisherman() class")
 
     class Knight(unit.UnitTypes.MountedUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Knight() class")
 
     class Commander(unit.UnitTypes.Hero):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Commander() class")
 
     class Archer(unit.UnitTypes.RangedUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Archer() class")
 
     hero_character = Commander
     

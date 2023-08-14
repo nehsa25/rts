@@ -129,6 +129,7 @@ class Constants:
         NEON_GREEN = (57,255,20)
         GREEN_DARK = (1, 50, 32)
         OLIVE = (128,128,0)
+        PEA_GREEN = (96, 160, 76)
 
         # purples
         PLUM = (221,160,221)

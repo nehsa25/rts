@@ -1,3 +1,4 @@
+import inspect
 import random
 from time import sleep
 import time
@@ -18,11 +19,15 @@ class Utility:
     MenuTiles = []
     spawn_points = None
     obstacles = None
+    logutils = None
 
-    def __init__(self):
-        self.MapTiles = Tiles()
+    def __init__(self, logutils):
+        self.logutils = logutils
+        self.logutils.log.debug("Initializing Utility() class")        
+        self.MapTiles = Tiles(self.logutils)        
 
     def create_border(self, pgu):
+        self.logutils.log.debug(f"Inside create_border: {inspect.currentframe().f_code.co_name}")
         if self.screen_border_rs is None:
             # create border
             self.screen_border_rs = pgu.RectSettings()
@@ -35,6 +40,7 @@ class Utility:
 
     # creates section of the map free for units spawn
     def draw_spawn_points(self, pgu, really_draw=True):
+        self.logutils.log.debug(f"Inside draw_spawn_points: {inspect.currentframe().f_code.co_name}")
         pgu.update_mouse()
 
         if self.spawn_rs is None:
@@ -47,6 +53,7 @@ class Utility:
         self.spawn_rs = pgu.create_rect(self.spawn_rs, ignore_side_panel=True, really_draw=really_draw)
 
     def update_selected_units_list(self, unit):
+        self.logutils.log.debug(f"Inside update_selected_units_list: {inspect.currentframe().f_code.co_name}")
         newlist = self.selected_units
         unit_already_added = False
         for selected_unit in self.selected_units:
@@ -64,6 +71,7 @@ class Utility:
 
     # create sides panel with army troop buttons
     def draw_side_panel(self, pgu, player, really_draw=True):
+        self.logutils.log.debug(f"Inside draw_side_panel: {inspect.currentframe().f_code.co_name}")
         mouse_pos = pgu.update_mouse()
         if self.sp_menu_rs is None:
             sp_menu_rs = pgu.RectSettings()
@@ -106,6 +114,7 @@ class Utility:
 
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self, pgu, player):
+        self.logutils.log.debug(f"Inside create_bottom_panel: {inspect.currentframe().f_code.co_name}")
         rs = pgu.RectSettings()
         rs.BgColor = Constants.Colors.COCOA
         rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
@@ -144,6 +153,7 @@ class Utility:
 
     # highlights buttons on left side panel
     def unit_button_highlighted(self, pgu, player, rs):
+        self.logutils.log.debug(f"Inside unit_button_highlighted: {inspect.currentframe().f_code.co_name}")
         rs.FontColor = player.selected_race.hover_text_color
         rs.BgColor = player.selected_race.hover_color
         pgu.create_rect(rs, ignore_side_panel=True, really_draw=True)
@@ -151,14 +161,16 @@ class Utility:
 
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, pgu, unit):
+        self.logutils.log.debug(f"Inside select_unit: {inspect.currentframe().f_code.co_name}")
         unit.RectSettings.BorderColor = Constants.Colors.RANDOM
         unit.RectSettings = pgu.create_rect(unit.RectSettings)
         return unit
 
     # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
     def create_unit(self, pgu, player, unit_type, unit = None):
+        self.logutils.log.debug(f"Inside create_unit: {inspect.currentframe().f_code.co_name}")
         if unit is None:
-            unit = Unit()
+            unit = Unit(self.logutils)
             unit.RectSettings = pgu.RectSettings()
             unit.RectSettings.BgColor = player.selected_race.main_color
             unit.RectSettings.BorderColor = player.selected_race.secondary_color

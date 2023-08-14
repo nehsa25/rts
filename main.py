@@ -1,6 +1,7 @@
 import time
 import concurrent.futures
 import pygame
+import inspect
 
 # our stuff
 from utility import Utility
@@ -11,6 +12,7 @@ from human import Human
 from fae import Fae
 from dwarf import Dwarf
 from gamebutton import GameButton
+from nyrriss import Nyrriss
 from constants import Constants
 from pygameutility import PygameUtilities
 from tile import Tiles
@@ -28,11 +30,12 @@ class unhingedrts:
     selected_units = [] # units on the screen that have been clicked on
     
     def __init__(self):
-        self.pgu = PygameUtilities()
-        self.ut = Utility()
-        self.player = Player()  
-        self.tiles = Tiles()
         self.logutils = LogUtilities()
+        self.pgu = PygameUtilities(self.logutils)
+        self.ut = Utility(self.logutils)
+        self.player = Player(self.logutils)  
+        self.tiles = Tiles(self.logutils)
+        
         
         #logo
         self.logo = pygame.image.load("logo.png")
@@ -41,8 +44,8 @@ class unhingedrts:
         
     # title screen
     def title_loop(self):
-        first_open_running = True 
-        self.logutils.log.debug("Inside title_loop")
+        self.logutils.log.debug(f"Inside title_loop: {inspect.currentframe().f_code.co_name}")
+        first_open_running = True         
         pygame.display.set_caption("Welcome!")
 
         while first_open_running:
@@ -87,6 +90,7 @@ class unhingedrts:
     
     # race select screen
     def race_select_loop(self):
+        self.logutils.log.debug(f"Inside race_select_loop: {inspect.currentframe().f_code.co_name}")
         race_select_running = True 
         pygame.display.set_caption("Select your Race")
         font_size = 60
@@ -112,7 +116,8 @@ class unhingedrts:
                                                                       pygame.font.SysFont(Goblin.font, Goblin.font_size),
                                                                       text_height + (Constants.MENU_SPACING * 2), 
                                                                       Constants.SCREEN_WIDTH)            
-            goblin_button = GameButton(goblin_button_rect, race_name, font=pygame.font.SysFont(Goblin.font, Goblin.font_size), base_color="White", hovering_color=Goblin.hover_text_color)      
+            goblin_button = GameButton(goblin_button_rect, race_name, 
+                                       font=pygame.font.SysFont(Goblin.font, Goblin.font_size), base_color="White", hovering_color=Goblin.hover_text_color)      
             goblin_button.change_color(mouse_pos)
             goblin_button.update(self.pgu.surface)
 
@@ -121,7 +126,8 @@ class unhingedrts:
                                                                    pygame.font.SysFont(Elf.font, Elf.font_size), 
                                                                    text_height + (Constants.MENU_SPACING * 3),
                                                                    Constants.SCREEN_WIDTH)
-            elf_button = GameButton(elf_button_rect, text_input=race_name, font=pygame.font.SysFont(Elf.font, Elf.font_size), base_color="White", hovering_color=Elf.hover_text_color)
+            elf_button = GameButton(elf_button_rect, text_input=race_name, 
+                                    font=pygame.font.SysFont(Elf.font, Elf.font_size), base_color="White", hovering_color=Elf.hover_text_color)
             elf_button.change_color(mouse_pos)
             elf_button.update(self.pgu.surface)
 
@@ -130,7 +136,8 @@ class unhingedrts:
                                                                      pygame.font.SysFont(Human.font, Human.font_size), 
                                                                      text_height + (Constants.MENU_SPACING * 4), 
                                                                      Constants.SCREEN_WIDTH)
-            human_button = GameButton(human_button_rect, text_input=race_name, font=pygame.font.SysFont(Human.font, Human.font_size), base_color="White", hovering_color=Human.hover_text_color)
+            human_button = GameButton(human_button_rect, text_input=race_name, 
+                                      font=pygame.font.SysFont(Human.font, Human.font_size), base_color="White", hovering_color=Human.hover_text_color)
             human_button.change_color(mouse_pos)
             human_button.update(self.pgu.surface)
 
@@ -139,7 +146,8 @@ class unhingedrts:
                                                                    pygame.font.SysFont(Fae.font, Fae.font_size), 
                                                                    text_height + (Constants.MENU_SPACING * 5),
                                                                    Constants.SCREEN_WIDTH)
-            fae_button = GameButton(fae_button_rect, text_input=race_name, font=pygame.font.SysFont(Fae.font, Fae.font_size), base_color="White", hovering_color=Fae.hover_text_color)
+            fae_button = GameButton(fae_button_rect, text_input=race_name, 
+                                    font=pygame.font.SysFont(Fae.font, Fae.font_size), base_color="White", hovering_color=Fae.hover_text_color)
             fae_button.change_color(mouse_pos)
             fae_button.update(self.pgu.surface)
 
@@ -148,28 +156,43 @@ class unhingedrts:
                                                                      pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
                                                                      text_height + (Constants.MENU_SPACING * 6), 
                                                                      Constants.SCREEN_WIDTH)
-            dwarf_button = GameButton(dwarf_button_rect, text_input=race_name.upper(), font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
+            dwarf_button = GameButton(dwarf_button_rect, text_input=race_name.upper(), 
+                                      font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
             dwarf_button.change_color(mouse_pos)
             dwarf_button.update(self.pgu.surface)
+
+            race_name = "Nyrriss"
+            nyrriss_button_rect = self.pgu.create_rect_with_center_text(race_name, 
+                                                                     pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
+                                                                     text_height + (Constants.MENU_SPACING * 7), 
+                                                                     Constants.SCREEN_WIDTH)
+            nyrriss_button = GameButton(nyrriss_button_rect, text_input=race_name, 
+                                        font=pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
+            nyrriss_button.change_color(mouse_pos)
+            nyrriss_button.update(self.pgu.surface)
 
             # event loop for option selection screen
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(mouse_pos):
-                        self.player.selected_race = Goblin()
+                        self.player.selected_race = Goblin(self.logutils)
                         race_select_running = False
                     if elf_button.check_position(mouse_pos):
-                        self.player.selected_race = Elf()
+                        self.player.selected_race = Elf(self.logutils)
                         race_select_running = False
                     if human_button.check_position(mouse_pos):
-                        self.player.selected_race = Human()
+                        self.player.selected_race = Human(self.logutils)
                         race_select_running = False    
                     if fae_button.check_position(mouse_pos):
-                        self.player.selected_race = Fae()
+                        self.player.selected_race = Fae(self.logutils)
                         race_select_running = False  
                     if dwarf_button.check_position(mouse_pos):
-                        self.player.selected_race = Dwarf()
-                        race_select_running = False            
+                        self.player.selected_race = Dwarf(self.logutils)
+                        race_select_running = False   
+                    if nyrriss_button.check_position(mouse_pos):
+                        self.player.selected_race = Nyrriss(self.logutils)
+                        race_select_running = False          
+
                 if event.type == pygame.QUIT:
                     race_select_running = False
                     self.running = False
@@ -177,6 +200,7 @@ class unhingedrts:
 
     # pause screen (when you press esc)
     def pause_game_menu_loop(self):
+        self.logutils.log.debug(f"Inside pause_game_menu_loop: {inspect.currentframe().f_code.co_name}")
         pause_game_menu_loop_running = True 
         pygame.display.set_caption(f"Paused!")
 
@@ -202,7 +226,7 @@ class unhingedrts:
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    print(f"mouse down: {event}")
+                    self.logutils.log.debug(f"mouse down: {event}")
                     if race_button.check_position(race_mouse_position):
                         pause_game_menu_loop_running = False
                         self.hero_unit_created = False
@@ -211,7 +235,7 @@ class unhingedrts:
                         pause_game_menu_loop_running = False
                         self.running = False
                 if event.type == pygame.MOUSEBUTTONUP:
-                    print(f"mouse up: {event}")
+                    self.logutils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pause_game_menu_loop_running = False # unpause
@@ -225,11 +249,12 @@ class unhingedrts:
 
     # loading screen
     def loading_screen_loop(self):
+        self.logutils.log.debug(f"Inside loading_screen_loop: {inspect.currentframe().f_code.co_name}")
         loading_screen_loop_running = True 
         pygame.display.set_caption(f"Loading!")
 
         clock = pygame.time.Clock()
-        print(f"Started clock: {clock}")
+        self.logutils.log.debug(f"Started clock: {clock}")
 
         loading_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -283,30 +308,31 @@ class unhingedrts:
                     state = "COMPLETE"
                     self.loading_msg = "Get ready!".upper()  
                     result = future.result()        
-                    print(f"Loading complete: {result}")             
+                    self.logutils.log.debug(f"Loading complete: {result}")             
                     # self.MapTiles = result[0]
                     # self.gu.grid = result[1]
                     loading_screen_loop_running = False
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(f"mouse down: {event}")
+                self.logutils.log.debug(f"mouse down: {event}")
             if event.type == pygame.MOUSEBUTTONUP:
-                print(f"mouse up: {event}")
+                self.logutils.log.debug(f"mouse up: {event}")
             if event.type == pygame.KEYDOWN:
-                print(f"key down: {event}")
+                self.logutils.log.debug(f"key down: {event}")
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
                 loading_screen_loop_running = False
                 self.running = False
 
     # the game..
-    def main_game_loop(self):        
+    def main_game_loop(self):   
+        self.logutils.log.debug(f"Inside main_game_loop: {inspect.currentframe().f_code.co_name}")     
         game_init_start = time.perf_counter()
         main_game_running = True 
 
         clock = pygame.time.Clock()
-        print(f"main_game_loop: Started clock: {clock}")
+        self.logutils.log.debug(f"main_game_loop: Started clock: {clock}")
 
         self.loading_screen_loop()
 
@@ -320,7 +346,7 @@ class unhingedrts:
 
         # be hit 60 times every seconds        
         game_init_end = time.perf_counter()
-        print(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
+        self.logutils.log.debug(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
 
         unit_moving_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -343,7 +369,7 @@ class unhingedrts:
             # # check for fire damage
             # for army_unit in self.player.army:
             #     if obstacles.colliderect(army_unit.RectSettings.Rect):
-            #         print("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
+            #         self.logutils.log.debug("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
             # add mouse pointer
             self.pgu.update_mouse(mouse_pos, self.pgu.mouse_pointer)
@@ -410,7 +436,8 @@ class unhingedrts:
             elif mouse[1] == True:
                 self.tiles.show_grid(self.pgu)
             elif mouse[2] == True:
-                print(f"right mouse")
+                self.logutils.log.debug(f"right mouse")
+                self.pgu.loop_fonts(self.pgu)
 
             # check if units done moving..
             for future in unit_moving_threads:
@@ -421,18 +448,18 @@ class unhingedrts:
                     state = "LOADING"
                 elif state == "FINISHED":                        
                     state = "COMPLETE"
-                    print(f"unit_moving_threads future state: {state}")
+                    self.logutils.log.debug(f"unit_moving_threads future state: {state}")
                     result = future.result()
-                    print(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
+                    self.logutils.log.debug(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
                     unit_moving_threads.remove(future)
 
 
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    print(f"mouse down: {event}")
+                    self.logutils.log.debug(f"mouse down: {event}")
                 if event.type == pygame.MOUSEBUTTONUP:
-                    print(f"mouse up: {event}")
+                    self.logutils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.pause_game_menu_loop()
@@ -444,10 +471,11 @@ class unhingedrts:
                     self.running = False
 
             game_end = time.perf_counter()
-            # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            # self.logutils.log.debug(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
-    def main(self):     
+    def main(self):    
+        self.logutils.log.debug(f"Inside main: {inspect.currentframe().f_code.co_name}")      
         first_opened = True
         while self.running:
             if first_opened:
@@ -457,7 +485,7 @@ class unhingedrts:
             else:   
                 # i = 0
                 # for f in pygame.font.get_fonts():                    
-                #     print(f)
+                #     self.logutils.log.debug(f)
                 #     ut.loop_fonts(f, i)
                 #     i += 48
                 #     pygame.display.flip()

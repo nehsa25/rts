@@ -11,26 +11,33 @@ class Dwarf(unit.Unit):
     hover_text_color = Constants.Colors.POOP_BROWN
     font = "hightowertext"
     font_size = 36
+    logutils = None
+
+    def __init__(self, logutils):
+        self.logutils = logutils
+        self.logutils.log.debug("Initializing Dwarf() class")
+        super().__init__(self.logutils)
+        self.RectSettings.BgColor = self.main_color
 
     class Miner(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Miner() class")
 
     class CrossbowGuard(unit.UnitTypes.RangedUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing CrossbowGuard() class")
 
     class Warror(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Warror() class")
 
     class DwarvenLord(unit.UnitTypes.Hero):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing DwarvenLord() class")
 
     class Servant(unit.UnitTypes.MeleeUnit):
         def __init__(self):
-            pass
+            self.logutils.log.debug("Initializing Servant() class")
 
     hero_character = DwarvenLord
 
