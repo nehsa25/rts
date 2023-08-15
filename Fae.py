@@ -11,7 +11,7 @@ class Fae:
     font_size = 36 + 16
     logutils = None
 
-    def __init__(self, logutils, pgu, player, unit_type):
+    def __init__(self, logutils):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Fae() class")
 

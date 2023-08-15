@@ -11,6 +11,7 @@ from goblin import Goblin
 from human import Human
 from fae import Fae
 from dwarf import Dwarf
+from arguna import Arguna
 from gamebutton import GameButton
 from nyrriss import Nyrriss
 from constants import Constants
@@ -117,7 +118,8 @@ class unhingedrts:
                                                                       text_height + (Constants.MENU_SPACING * 2), 
                                                                       Constants.SCREEN_WIDTH)            
             goblin_button = GameButton(goblin_button_rect, race_name, 
-                                       font=pygame.font.SysFont(Goblin.font, Goblin.font_size), base_color="White", hovering_color=Goblin.hover_text_color)      
+                                        font=pygame.font.SysFont(Goblin.font, Goblin.font_size),
+                                            base_color="White", hovering_color=Goblin.hover_text_color)      
             goblin_button.change_color(mouse_pos)
             goblin_button.update(self.pgu.surface)
 
@@ -127,7 +129,8 @@ class unhingedrts:
                                                                    text_height + (Constants.MENU_SPACING * 3),
                                                                    Constants.SCREEN_WIDTH)
             elf_button = GameButton(elf_button_rect, text_input=race_name, 
-                                    font=pygame.font.SysFont(Elf.font, Elf.font_size), base_color="White", hovering_color=Elf.hover_text_color)
+                                    font=pygame.font.SysFont(Elf.font, Elf.font_size), 
+                                        base_color="White", hovering_color=Elf.hover_text_color)
             elf_button.change_color(mouse_pos)
             elf_button.update(self.pgu.surface)
 
@@ -137,7 +140,8 @@ class unhingedrts:
                                                                      text_height + (Constants.MENU_SPACING * 4), 
                                                                      Constants.SCREEN_WIDTH)
             human_button = GameButton(human_button_rect, text_input=race_name, 
-                                      font=pygame.font.SysFont(Human.font, Human.font_size), base_color="White", hovering_color=Human.hover_text_color)
+                                      font=pygame.font.SysFont(Human.font, Human.font_size), 
+                                        base_color="White", hovering_color=Human.hover_text_color)
             human_button.change_color(mouse_pos)
             human_button.update(self.pgu.surface)
 
@@ -147,7 +151,8 @@ class unhingedrts:
                                                                    text_height + (Constants.MENU_SPACING * 5),
                                                                    Constants.SCREEN_WIDTH)
             fae_button = GameButton(fae_button_rect, text_input=race_name, 
-                                    font=pygame.font.SysFont(Fae.font, Fae.font_size), base_color="White", hovering_color=Fae.hover_text_color)
+                                    font=pygame.font.SysFont(Fae.font, Fae.font_size), 
+                                        base_color="White", hovering_color=Fae.hover_text_color)
             fae_button.change_color(mouse_pos)
             fae_button.update(self.pgu.surface)
 
@@ -157,7 +162,8 @@ class unhingedrts:
                                                                      text_height + (Constants.MENU_SPACING * 6), 
                                                                      Constants.SCREEN_WIDTH)
             dwarf_button = GameButton(dwarf_button_rect, text_input=race_name.upper(), 
-                                      font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
+                                      font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
+                                        base_color="White", hovering_color=Dwarf.hover_text_color)
             dwarf_button.change_color(mouse_pos)
             dwarf_button.update(self.pgu.surface)
 
@@ -167,9 +173,22 @@ class unhingedrts:
                                                                      text_height + (Constants.MENU_SPACING * 7), 
                                                                      Constants.SCREEN_WIDTH)
             nyrriss_button = GameButton(nyrriss_button_rect, text_input=race_name, 
-                                        font=pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), base_color="White", hovering_color=Dwarf.hover_text_color)
+                                        font=pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
+                                            base_color="White", hovering_color=Nyrriss.hover_text_color)
             nyrriss_button.change_color(mouse_pos)
             nyrriss_button.update(self.pgu.surface)
+
+            race_name = "Arguna"
+            arguna_button_rect = self.pgu.create_rect_with_center_text(race_name, 
+                                                                     pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
+                                                                     text_height + (Constants.MENU_SPACING * 8), 
+                                                                     Constants.SCREEN_WIDTH)
+            arguna_button = GameButton(arguna_button_rect, text_input=race_name, 
+                                        font=pygame.font.SysFont(Arguna.font, Arguna.font_size), 
+                                            base_color="White", hovering_color=Arguna.hover_text_color)
+            arguna_button.change_color(mouse_pos)
+            arguna_button.update(self.pgu.surface)
+
 
             # event loop for option selection screen
             for event in pygame.event.get():
@@ -192,6 +211,9 @@ class unhingedrts:
                     if nyrriss_button.check_position(mouse_pos):
                         self.player.selected_race = Nyrriss(self.logutils)
                         race_select_running = False          
+                    if arguna_button.check_position(mouse_pos):
+                        self.player.selected_race = Arguna(self.logutils)
+                        race_select_running = False   
 
                 if event.type == pygame.QUIT:
                     race_select_running = False
@@ -427,7 +449,7 @@ class unhingedrts:
                 # if we selected something new cool, if not, then the order it to move..
                 if not selected_new_unit and len(self.selected_units) > 0:
                     for army_unit in self.selected_units:
-                        if army_unit.Moving_Thread is None:
+                        if army_unit.Moving_Thread is False:
                             dest_x = mouse_pos[0]
                             dest_y = mouse_pos[1]
                             unit_moving_threads.append(executor.submit(army_unit.MoveUnitOverTime, self.pgu, self.tiles, dest_x, dest_y))
@@ -481,17 +503,6 @@ class unhingedrts:
             elif (self.player.selected_race is None):
                 self.race_select_loop()
             else:   
-                # i = 0
-                # for f in pygame.font.get_fonts():                    
-                #     self.logutils.log.debug(f)
-                #     ut.loop_fonts(f, i)
-                #     i += 48
-                #     pygame.display.flip()
-                #     if i > 990:
-                #         i = 0
-                #         self.pgu.surface.fill(Constants.Colors.HUNTER_GREEN) 
-                #         time.sleep(5)
-
                 self.main_game_loop()
      
 # run the main function only if this module is executed as the main script

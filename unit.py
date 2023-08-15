@@ -83,7 +83,7 @@ class Unit:
     Name = None
     Type = None
     RectSettings = None
-    Moving_Thread = None # so we can change direction
+    Moving_Thread = False # so we can change direction
     logutils = None
     Grid_y = None
     Grid_x = None
@@ -91,7 +91,6 @@ class Unit:
     def __init__(self, logutils, pgu, player, unit_type, tiles):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Unit() class")        
-        self.RectSettings = PygameUtilities.RectSettings()
         self.RectSettings = pgu.RectSettings()
         self.RectSettings.BgColor = player.selected_race.main_color
         self.RectSettings.BorderColor = player.selected_race.secondary_color
@@ -99,7 +98,7 @@ class Unit:
         self.RectSettings.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
         self.RectSettings.Width = tiles.MapTiles[0].Width
         self.RectSettings.Height = tiles.MapTiles[0].Height
-        tile_coords = tiles.ConvertXYCoordToGridCoord(self.RectSettings.x, self.RectSettings.y, tiles.MapTiles[0])
+        tile_coords = tiles.ConvertXYCoordToGridCoord(self.RectSettings.x, self.RectSettings.y)
         self.Grid_x = tile_coords[0]
         self.Grid_y = tile_coords[1]
         self.Name = Names.generate_name(self)
@@ -118,15 +117,16 @@ class Unit:
         end = ""
 
         try:
-            tile_width = tiles.GetTileWidth()
-            tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y, tiles.MapTiles[0])
-            end_x_grid = tile_coords[0]
-            end_y_grid = tile_coords[1]            
+            tile_width = tiles.GetTileWidth()            
+            tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y, tiles.MapTiles[0])            
+            gridx_end = tile_coords[0]
+            gridy_end = tile_coords[1]          
+            tile = tiles.GetTileByNodeCoord(gridx_end, gridy_end)  
             default_speed = .35 # higher is faster?
             speed = default_speed - (self.Type.speed * .1)
             start = tiles.Grid.node(self.Grid_x, self.Grid_y)
-            end = tiles.Grid.node(end_x_grid, end_y_grid)
-            self.logutils.log.info(f"{self.Name}: Can I get from ({self.Grid_x}x{self.Grid_x}) to ({end_x_grid}x{end_y_grid})?")        
+            end = tiles.Grid.node(gridx_end, gridy_end)
+            self.logutils.log.info(f"{self.Name}: Can I get from ({self.Grid_x}x{self.Grid_x}) to ({gridx_end}x{gridy_end})?")        
             tiles.Grid.cleanup()
             paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
             self.logutils.log.info(f"operations: {runs}, path length: {len(paths)}")
@@ -134,7 +134,7 @@ class Unit:
             if len(paths) < 1:
                 return_msg = f"{self.Name}: I can't get there"
             else:
-                self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({self.Grid_x}, {self.Grid_x}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
+                self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({self.Grid_x}, {self.Grid_x}) to ({gridx_end}, {gridy_end}), journey will take {runs} steps")
                 self.Moving_Thread = True
                 x = end_x
                 y = end_y
@@ -153,8 +153,15 @@ class Unit:
                     newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
                     oldrect = newrect
                 self.RectSettings.Rect = oldrect
+                self.Moving_Thread = False
+
+                # add to tile
+                tile.Units.append(self)
+                tiles.UpdateTile(tile)
+
                 end = time.perf_counter()
-                return_msg = f"{self.Name} arrived and their destination.  Commute took {round(end - start, 2)} second(s)"
+                return_msg = f"{self.Name} arrived and their destination (XY coords: {tile.x}x{tile.y}), Grid coords: {tile.Grid_x}x{tile.Grid_y}).  Commute took {round(end - start, 2)} second(s)"
+
         except:
             details = "find_path exception:"
             details += f"start: {str(start)}"

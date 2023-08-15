@@ -4,6 +4,8 @@
 from enum import Enum
 import random
 
+import pygame
+
 # fonts = ['arial', 'arialblack', 'bahnschrift', 'calibri', 'cambria', 'cambriamath', 'candara', 'comicsansms', 
 # 'consolas', 'constantia', 'corbel', 'couriernew', 'ebrima', 'franklingothicmedium', 'gabriola', 'gadugi', 'georgia', 
 # 'impact', 'inkfree', 'javanesetext', 'leelawadeeui', 'leelawadeeuisemilight', 'lucidaconsole', 'lucidasans', 'malgungothic', 
@@ -69,11 +71,12 @@ class Constants:
     WORD_SPACING = 5
 
     # mouse
-    MOUSE_POINTER_SIZE = 3
+    MOUSE_POINTER_SIZE = 1
+    MOUSE_CURSOR = pygame.cursors.diamond   
 
     # grid details when middle mouse is pressed
-    GRID_DETAILS_WIDTH = 150
-    GRID_DETAILS_HEIGHT = 125 
+    GRID_DETAILS_WIDTH = 250
+    GRID_DETAILS_HEIGHT = 325 
 
     # UNIT
     UNIT_SIZE = 1
@@ -83,8 +86,8 @@ class Constants:
     SPAWN_HEIGHT = UNIT_SIZE * 10
     
     # game grid nodes
-    GAME_SIZE_WIDTH = 10
-    GAME_SIZE_HEIGHT = 10
+    GAME_SIZE_WIDTH = 50
+    GAME_SIZE_HEIGHT = 50
     WIDTH_STEP = UNIT_SIZE
     HEIGHT_STEP = UNIT_SIZE
 

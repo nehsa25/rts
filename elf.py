@@ -13,7 +13,7 @@ class Elf:
 
     def __init__(self, logutils):
         self.logutils = logutils
-        self.logutils.log.debug("Initializing Fae() class")
+        self.logutils.log.debug("Initializing Elf() class")
 
     class Scout(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):

@@ -14,8 +14,8 @@ class PygameUtilities:
     screen_border_rs = None
 
     # mouse
-    mouse_pointer = None
-    mouse_pointer_mask = None
+    # mouse_pointer = None
+    # mouse_pointer_mask = None
 
     # logging
     logutils = None
@@ -61,7 +61,8 @@ class PygameUtilities:
         self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
 
         # hides mouse pointer provided by pygame
-        pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+        #pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
+        pygame.mouse.set_cursor(Constants.MOUSE_CURSOR)
 
     def update_mouse(self, mouse_pos=None, mouse_pointer=None, details_text=None):
         self.logutils.log.debug(f"Inside update_mouse: {inspect.currentframe().f_code.co_name}")
@@ -99,18 +100,17 @@ class PygameUtilities:
             self.logutils.log.debug(f"Inside loop_fonts: {inspect.currentframe().f_code.co_name}")
             rand_x = random.randint(0, 800)
             font = pygame.font.SysFont(newfont, 36)  
-            text = font.render(f"Nyrriss ({newfont})", True, 'black')
+            text = font.render(f"Arguna ({newfont})", True, 'black')
             word_width, word_height = text.get_size()
-            print(f"o: {y}")
+            print(f"font: {newfont}")
             y += word_height + (Constants.WORD_SPACING*2)
             rect = text.get_rect(x=rand_x, y=y)
-            print(f"n: {y}")
             self.surface.blit(text, rect)
             y += 30
             if y >= Constants.SCREEN_HEIGHT:
                 pygame.display.flip()
                 y = 10
-                sleep(1)
+                sleep(3)
                 pgu.surface.fill(Constants.Colors.ALICE_BLUE) 
 
     def draw_center_text(self, text, text_color, y, font_name = None, font_size = None):
