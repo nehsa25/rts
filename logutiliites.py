@@ -11,7 +11,7 @@ class LogUtilities:
 
         # Log to file
         filehandler = logging.FileHandler(self.LOG_FILE, "w")
-        filehandler.setLevel(logging.DEBUG)
+        filehandler.setLevel(logging.INFO)
         filehandler.setFormatter(formatter)
         self.log.addHandler(filehandler)
 

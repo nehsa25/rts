@@ -1,15 +1,10 @@
 import inspect
-import random
 from time import sleep
-import time
-import traceback
 import pygame
 
 # our stuff
 from constants import Constants
 from pygameutility import PygameUtilities
-from names import Names
-from unit import Unit
 from tile import Tiles
 
 class Utility:
@@ -36,7 +31,7 @@ class Utility:
             self.screen_border_rs.BgColor = Constants.Colors.ROYAL_PURPLE
             self.screen_border_rs.BorderColor = Constants.Colors.AQUA
             self.screen_border_rs.BorderWidth = Constants.BORDER_SIZE
-        self.screen_border_rs = pgu.create_rect(self.screen_border_rs, ignore_side_panel=True, really_draw=True)
+        self.screen_border_rs = pgu.create_rect(self.screen_border_rs, really_draw=True)
 
     # creates section of the map free for units spawn
     def draw_spawn_points(self, pgu, really_draw=True):
@@ -50,7 +45,7 @@ class Utility:
             spawn_point_rect.BorderColor = Constants.Colors.PLUM
             spawn_point_rect.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)
             self.spawn_rs = spawn_point_rect
-        self.spawn_rs = pgu.create_rect(self.spawn_rs, ignore_side_panel=True, really_draw=really_draw)
+        self.spawn_rs = pgu.create_rect(self.spawn_rs, really_draw=really_draw)
 
     def update_selected_units_list(self, unit):
         self.logutils.log.debug(f"Inside update_selected_units_list: {inspect.currentframe().f_code.co_name}")
@@ -82,7 +77,7 @@ class Utility:
             sp_menu_rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
             sp_menu_rs.BorderSides = [Constants.BorderSides.RIGHT]
             self.sp_menu_rs = sp_menu_rs
-        self.sp_menu_rs = pgu.create_rect(self.sp_menu_rs, ignore_side_panel=True, really_draw=really_draw)
+        self.sp_menu_rs = pgu.create_rect(self.sp_menu_rs, really_draw=really_draw)
 
         # also draw guys..
         if really_draw:
@@ -101,7 +96,7 @@ class Utility:
                 rs.HintName = "unit button text"
                 rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
                 rs.Font = pygame.font.Font(None, rs.FontSize)
-                pgu.create_rect(rs, ignore_side_panel=True)
+                pgu.create_rect(rs)
 
                 # update our list to pass back
                 unit_button_list.append(rs)
@@ -126,7 +121,7 @@ class Utility:
         rs.Width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH - nudge
         rs.Height = pgu.surface.get_height()
         rs.HintName = "bottom panel main"
-        pgu.create_rect(rs, ignore_side_panel=True)
+        pgu.create_rect(rs)
 
         # button for each guy
         i = 1
@@ -143,7 +138,7 @@ class Utility:
             rs.Text = unit.Name
             rs.HintName = "unit button text"
             rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-            pgu.create_rect(rs, ignore_side_panel=True)
+            pgu.create_rect(rs)
 
             # update our list to pass back
             unit_button_list.append(rs)
@@ -156,7 +151,7 @@ class Utility:
         self.logutils.log.debug(f"Inside unit_button_highlighted: {inspect.currentframe().f_code.co_name}")
         rs.FontColor = player.selected_race.hover_text_color
         rs.BgColor = player.selected_race.hover_color
-        pgu.create_rect(rs, ignore_side_panel=True, really_draw=True)
+        pgu.create_rect(rs, really_draw=True)
         pgu.update_mouse()
 
     # changed border around unit to indicate it's "selected" - random color border
@@ -164,34 +159,4 @@ class Utility:
         self.logutils.log.debug(f"Inside select_unit: {inspect.currentframe().f_code.co_name}")
         unit.RectSettings.BorderColor = Constants.Colors.RANDOM
         unit.RectSettings = pgu.create_rect(unit.RectSettings)
-        return unit
-
-    # if a unit_type is specified, we consider this a "unit", otherwise, it's just a rect that could be used for anythign..
-    def create_unit(self, pgu, player, unit_type, unit = None):
-        self.logutils.log.debug(f"Inside create_unit: {inspect.currentframe().f_code.co_name}")
-        if unit is None:
-            unit = Unit(self.logutils)
-            unit.RectSettings = pgu.RectSettings()
-            unit.RectSettings.BgColor = player.selected_race.main_color
-            unit.RectSettings.BorderColor = player.selected_race.secondary_color
-            unit.RectSettings.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
-            unit.RectSettings.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
-            unit.RectSettings.Width = Constants.UNIT_SIZE
-            unit.RectSettings.Height = Constants.UNIT_SIZE
-            unit.Name = Names.generate_name(self)
-            unit.Type = unit_type
-            unit.RectSettings.HintName = f"army unit on field: {unit.Name}" # just used for debugging
-
-        # create new unit for this guy
-        unit.RectSettings = pgu.create_rect(unit.RectSettings)
-
-        # add to our army list
-        found_unit = False
-        for army_unit in player.army:
-            if army_unit.Name == unit.Name:
-                found_unit = True
-                break
-        if not found_unit:
-            player.army.append(unit)
-
         return unit

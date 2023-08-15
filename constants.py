@@ -38,14 +38,14 @@ class Constants:
     LOADING_MSG = "Loading".upper()
 
     # Environment
-    NUM_WATER_TILES = 10
-    NUM_FIRE_TILES = 5
-    NUM_MOUNTAIN_TILES = 40
-    NUM_SWAMP_TILES = 10
-    NUM_FOREST_TILES = 25
-    NUM_FOG_TILES = 40 # walkable
-    NUM_RAIN_TILES = 10 # walkable
-    NUM_LAVA_TILES = 3
+    NUM_WATER_TILES = 2
+    NUM_FIRE_TILES = 2 # walkable
+    NUM_MOUNTAIN_TILES = 2
+    NUM_SWAMP_TILES = 2
+    NUM_FOREST_TILES = 2
+    NUM_FOG_TILES = 2 # walkable
+    NUM_RAIN_TILES = 2 # walkable
+    NUM_LAVA_TILES = 2
 
     # main game side panel
     SP_WIDTH = 100   
@@ -75,18 +75,22 @@ class Constants:
     GRID_DETAILS_WIDTH = 150
     GRID_DETAILS_HEIGHT = 125 
 
-    # title screen
-    TITLE_SCREEN_FONT_SIZE = 60
-    TITLE_FONT = "showcardgothic" #rage is cool
-
     # UNIT
-    UNIT_SIZE = 15
-    UNIT_BORDER_SIZE = 5
+    UNIT_SIZE = 1
     SPAWN_X = int(SP_WIDTH + 20)
     SPAWN_Y = 20
     SPAWN_WIDTH = UNIT_SIZE * 10
     SPAWN_HEIGHT = UNIT_SIZE * 10
     
+    # game grid nodes
+    GAME_SIZE_WIDTH = 10
+    GAME_SIZE_HEIGHT = 10
+    WIDTH_STEP = UNIT_SIZE
+    HEIGHT_STEP = UNIT_SIZE
+
+    # title screen
+    TITLE_SCREEN_FONT_SIZE = 60
+    TITLE_FONT = "showcardgothic" #rage is cool
 
     # our colors
     class Colors:

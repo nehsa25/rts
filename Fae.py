@@ -1,7 +1,7 @@
 from constants import Constants
-import unit
+from unit import Unit, UnitTypes
 
-class Fae(unit.Unit):
+class Fae:
     Discription = "Tricksters, Magic casters, Strong early to mid game"
     main_color = Constants.Colors.FUCHSIA
     secondary_color = Constants.Colors.HUNTER_GREEN 
@@ -11,28 +11,30 @@ class Fae(unit.Unit):
     font_size = 36 + 16
     logutils = None
 
-    def __init__(self, logutils):
+    def __init__(self, logutils, pgu, player, unit_type):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Fae() class")
-        super().__init__(self.logutils)
-        self.RectSettings.BgColor = self.main_color
 
-    class Shapeshifter(unit.UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Shapeshifter(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Shapeshifter() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Littlefolk(unit.UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Littlefolk(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Littlefolk() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class HighFae(unit.UnitTypes.Hero):
-        def __init__(self):
+    class HighFae(Unit, UnitTypes.Hero):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing HighFae() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class BlightedFae(unit.UnitTypes.MeleeUnit):
-        speed = unit.UnitTypes.MountedUnit.speed + 1 # fast motherfuckers, they can run down horses
-        def __init__(self):
+    class BlightedFae(Unit, UnitTypes.MeleeUnit):
+        speed = UnitTypes.MountedUnit.speed + 1 # fast motherfuckers, they can run down horses
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing BlightedFae() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = HighFae
 

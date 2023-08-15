@@ -82,7 +82,7 @@ class PygameUtilities:
             rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
             rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
             rs.BorderSides = [Constants.BorderSides.LEFT]
-            rs = self.create_rect(rs, ignore_side_panel = False, really_draw = True)
+            rs = self.create_rect(rs, really_draw = True)
             pygame.display.update(rs.Rect)
             
         self.surface.blit(mouse_pointer, mouse_pos)
@@ -128,7 +128,7 @@ class PygameUtilities:
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
         self.surface.blit(text, text_rect)    
 
-    def create_rect(self, rs, ignore_side_panel=False, really_draw=True):
+    def create_rect(self, rs, really_draw=True):
         self.logutils.log.debug(f"Inside create_rect: {inspect.currentframe().f_code.co_name}")
         if rs.Rect is None:
            rs.Rect = pygame.Rect(rs.x, rs.y, rs.Width, rs.Height) 
@@ -138,11 +138,6 @@ class PygameUtilities:
         rs.y = rs.Rect.y
         rs.Width = rs.Rect.width
         rs.Height = rs.Rect.height
-
-        # ensure rect not in side panel
-        if not ignore_side_panel:        
-            if rs.Rect.x < Constants.SP_WIDTH:
-                rs.Rect.x = Constants.SP_WIDTH
 
         if really_draw:
             if rs.BorderColor is None:

@@ -1,8 +1,10 @@
 import inspect
+import random
 import time
 import traceback
 import pygame
 from enum import Enum
+from names import Names
 
 # our stuff
 from pygameutility import PygameUtilities
@@ -16,10 +18,11 @@ class Stats:
     combat_damage_low = None
     combat_damage_high = None
     attack_tiles = None
-    move_tiles = None   
+    move_tiles = None 
+    logutils = None  
 
-    def __init__(self):
-        pass
+    def __init__(self, logutils):
+        self.logutils = logutils
 
     # def __init__(self, combat_type, combat_range, combat_damage_low, combat_damage_high, attack_tiles, move_tiles):
     #     self.combat_type = combat_type
@@ -82,50 +85,70 @@ class Unit:
     RectSettings = None
     Moving_Thread = None # so we can change direction
     logutils = None
+    Grid_y = None
+    Grid_x = None
         
-    def __init__(self, logutils):
+    def __init__(self, logutils, pgu, player, unit_type, tiles):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Unit() class")        
         self.RectSettings = PygameUtilities.RectSettings()
+        self.RectSettings = pgu.RectSettings()
+        self.RectSettings.BgColor = player.selected_race.main_color
+        self.RectSettings.BorderColor = player.selected_race.secondary_color
+        self.RectSettings.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
+        self.RectSettings.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
+        self.RectSettings.Width = tiles.MapTiles[0].Width
+        self.RectSettings.Height = tiles.MapTiles[0].Height
+        tile_coords = tiles.ConvertXYCoordToGridCoord(self.RectSettings.x, self.RectSettings.y, tiles.MapTiles[0])
+        self.Grid_x = tile_coords[0]
+        self.Grid_y = tile_coords[1]
+        self.Name = Names.generate_name(self)
+        self.Type = unit_type
+        self.RectSettings.HintName = f"on field: {self.Name}" # just used for debugging
+
+        # create new unit for this guy
+        self.RectSettings = pgu.create_rect(self.RectSettings)
 
     # uses speed of unit
     # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
     def MoveUnitOverTime(self, pgu, tiles, end_x, end_y):
         self.logutils.log.debug(f"Inside MoveUnitOverTime: {inspect.currentframe().f_code.co_name}")
         return_msg = ""
+        start = ""
+        end = ""
+
         try:
-            tiles.Grid.cleanup()
-            default_speed = .35
+            tile_width = tiles.GetTileWidth()
+            tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y, tiles.MapTiles[0])
+            end_x_grid = tile_coords[0]
+            end_y_grid = tile_coords[1]            
+            default_speed = .35 # higher is faster?
             speed = default_speed - (self.Type.speed * .1)
-            start_x_grid = int(self.RectSettings.Rect.x  / Constants.UNIT_SIZE)
-            start_y_grid = int(self.RectSettings.Rect.y  / Constants.UNIT_SIZE)
-            end_x_grid = int(end_x / Constants.UNIT_SIZE)
-            end_y_grid = int(end_y / Constants.UNIT_SIZE)
-            start = tiles.Grid.node(start_x_grid, start_y_grid)
+            start = tiles.Grid.node(self.Grid_x, self.Grid_y)
             end = tiles.Grid.node(end_x_grid, end_y_grid)
-            self.logutils.log.info(f"{self.Name}: Can I get from ({start_x_grid}x{start_y_grid}) to ({end_x_grid}x{end_y_grid})?")        
+            self.logutils.log.info(f"{self.Name}: Can I get from ({self.Grid_x}x{self.Grid_x}) to ({end_x_grid}x{end_y_grid})?")        
+            tiles.Grid.cleanup()
             paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
             self.logutils.log.info(f"operations: {runs}, path length: {len(paths)}")
             self.logutils.log.info(tiles.Grid.grid_str(path=paths, start=start, end=end))
             if len(paths) < 1:
                 return_msg = f"{self.Name}: I can't get there"
             else:
-                self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({start_x_grid}, {start_y_grid}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
-                self.logutils.log.debug(f"paths: {paths}")
-                x = self.RectSettings.Rect.x
-                y = self.RectSettings.Rect.y
+                self.logutils.log.debug(f"Moving {self.Name} at {round(speed, 2)} speed from ({self.Grid_x}, {self.Grid_x}) to ({end_x_grid}, {end_y_grid}), journey will take {runs} steps")
+                self.Moving_Thread = True
+                x = end_x
+                y = end_y
                 oldrect = None
-
                 start = time.perf_counter()
                 for path in paths:
-                    newrect = pygame.Rect(x, y, Constants.UNIT_SIZE, Constants.UNIT_SIZE)
+                    newrect = pygame.Rect(end_x, end_y, tile_width, tile_width)
                     self.logutils.log.debug(f"Sleeping: {round(speed, 2)} seconds before moving {self.Name} again ({self})")
                     time.sleep(speed)
-                    newrect.x = int(path[0] * Constants.UNIT_SIZE)
-                    newrect.y = int(path[1] * Constants.UNIT_SIZE)
+                    newrect.x = int(path[0] * tile_width)
+                    newrect.y = int(path[1] * tile_width)
                     if oldrect is None:
                         self.logutils.log.debug(f"{self.Name} beginning travel to ({newrect.x}x{newrect.y})")
-                    else:
+                    else:                        
                         self.logutils.log.debug(f"Moving {self.Name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
                     newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
                     oldrect = newrect
@@ -139,6 +162,22 @@ class Unit:
             details += f"Grid: {str(tiles.Grid)}"
             self.logutils.log.exception("An exception occured in MoveUnitOverTime: {details}")
         return return_msg
+
+    def AddToArmy(self, player):
+        # add to our army list
+        found_unit = False
+        for army_unit in player.army:
+            if army_unit.Name == self.Name:
+                found_unit = True
+                break
+        if not found_unit:
+            player.army.append(self)
+
+        return player.army
+    
+    def DrawUnit(self, pgu):
+        pygame.draw.rect(pgu.surface, self.RectSettings.BgColor, self.RectSettings.Rect)
+
 
     # moves rect x,y cords
     def move_unit(self, pgu, prevrect, newrect, bg_color):

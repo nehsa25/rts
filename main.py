@@ -17,6 +17,7 @@ from constants import Constants
 from pygameutility import PygameUtilities
 from tile import Tiles
 from logutiliites import LogUtilities
+from unit import Unit
 
 class unhingedrts:
     # main window title
@@ -26,7 +27,6 @@ class unhingedrts:
     player = None
     hero_unit_created = False
     loading_msg = ""
-    MapTiles = None # all tiles on map      
     selected_units = [] # units on the screen that have been clicked on
     
     def __init__(self):
@@ -283,10 +283,9 @@ class unhingedrts:
             font_size = 36
             loading_rect_y = (Constants.SCREEN_HEIGHT / 4 - font_size) * 3
             text = ""
-            if state != "":
-                if self.loading_msg !=  "":
-                    text = self.loading_msg               
-                self.pgu.draw_center_text(text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
+            if self.loading_msg !=  "":
+                text = self.loading_msg               
+            self.pgu.draw_center_text(text, Constants.Colors.CRIMSON, loading_rect_y, font_name = Constants.DEFAULT_FONT_NAME, font_size = font_size)
 
             # update entire display
             pygame.display.flip()
@@ -309,8 +308,6 @@ class unhingedrts:
                     self.loading_msg = "Get ready!".upper()  
                     result = future.result()        
                     self.logutils.log.debug(f"Loading complete: {result}")             
-                    # self.MapTiles = result[0]
-                    # self.gu.grid = result[1]
                     loading_screen_loop_running = False
 
         for event in pygame.event.get():
@@ -402,9 +399,10 @@ class unhingedrts:
             if self.hero_unit_created:
                 # draw units on field
                 for army_unit in self.player.army:
-                    self.ut.create_unit(self.pgu, self.player, army_unit, army_unit)
+                    army_unit.DrawUnit(self.pgu)
             else:
-                self.ut.create_unit(self.pgu, self.player, self.player.selected_race.hero_character)
+                u = Unit(self.logutils, self.pgu, self.player, unit_type=self.player.selected_race.hero_character, tiles=self.tiles)
+                self.player.army = u.AddToArmy(self.player)
                 self.hero_unit_created = True
 
             # draw border last to cover anything up
@@ -471,7 +469,7 @@ class unhingedrts:
                     self.running = False
 
             game_end = time.perf_counter()
-            print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
+            # print(f"FPS: {round(60 - (game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):    

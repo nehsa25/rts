@@ -1,7 +1,7 @@
 from constants import Constants
-import unit
+from unit import Unit, UnitTypes
 
-class Nyrriss(unit.Unit):
+class Nyrriss(Unit):
     description = "Snakes/poison"
     main_color = Constants.Colors.PEA_GREEN
     secondary_color = Constants.Colors.MOCCASIN
@@ -14,16 +14,16 @@ class Nyrriss(unit.Unit):
     def __init__(self, logutils):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Nyrriss() class")
-        super().__init__(self.logutils)
-        self.RectSettings.BgColor = self.main_color
 
-    class Shaman(unit.UnitTypes.RangedUnit):
-        def __init__(self):
+    class Shaman(Unit, UnitTypes.RangedUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Shaman() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class GodKing(unit.UnitTypes.RangedUnit):
-        def __init__(self):
+    class GodKing(Unit, UnitTypes.RangedUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing GodKing() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = GodKing
     

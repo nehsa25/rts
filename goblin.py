@@ -1,7 +1,7 @@
 from constants import Constants
 from unit import Unit, UnitTypes
 
-class Goblin(Unit):
+class Goblin:
     description = "Create water tiles, Sail, Pillage from other players, Strong early game, Naval"
     main_color = Constants.Colors.CRIMSON
     secondary_color = Constants.Colors.BLACK
@@ -13,32 +13,34 @@ class Goblin(Unit):
 
     def __init__(self, logutils):
         self.logutils = logutils
-        self.logutils.log.debug("Initializing Goblin() class")
-        super().__init__(self.logutils)
-        self.RectSettings.BgColor = self.main_color
+        self.logutils.log.debug("Initializing Goblin() class")        
 
-    class Sailor(UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Sailor(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):            
             self.logutils.log.debug("Initializing Sailor() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Pillager(UnitTypes.RangedUnit):
+    class Pillager(Unit, UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range - 1 
         combat_damage_high = UnitTypes.RangedUnit.combat_damage_high + 1
-        def __init__(self):
+        def __init__(self, logutils, pgu, player, unit_type):    
             self.logutils.log.debug("Initializing Pillager() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class GoblinCaptain(UnitTypes.MeleeUnit):
+    class GoblinCaptain(Unit, UnitTypes.MeleeUnit):
         combat_damage_low = UnitTypes.MeleeUnit.combat_damage_low + 2
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 2
-        def __init__(self):
+        def __init__(self, logutils, pgu, player, unit_type):    
             self.logutils.log.debug("Initializing GoblinCaptain() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class King(UnitTypes.Hero):
+    class King(Unit, UnitTypes.Hero):
         combat_damage_low = UnitTypes.MeleeUnit.combat_damage_low + 3
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 3
         speed = UnitTypes.MeleeUnit.speed + 1
-        def __init__(self):
+        def __init__(self, logutils, pgu, player, unit_type):    
             self.logutils.log.debug("Initializing King() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = King
 

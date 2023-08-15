@@ -1,7 +1,7 @@
 from constants import Constants
-import unit
+from unit import Unit, UnitTypes
 
-class Human(unit.Unit):
+class Human:
     description = "Land units focused, jack of all trades, Mid-game"
     main_color = Constants.Colors.YELLOW
     secondary_color = Constants.Colors.NAVY
@@ -14,32 +14,36 @@ class Human(unit.Unit):
     def __init__(self, logutils):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Human() class")
-        super().__init__(self.logutils)
-        self.RectSettings.BgColor = self.main_color
 
-    class Farmer(unit.UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Farmer(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Farmer() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Miner(unit.UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Miner(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Miner() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Fisherman(unit.UnitTypes.MeleeUnit):
-        def __init__(self):
+    class Fisherman(Unit, UnitTypes.MeleeUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Fisherman() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Knight(unit.UnitTypes.MountedUnit):
-        def __init__(self):
+    class Knight(Unit, UnitTypes.MountedUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Knight() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Commander(unit.UnitTypes.Hero):
-        def __init__(self):
+    class Commander(Unit, UnitTypes.Hero):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Commander() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
-    class Archer(unit.UnitTypes.RangedUnit):
-        def __init__(self):
+    class Archer(Unit, UnitTypes.RangedUnit):
+        def __init__(self, logutils, pgu, player, unit_type):
             self.logutils.log.debug("Initializing Archer() class")
+            super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = Commander
     
