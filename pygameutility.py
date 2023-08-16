@@ -6,7 +6,6 @@ import pygame
 
 # our stuff
 from constants import Constants
-from tile import Tile
 
 class PygameUtilities:  
     font = None
@@ -20,6 +19,9 @@ class PygameUtilities:
     # logging
     logutils = None
 
+    # rect(surface, color, rect, width=0, border_radius=0, 
+    # border_top_left_radius=-1, border_top_right_radius=-1, 
+    # border_bottom_left_radius=-1, border_bottom_right_radius=-1)
     class RectSettings:        
         x = 0
         y = 0
@@ -36,6 +38,7 @@ class PygameUtilities:
         FontColor = Constants.Colors.BLACK
         BorderColor = None   
         BorderSides = None  
+        BorderRadius = 1
         BorderWidth = Constants.BORDER_SIZE_PX
         id = None   
         def __init__(self, tile=None):
@@ -64,7 +67,7 @@ class PygameUtilities:
         #pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
         pygame.mouse.set_cursor(Constants.MOUSE_CURSOR)
 
-    def update_mouse(self, mouse_pos=None, mouse_pointer=None, details_text=None):
+    def update_mouse(self, mouse_pos=None, mouse_pointer=None, tile=None):
         self.logutils.log.debug(f"Inside update_mouse: {inspect.currentframe().f_code.co_name}")
         if mouse_pos is None:
             mouse_pos = pygame.mouse.get_pos()
@@ -72,17 +75,16 @@ class PygameUtilities:
         if mouse_pointer is None:
             mouse_pointer = self.mouse_pointer
 
-        if details_text is not None:            
+        if tile is not None:            
             rs = self.RectSettings()
             rs.x = mouse_pos[0] + Constants.WORD_SPACING_PX
             rs.y = mouse_pos[1] + Constants.WORD_SPACING_PX
             rs.FontSize = 12
-            rs.Text = details_text
-            rs.Width = Constants.GRID_DETAILS_WIDTH_GD
-            rs.Height = Constants.GRID_DETAILS_HEIGHT_GD
+            rs.Text = tile.TileDetails
+            rs.Width = Constants.GRID_DETAILS_WIDTH_GD * tile.Width
+            rs.Height = Constants.GRID_DETAILS_HEIGHT_GD * tile.Height 
             rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
-            rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
-            rs.BorderSides = [Constants.BorderSides.LEFT]
+            rs.BorderRadius = 5
             rs = self.create_rect(rs, really_draw = True)
             pygame.display.update(rs.Rect)
             
@@ -141,9 +143,9 @@ class PygameUtilities:
 
         if really_draw:
             if rs.BorderColor is None:
-                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect)
+                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, border_radius=rs.BorderRadius)
             else:
-                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, rs.BorderWidth)
+                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, rs.BorderWidth, border_radius=rs.BorderRadius)
 
         # add text
         if rs.Text is not None:  
