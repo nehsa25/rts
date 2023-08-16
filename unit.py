@@ -90,20 +90,21 @@ class Unit:
         
     def __init__(self, logutils, pgu, player, unit_type, tiles):
         self.logutils = logutils
-        self.logutils.log.debug("Initializing Unit() class")        
+        self.logutils.log.debug("Initializing Unit() class") 
+        self.Grid_x = random.randint(Constants.SPAWN_GRID_X, Constants.SPAWN_SIZE)
+        self.Grid_y = random.randint(Constants.SPAWN_GRID_Y, Constants.SPAWN_SIZE)
+        unit_tile = tiles.GetTile(self.Grid_x, self.Grid_y) 
         self.RectSettings = pgu.RectSettings()
         self.RectSettings.BgColor = player.selected_race.main_color
         self.RectSettings.BorderColor = player.selected_race.secondary_color
-        self.RectSettings.x = random.randint(Constants.SPAWN_X, Constants.SPAWN_X + (Constants.SPAWN_WIDTH - Constants.UNIT_SIZE))
-        self.RectSettings.y = random.randint(Constants.SPAWN_Y, Constants.SPAWN_Y + (Constants.SPAWN_HEIGHT - Constants.UNIT_SIZE))
-        self.RectSettings.Width = tiles.MapTiles[0].Width
-        self.RectSettings.Height = tiles.MapTiles[0].Height
-        tile_coords = tiles.ConvertXYCoordToGridCoord(self.RectSettings.x, self.RectSettings.y)
-        self.Grid_x = tile_coords[0]
-        self.Grid_y = tile_coords[1]
+        self.RectSettings.x = unit_tile.x
+        self.RectSettings.y = unit_tile.y
+        self.RectSettings.Width = unit_tile.Width
+        self.RectSettings.Height = unit_tile.Height
         self.Name = Names.generate_name(self)
         self.Type = unit_type
-        self.RectSettings.HintName = f"on field: {self.Name}" # just used for debugging
+        self.RectSettings.HintName = f"{self.Name} has entered the field at XY:({unit_tile.x}x{unit_tile.y}), Grid:({self.Grid_x}x{self.Grid_y})" # just used for debugging
+        print(self.RectSettings.HintName)
 
         # create new unit for this guy
         self.RectSettings = pgu.create_rect(self.RectSettings)
@@ -118,7 +119,7 @@ class Unit:
 
         try:
             tile_width = tiles.GetTileWidth()            
-            tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y, tiles.MapTiles[0])            
+            tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y)            
             gridx_end = tile_coords[0]
             gridy_end = tile_coords[1]          
             tile = tiles.GetTileByNodeCoord(gridx_end, gridy_end)  
@@ -156,7 +157,7 @@ class Unit:
                 self.Moving_Thread = False
 
                 # add to tile
-                tile.Units.append(self)
+                # tile.Units.append(self)
                 tiles.UpdateTile(tile)
 
                 end = time.perf_counter()

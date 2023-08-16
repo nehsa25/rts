@@ -26,24 +26,26 @@ class Utility:
         if self.screen_border_rs is None:
             # create border
             self.screen_border_rs = pgu.RectSettings()
-            self.screen_border_rs.Width = Constants.SCREEN_WIDTH
-            self.screen_border_rs.Height = Constants.SCREEN_HEIGHT
+            self.screen_border_rs.Width = Constants.SCREEN_WIDTH_PX
+            self.screen_border_rs.Height = Constants.SCREEN_HEIGHT_PX
             self.screen_border_rs.BgColor = Constants.Colors.ROYAL_PURPLE
             self.screen_border_rs.BorderColor = Constants.Colors.AQUA
-            self.screen_border_rs.BorderWidth = Constants.BORDER_SIZE
+            self.screen_border_rs.BorderWidth = Constants.BORDER_SIZE_PX
         self.screen_border_rs = pgu.create_rect(self.screen_border_rs, really_draw=True)
 
     # creates section of the map free for units spawn
-    def draw_spawn_points(self, pgu, really_draw=True):
+    def draw_spawn_points(self, pgu, tiles, really_draw=True):
         self.logutils.log.debug(f"Inside draw_spawn_points: {inspect.currentframe().f_code.co_name}")
         pgu.update_mouse()
+
+        tile = tiles.GetTile(Constants.SPAWN_GRID_X, Constants.SPAWN_GRID_Y)
 
         if self.spawn_rs is None:
             spawn_point_rect = pgu.RectSettings()
             spawn_point_rect.BgColor = Constants.Colors.SPAWN_COLOR
-            spawn_point_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            spawn_point_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
             spawn_point_rect.BorderColor = Constants.Colors.PLUM
-            spawn_point_rect.Rect = pygame.Rect(Constants.SPAWN_X, Constants.SPAWN_Y, Constants.SPAWN_WIDTH, Constants.SPAWN_HEIGHT)
+            spawn_point_rect.Rect = pygame.Rect(tile.x, tile.y, Constants.SPAWN_SIZE * tile.Width, Constants.SPAWN_SIZE * tile.Width)
             self.spawn_rs = spawn_point_rect
         self.spawn_rs = pgu.create_rect(self.spawn_rs, really_draw=really_draw)
 
@@ -71,8 +73,8 @@ class Utility:
         if self.sp_menu_rs is None:
             sp_menu_rs = pgu.RectSettings()
             sp_menu_rs.BgColor = Constants.Colors.POOP_BROWN
-            sp_menu_rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
-            sp_menu_rs.Width = Constants.SP_WIDTH
+            sp_menu_rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
+            sp_menu_rs.Width = Constants.SIDE_PANEL_WIDTH_PX
             sp_menu_rs.Height = pgu.surface.get_height()
             sp_menu_rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
             sp_menu_rs.BorderSides = [Constants.BorderSides.RIGHT]
@@ -84,9 +86,9 @@ class Utility:
             i = 1
             unit_button_list = []
             for unit in player.selected_race.units:
-                unit_x = (Constants.SP_WIDTH / 2) / 2
+                unit_x = (Constants.SIDE_PANEL_WIDTH_PX / 2) / 2
                 unit_y = 60 * i
-                unit_width = Constants.SP_WIDTH / 2
+                unit_width = Constants.SIDE_PANEL_WIDTH_PX / 2
                 unit_height = unit_width
                 rs = pgu.RectSettings()
                 rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
@@ -94,7 +96,7 @@ class Utility:
                 rs.BorderColor = player.selected_race.secondary_color
                 rs.Text = unit["Name"]
                 rs.HintName = "unit button text"
-                rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+                rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
                 rs.Font = pygame.font.Font(None, rs.FontSize)
                 pgu.create_rect(rs)
 
@@ -114,11 +116,11 @@ class Utility:
         rs.BgColor = Constants.Colors.COCOA
         rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
         rs.BorderSides = [Constants.BorderSides.TOP, Constants.BorderSides.LEFT]
-        rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+        rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
         nudge = 2
-        rs.x = Constants.SP_WIDTH  + nudge # start at end of SP panel
-        rs.y = Constants.SCREEN_HEIGHT - Constants.BP_HEIGHT
-        rs.Width = Constants.SCREEN_WIDTH - Constants.SP_WIDTH - nudge
+        rs.x = Constants.SIDE_PANEL_WIDTH_PX  + nudge # start at end of SP panel
+        rs.y = Constants.SCREEN_HEIGHT_PX - Constants.BP_HEIGHT_PX
+        rs.Width = Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX - nudge
         rs.Height = pgu.surface.get_height()
         rs.HintName = "bottom panel main"
         pgu.create_rect(rs)
@@ -127,9 +129,9 @@ class Utility:
         i = 1
         unit_button_list = []
         for unit in player.army:
-            unit_x = Constants.SP_WIDTH + Constants.PANEL_BUTTON_SPACING
-            unit_y = rs.y + Constants.RECT_SIZE
-            unit_width = Constants.SP_WIDTH / 2
+            unit_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.PANEL_BUTTON_SPACING_PX
+            unit_y = rs.y + Constants.PANEL_BUTTON_SPACING_PX
+            unit_width = Constants.SIDE_PANEL_WIDTH_PX / 2
             unit_height = unit_width
             rs = pgu.RectSettings()
             rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
@@ -137,7 +139,7 @@ class Utility:
             rs.BorderColor = player.selected_race.secondary_color
             rs.Text = unit.Name
             rs.HintName = "unit button text"
-            rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE
+            rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
             pgu.create_rect(rs)
 
             # update our list to pass back

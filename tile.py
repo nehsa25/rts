@@ -26,7 +26,7 @@ class Tiles:
         self.logutils.log.debug(f"Inside ConvertXYCoordToGridCoord: {inspect.currentframe().f_code.co_name}")
         gridx = 0   
         tile = self.GetTile(0,0)
-        if x > Constants.SP_WIDTH:
+        if x > Constants.SIDE_PANEL_WIDTH_PX:
             gridx = int(x / tile.Width)
         gridy = int(y / tile.Height)
         return gridx, gridy
@@ -43,12 +43,6 @@ class Tiles:
 
     def load_grid(self, pgu, ut, player, load_env = True):
         self.logutils.log.info(f"Inside load_grid: {inspect.currentframe().f_code.co_name}") 
-        #  refresh side panel / highlight a unit that's hovered over
-        ut.draw_side_panel(pgu, player, really_draw=False)
-
-        # spawn points
-        ut.draw_spawn_points(pgu, really_draw=False)
-
         # get grid of screen based on unit size
         self.Grid = self.get_empty_grid(pgu)   
 
@@ -57,9 +51,6 @@ class Tiles:
         while not usable_map:
             # generate our obstacles
             if load_env:
-                # menu_list = []
-                # menu_list.append(dict(rects=self.side_panel_rects, walkable=False))
-                # menu_list.append(dict(rects=self.spawn_points, walkable=True))
                 self.Grid = self.CreateTerrainTiles(pgu, self.Grid)
 
                 # update grid with nodes we cannot walk on
@@ -67,6 +58,12 @@ class Tiles:
 
             usable_map = True
             runs = 0
+
+            #  refresh side panel / highlight a unit that's hovered over
+            ut.draw_side_panel(pgu, player, really_draw=False)
+
+            # spawn points
+            ut.draw_spawn_points(pgu, self, really_draw=False)
 
             # # ensure usable map - also ensure we have a route to the other side of screen
             # unit_spawn_x = int(Constants.UNIT_SPAWN_X / Constants.UNIT_SIZE)
@@ -87,8 +84,8 @@ class Tiles:
         return f"usable_map: {usable_map}, runs: {runs}"
     
     def get_empty_grid(self, pgu):
-        max_y = Constants.GAME_SIZE_HEIGHT
-        max_x = Constants.GAME_SIZE_WIDTH
+        max_y = Constants.GAME_SIZE_HEIGHT_GD
+        max_x = Constants.GAME_SIZE_WIDTH_GD
         y_step = Constants.HEIGHT_STEP
         x_step = Constants.WIDTH_STEP
         self.logutils.log.info(f"Inside get_empty_grid: {inspect.currentframe().f_code.co_name}")
@@ -378,11 +375,11 @@ class Tile:
         Swamp = dict(BgColor=Constants.Colors.GREEN_DARK, Walkable=True)
         Fire = dict(BgColor=Constants.Colors.BURNT_ORANGE, Walkable=True)
     
-    def __init__(self, logutils, pgu, gridx=None, gridy=None):
+    def __init__(self, logutils, pgu, gridx, gridy):
         self.logutils = logutils
         self.logutils.log.debug("Initializing Tile() class")
-        self.Width = int(((Constants.SCREEN_WIDTH - Constants.SP_WIDTH) / Constants.GAME_SIZE_WIDTH) * Constants.WIDTH_STEP)
-        self.Height = int((Constants.SCREEN_HEIGHT / Constants.GAME_SIZE_HEIGHT) * Constants.HEIGHT_STEP)
+        self.Width = int(((Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX) / Constants.GAME_SIZE_WIDTH_GD) * Constants.WIDTH_STEP)
+        self.Height = int((Constants.SCREEN_HEIGHT_PX / Constants.GAME_SIZE_HEIGHT_GD) * Constants.HEIGHT_STEP)
         self.Level = Tile.Level.Ground
         self.Type = Tile.Type.Basic
         self.Grid_x = gridx
@@ -397,7 +394,7 @@ class Tile:
         self.RectSettings = pgu.create_rect(rs)
 
     def CalculateX(self, gridx):
-        x = Constants.SP_WIDTH + (gridx * self.Width)
+        x = Constants.SIDE_PANEL_WIDTH_PX + (gridx * self.Width)
         print(f"CalculateNodeX: {gridx} -> {x}")
         return x
 

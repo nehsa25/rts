@@ -30,13 +30,13 @@ class PygameUtilities:
         Text = None
         Rect = None
         Font = None
-        FontName = Constants.DEFAULT_FONT_NAME
-        FontSize = Constants.FONT_SIZE
+        FontName = Constants.FONT_NAME_DEFAULT
+        FontSize = Constants.FONT_SIZE_DEFAULT_PX
         BgColor = Constants.Colors.GREEN
         FontColor = Constants.Colors.BLACK
         BorderColor = None   
         BorderSides = None  
-        BorderWidth = Constants.RECT_BORDER_SIZE
+        BorderWidth = Constants.BORDER_SIZE_PX
         id = None   
         def __init__(self, tile=None):
             self.id = uuid4()
@@ -53,10 +53,10 @@ class PygameUtilities:
         self.logutils.log.debug("Initializing PygameUtilities() class")        
         
         pygame.init() # initialize the pygame module
-        self.font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, Constants.FONT_SIZE)
-        self.surface = pygame.display.set_mode((Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT))
+        self.font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.FONT_SIZE_DEFAULT_PX)
+        self.surface = pygame.display.set_mode((Constants.SCREEN_WIDTH_PX, Constants.SCREEN_HEIGHT_PX))
 
-        self.mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE, Constants.MOUSE_POINTER_SIZE))
+        self.mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE_PX, Constants.MOUSE_POINTER_SIZE_PX))
         self.mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
         self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
 
@@ -74,12 +74,12 @@ class PygameUtilities:
 
         if details_text is not None:            
             rs = self.RectSettings()
-            rs.x = mouse_pos[0] + Constants.WORD_SPACING
-            rs.y = mouse_pos[1] + Constants.WORD_SPACING
+            rs.x = mouse_pos[0] + Constants.WORD_SPACING_PX
+            rs.y = mouse_pos[1] + Constants.WORD_SPACING_PX
             rs.FontSize = 12
             rs.Text = details_text
-            rs.Width = Constants.GRID_DETAILS_WIDTH
-            rs.Height = Constants.GRID_DETAILS_HEIGHT
+            rs.Width = Constants.GRID_DETAILS_WIDTH_GD
+            rs.Height = Constants.GRID_DETAILS_HEIGHT_GD
             rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
             rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
             rs.BorderSides = [Constants.BorderSides.LEFT]
@@ -103,11 +103,11 @@ class PygameUtilities:
             text = font.render(f"Arguna ({newfont})", True, 'black')
             word_width, word_height = text.get_size()
             print(f"font: {newfont}")
-            y += word_height + (Constants.WORD_SPACING*2)
+            y += word_height + (Constants.WORD_SPACING_PX*2)
             rect = text.get_rect(x=rand_x, y=y)
             self.surface.blit(text, rect)
             y += 30
-            if y >= Constants.SCREEN_HEIGHT:
+            if y >= Constants.SCREEN_HEIGHT_PX:
                 pygame.display.flip()
                 y = 10
                 sleep(3)
@@ -115,17 +115,17 @@ class PygameUtilities:
 
     def draw_center_text(self, text, text_color, y, font_name = None, font_size = None):
         self.logutils.log.debug(f"Inside draw_center_text: {inspect.currentframe().f_code.co_name}")
-        default_font_size = Constants.FONT_SIZE
+        default_font_size = Constants.FONT_SIZE_DEFAULT_PX
         if font_size is None:
             font_size = default_font_size            
 
         if font_name is None:
-            font = pygame.font.SysFont(Constants.DEFAULT_FONT_NAME, font_size)            
+            font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, font_size)            
         else:
             font =pygame.font.SysFont(font_name, font_size)
 
         text = font.render(text, True, text_color)
-        text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH / 2, y))
+        text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH_PX / 2, y))
         self.surface.blit(text, text_rect)    
 
     def create_rect(self, rs, really_draw=True):
@@ -176,8 +176,8 @@ class PygameUtilities:
         self.logutils.log.debug(f"Inside place_text: {inspect.currentframe().f_code.co_name}")
         words = text.split(' ')
         space = font.size(' ')[0]
-        initial_x += Constants.WORD_SPACING
-        initial_y += Constants.WORD_SPACING
+        initial_x += Constants.WORD_SPACING_PX
+        initial_y += Constants.WORD_SPACING_PX
         x = initial_x
         y = initial_y
         for word in words:
@@ -185,14 +185,14 @@ class PygameUtilities:
             for i in range(0, len(newlines)):
                 word_surface = font.render(newlines[i], 0, color)
                 word_width, word_height = word_surface.get_size()
-                word_height += Constants.WORD_SPACING
+                word_height += Constants.WORD_SPACING_PX
                 self.logutils.log.debug(newlines[i])
 
                 if i > 0: # a new line
                     x = initial_x
                     y += word_height
                 else:
-                    if x + word_width >= (x + width - Constants.WORD_SPACING):
+                    if x + word_width >= (x + width - Constants.WORD_SPACING_PX):
                         x = initial_x
                         y += word_height
                 self.surface.blit(word_surface, (x, y))

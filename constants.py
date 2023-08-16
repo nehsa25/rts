@@ -33,13 +33,17 @@ import pygame
 
 class Constants:
     GAME_NAME = "Unhinged"
-    PANEL_BUTTON_SPACING = 50    
-    BORDER_SIZE = 5
-    DEFAULT_FONT_NAME = "century"
-    DEFAULT_FONT_SIZE = 8
+    SCREEN_WIDTH_PX = 1366
+    SCREEN_HEIGHT_PX = 768    
+    GAME_MAIN_BORDER_SIZE_PX = 5
+    BORDER_SIZE_PX = 5
     LOADING_MSG = "Loading".upper()
 
-    # Environment
+    # grid details when middle mouse is pressed
+    GRID_DETAILS_WIDTH_GD = 3
+    GRID_DETAILS_HEIGHT_GD = 4 
+
+    # Environment - testing
     NUM_WATER_TILES = 2
     NUM_FIRE_TILES = 2 # walkable
     NUM_MOUNTAIN_TILES = 2
@@ -49,52 +53,59 @@ class Constants:
     NUM_RAIN_TILES = 2 # walkable
     NUM_LAVA_TILES = 2
 
+    # Environment - realisic
+    # NUM_WATER_TILES = 14
+    # NUM_FIRE_TILES = 6 # walkable
+    # NUM_MOUNTAIN_TILES = 22
+    # NUM_SWAMP_TILES = 10
+    # NUM_FOREST_TILES = 14
+    # NUM_FOG_TILES = 12 # walkable
+    # NUM_RAIN_TILES = 20 # walkable
+    # NUM_LAVA_TILES = 7
+
     # main game side panel
-    SP_WIDTH = 100   
-    SP_BUTTON_TEXT_SIZE = 12 
-    SP_BORDER_SIZE = BORDER_SIZE
+    SIDE_PANEL_WIDTH_PX = 100   
+    SP_BUTTON_TEXT_SIZE_PX = 12 
+    SP_BORDER_SIZE = BORDER_SIZE_PX
 
     # main game bottom panel
-    BP_HEIGHT = 100
-    BP_BUTTON_TEXT_SIZE = 12 
-    BP_BORDER_SIZE = BORDER_SIZE
+    BP_HEIGHT_PX = 100
+    BP_BUTTON_TEXT_SIZE_PX = 12 
+    BP_BORDER_SIZE = BORDER_SIZE_PX
 
-    # main game window    
-    RECT_SIZE = 25
-    RECT_BORDER_SIZE = 2
-      
-    SCREEN_WIDTH = 1024
-    SCREEN_HEIGHT = 768   
-    FONT_SIZE = 20
-    MENU_SPACING = 60
-    GAME_MAIN_BORDER_SIZE = 5
-    WORD_SPACING = 5
+    # spacers
+    PANEL_BUTTON_SPACING_PX = 50  
+    WORD_SPACING_PX = 5  
+    MENU_SPACING_PX = 60
 
     # mouse
-    MOUSE_POINTER_SIZE = 1
+    MOUSE_POINTER_SIZE_PX = 1
     MOUSE_CURSOR = pygame.cursors.diamond   
 
-    # grid details when middle mouse is pressed
-    GRID_DETAILS_WIDTH = 250
-    GRID_DETAILS_HEIGHT = 325 
-
     # UNIT
-    UNIT_SIZE = 1
-    SPAWN_X = int(SP_WIDTH + 20)
-    SPAWN_Y = 20
-    SPAWN_WIDTH = UNIT_SIZE * 10
-    SPAWN_HEIGHT = UNIT_SIZE * 10
+    UNIT_SIZE_GD = 1
+
+    # SPAWN
+    SPAWN_GRID_X = 1
+    SPAWN_GRID_Y = 1
+    SPAWN_SIZE = 10
     
     # game grid nodes
-    GAME_SIZE_WIDTH = 50
-    GAME_SIZE_HEIGHT = 50
-    WIDTH_STEP = UNIT_SIZE
-    HEIGHT_STEP = UNIT_SIZE
+    GAME_SIZE_WIDTH_GD = 25
+    GAME_SIZE_HEIGHT_GD = 25
+    WIDTH_STEP = UNIT_SIZE_GD # not used
+    HEIGHT_STEP = UNIT_SIZE_GD # not used
 
-    # title screen
-    TITLE_SCREEN_FONT_SIZE = 60
+    # fpmts
+    FONT_NAME_DEFAULT = "century"
+    TITLE_FONT = "showcardgothic" #rage is cool
     TITLE_FONT = "showcardgothic" #rage is cool
 
+    # font sizes    
+    FONT_SIZE_DEFAULT_PX = 8
+    FONT_SIZE_MENU_PX = 48
+    FONT_SIZE_TITLE_PX = 60
+    
     # our colors
     class Colors:
         # rgb
