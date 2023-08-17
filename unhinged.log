@@ -1,16 +1,14 @@
-2023-08-15 22:57:52,721 ThreadPoolExecutor-0_0 INFO       Inside load_grid: load_grid
-2023-08-15 22:57:52,722 ThreadPoolExecutor-0_0 INFO       Inside get_empty_grid: get_empty_grid
-2023-08-15 22:57:52,723 ThreadPoolExecutor-0_0 INFO       Generating grid based on 25x25 (step: (1x1)
-2023-08-15 22:57:52,723 ThreadPoolExecutor-0_0 INFO       get_empty_grid: Generating pathfinding grid based on matrix:
+2023-08-16 19:55:12,670 ThreadPoolExecutor-0_0 INFO       Inside load_grid: load_grid
+2023-08-16 19:55:12,672 ThreadPoolExecutor-0_0 INFO       Inside get_empty_grid: get_empty_grid
+2023-08-16 19:55:12,672 ThreadPoolExecutor-0_0 INFO       Generating grid based on 25x25 (step: (1x1)
+2023-08-16 19:55:12,673 ThreadPoolExecutor-0_0 INFO       get_empty_grid: Generating pathfinding grid based on matrix:
 [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-2023-08-15 22:57:53,059 ThreadPoolExecutor-0_0 INFO       get_empty_grid: Done...
-2023-08-15 22:57:53,060 ThreadPoolExecutor-0_0 INFO       Inside CreateTerrainTiles: CreateTerrainTiles
-2023-08-15 22:57:53,060 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,064 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,066 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,068 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,071 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,075 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,078 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,082 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
-2023-08-15 22:57:53,084 ThreadPoolExecutor-0_0 INFO       Inside UpdateGridWithTerrain: UpdateGridWithTerrain
+2023-08-16 19:55:12,678 ThreadPoolExecutor-0_0 INFO       Inside CreateTerrainTiles: add_terrain_to_grid
+2023-08-16 19:55:12,678 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,680 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,682 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,684 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,685 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,686 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,687 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
+2023-08-16 19:55:12,688 ThreadPoolExecutor-0_0 INFO       Inside CreateRandomTiles: CreateRandomTiles
