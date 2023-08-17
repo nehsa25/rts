@@ -228,7 +228,7 @@ class rts:
 
         # water
         water_rects = []
-        for _ in range(260):
+        for _ in range(60):
             water_rect = pygame.Rect(random.randint(0, Constants.SCREEN_WIDTH), random.randint(0, Constants.SCREEN_HEIGHT), random.randint(0, 50), random.randint(0, 50))
             water_rects.append(water_rect)
 
