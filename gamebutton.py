@@ -1,6 +1,4 @@
 class GameButton():
-	logutils = None
-
 	def __init__(self, rect, text_input, font, base_color, hovering_color):
 		self.image = None
 		self.font = font
