@@ -40,8 +40,8 @@ class Constants:
     LOADING_MSG = "Loading".upper()
 
     # game grid nodes
-    GAME_SIZE_WIDTH_GD = 25
-    GAME_SIZE_HEIGHT_GD = 25
+    GAME_SIZE_WIDTH_GD = 15
+    GAME_SIZE_HEIGHT_GD = 15
 
     # UNIT
     UNIT_SIZE_GD = 1

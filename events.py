@@ -54,7 +54,7 @@ class Events:
         elif mouse[2] == True:
             print("quick mouse 2 click")
 
-    def mouse_left_single_event(self, event, player, ut, tiles):
+    def mouse_left_single_event(self, event, player, ut, tiles, gamedata):
         print("mouse_0_single_event")  
         print(f"mouse down event: {event}")
 
@@ -71,7 +71,7 @@ class Events:
                 # if we any unit selected, show it in the bottom window and indicate it's selected with border
                 if len(self.selected_units) > 0:
                     ut.select_unit(self.pgu, unit)
-                    ut.create_bottom_panel(self.pgu, self.player)
+                    ut.create_bottom_panel(self.pgu, gamedata.Player)
 
         # if we selected something new cool, if not, then the order it to move..
         if not selected_new_unit and len(self.selected_units) > 0:

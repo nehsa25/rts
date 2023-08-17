@@ -42,7 +42,7 @@ class Tiles:
 
         self.MapTiles.append(NewTile)
     
-    def load_grid(self, pgu, ut, player, load_env = True):
+    def load_grid(self, pgu, ut, game_data, load_env = True):
         self.logutils.log.info(f"Inside load_grid: {inspect.currentframe().f_code.co_name}") 
         # get grid of screen based on unit size
         self.Grid = self.get_empty_grid(pgu)   
@@ -59,7 +59,7 @@ class Tiles:
             runs = 0
 
             #  refresh side panel / highlight a unit that's hovered over
-            ut.draw_side_panel(pgu, player, really_draw=False)
+            ut.draw_side_panel(pgu, game_data.Player, really_draw=False)
 
             # spawn points
             ut.draw_spawn_points(pgu, self, really_draw=False)
@@ -192,15 +192,18 @@ class Tiles:
         mouse_pos = pgu.update_mouse()   
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
-
-        details_node = None
+        grid_coords = self.ConvertXYCoordToGridCoord(mouse_x, mouse_y)
+        detail_node = None
         for tile in self.MapDetailTiles:
             tile.draw_tile(pgu)
-
+            if tile is not None:
+                if tile.Grid_x == grid_coords[0] and tile.Grid_y == grid_coords[1]:
+                    detail_node = tile
+                    
+        pgu.update_mouse(tile=detail_node)  
         show_grid_end = time.perf_counter()   
 
-        if details_node is not None:
-            pgu.update_mouse(tile=details_node)  
+
         self.logutils.log.debug(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
 
     def UpdateGridWithTerrain(self, grid):
@@ -372,17 +375,18 @@ class Tile:
         Swamp = dict(BgColor=Constants.Colors.GREEN_DARK, Walkable=True)
         Fire = dict(BgColor=Constants.Colors.BURNT_ORANGE, Walkable=True)
     
-    def __init__(self, logutils, pgu, gridx, gridy, grid):
+    def __init__(self, logutils, pgu, gridx, gridy, grid):    
         self.logutils = logutils
         self.logutils.log.debug("Initializing Tile() class")
+        grid_node = grid.node(gridx, gridy)  
         self.Width = int(((Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX) / Constants.GAME_SIZE_WIDTH_GD) * Constants.WIDTH_STEP)
         self.Height = int((Constants.SCREEN_HEIGHT_PX / Constants.GAME_SIZE_HEIGHT_GD) * Constants.HEIGHT_STEP)
         self.Level = Tile.Level.Ground
         self.Type = Tile.Type.Basic
         self.Grid_x = gridx
         self.Grid_y = gridy
-        self.x = self.CalculateX(gridx)
-        self.y = gridy * self.Height
+        self.x = grid_node.x + Constants.SIDE_PANEL_WIDTH_PX
+        self.y = grid_node.y
         self.GridNode = grid.node(gridx, gridy)  
         self.TileDetails = f"Coordinates: ({self.x}, {self.y})\n"
         self.TileDetails += f"Grid node: ({self.Grid_x}, {self.Grid_y})\n"

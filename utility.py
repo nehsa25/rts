@@ -45,7 +45,7 @@ class Utility:
             spawn_point_rect.BgColor = Constants.Colors.SPAWN_COLOR
             spawn_point_rect.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
             spawn_point_rect.BorderColor = Constants.Colors.PLUM
-            spawn_point_rect.Rect = pygame.Rect(tile.x, tile.y, Constants.SPAWN_SIZE * tile.Width, Constants.SPAWN_SIZE * tile.Width)
+            spawn_point_rect.Rect = pygame.Rect(tile.x, tile.y, Constants.SPAWN_SIZE * tile.Width, Constants.SPAWN_SIZE * tile.Height)
             self.spawn_rs = spawn_point_rect
         self.spawn_rs = pgu.create_rect(self.spawn_rs, really_draw=really_draw)
 

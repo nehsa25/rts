@@ -20,6 +20,7 @@ from tile import Tiles
 from logutiliites import LogUtilities
 from unit import Unit
 from events import Events
+from gamedata import GameData
 
 class unhingedrts:
     # main window title
@@ -197,25 +198,25 @@ class unhingedrts:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(mouse_pos):
-                        self.player.selected_race = Goblin(self.logutils)
+                        self.GameData.Player.selected_race = Goblin(self.logutils)
                         race_select_running = False
                     if elf_button.check_position(mouse_pos):
-                        self.player.selected_race = Elf(self.logutils)
+                        self.GameData.Player.selected_race = Elf(self.logutils)
                         race_select_running = False
                     if human_button.check_position(mouse_pos):
-                        self.player.selected_race = Human(self.logutils)
+                        self.GameData.Player.selected_race = Human(self.logutils)
                         race_select_running = False    
                     if fae_button.check_position(mouse_pos):
-                        self.player.selected_race = Fae(self.logutils)
+                        self.GameData.Player.selected_race = Fae(self.logutils)
                         race_select_running = False  
                     if dwarf_button.check_position(mouse_pos):
-                        self.player.selected_race = Dwarf(self.logutils)
+                        self.GameData.Player.selected_race = Dwarf(self.logutils)
                         race_select_running = False   
                     if nyrriss_button.check_position(mouse_pos):
-                        self.player.selected_race = Nyrriss(self.logutils)
+                        self.GameData.Player.selected_race = Nyrriss(self.logutils)
                         race_select_running = False          
                     if arguna_button.check_position(mouse_pos):
-                        self.player.selected_race = Arguna(self.logutils)
+                        self.GameData.Player.selected_race = Arguna(self.logutils)
                         race_select_running = False   
 
                 if event.type == pygame.QUIT:
@@ -371,7 +372,7 @@ class unhingedrts:
             # the work..
             if not loading:
                 load_env = True # load obstacles or not
-                loading_threads.append(executor.submit(self.tiles.load_grid, self.pgu, self.ut, self.player, load_env))
+                loading_threads.append(executor.submit(self.tiles.load_grid, self.pgu, self.ut, self.GameData, load_env))
                 loading = True # whether thread started
 
             # check if done..
@@ -432,7 +433,7 @@ class unhingedrts:
 
         # similate army
         # for i in range(0, 3):
-        #     troop = random.choice(self.player.selected_race.units)
+        #     troop = random.choice(self.GameData.Player.selected_race.units)
         #     self.ut.create_unit(self.pgu, self.player, troop["Type"])
         #     pass
 
@@ -472,7 +473,7 @@ class unhingedrts:
                     self.ut.create_bottom_panel(self.pgu, self.player)
             
             #  refresh side panel / highlight a unit that's hovered over
-            self.ut.draw_side_panel(self.pgu, player=self.player)
+            self.ut.draw_side_panel(self.pgu, player=self.GameData.Player)
 
             # refresh spawn point
             self.ut.draw_spawn_points(self.pgu, tiles=self.tiles)
@@ -480,11 +481,13 @@ class unhingedrts:
             # create initial unit
             if self.hero_unit_created:
                 # draw units on field
-                for army_unit in self.player.army:
+                for army_unit in self.GameData.Player.army:
                     army_unit.DrawUnit(self.pgu)
             else:
-                u = Unit(self.logutils, self.pgu, self.player, unit_type=self.player.selected_race.hero_character, tiles=self.tiles)
-                self.player.army = u.AddToArmy(self.player)
+                hero_unit = Unit(self.logutils, self.pgu, self.GameData.Player, unit_type=self.GameData.Player.selected_race.hero_character, tiles=self.tiles)
+
+                hero_unit.AttackTile(3,5)
+                self.GameData.Player.army = hero_unit.AddToArmy(self.GameData.Player)
                 self.hero_unit_created = True
 
             # draw border last to cover anything up
@@ -494,7 +497,7 @@ class unhingedrts:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        self.events.mouse_left_single_event(event, self.player, self.ut, self.tiles)
+                        self.events.mouse_left_single_event(event, self.GameData.Player, self.ut, self.tiles, self.GameData)
                     if event.button == 2:
                         self.events.mouse_middle_single_event(event)
                     if event.button == 3:
@@ -521,7 +524,7 @@ class unhingedrts:
         while self.running:
             if first_opened:
                 first_opened = self.title_loop()
-            elif self.player.selected_race is None:
+            elif self.GameData.Player.selected_race is None:
                 self.race_select_loop()
             # elif self.selected_map is None:
             #     self.map_select_loop()   

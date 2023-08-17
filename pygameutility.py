@@ -75,10 +75,17 @@ class PygameUtilities:
         if mouse_pointer is None:
             mouse_pointer = self.mouse_pointer
 
+        x = mouse_pos[0]
+        y = mouse_pos[1]
+        if x <= Constants.SIDE_PANEL_WIDTH_PX:
+            x = 0
+        else:
+            x -= Constants.SIDE_PANEL_WIDTH_PX
+
         if tile is not None:            
             rs = self.RectSettings()
-            rs.x = mouse_pos[0] + Constants.WORD_SPACING_PX
-            rs.y = mouse_pos[1] + Constants.WORD_SPACING_PX
+            rs.x = x + Constants.WORD_SPACING_PX
+            rs.y = y + Constants.WORD_SPACING_PX
             rs.FontSize = 12
             rs.Text = tile.TileDetails
             rs.Width = Constants.GRID_DETAILS_WIDTH_PX
