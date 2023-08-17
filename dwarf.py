@@ -1,46 +1,34 @@
 
 
 from constants import Constants
-from unit import Unit, UnitTypes
+import unit
 
-class Dwarf:
+class Dwarf(unit.Unit):
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
     main_color = Constants.Colors.POOP_BROWN
     secondary_color = Constants.Colors.COCOA   
-    hover_color = Constants.Colors.COCOA 
-    hover_text_color = Constants.Colors.POOP_BROWN
-    font = "hightowertext"
-    font_size = 36
-    logutils = None
+    hover_color = Constants.Colors.BLUE 
+    hover_text_color = Constants.Colors.ALICE_BLUE
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Dwarf() class")
+    class Miner(unit.UnitTypes.MeleeUnit):
+        def __init__(self):
+            pass
 
-    class Miner(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Miner() class")
-            super().__init__(logutils, pgu, player, unit_type)
+    class CrossbowGuard(unit.UnitTypes.RangedUnit):
+        def __init__(self):
+            pass
 
-    class CrossbowGuard(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing CrossbowGuard() class")
-            super().__init__(logutils, pgu, player, unit_type)
+    class Warror(unit.UnitTypes.MeleeUnit):
+        def __init__(self):
+            pass
 
-    class Warror(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Warror() class")
-            super().__init__(logutils, pgu, player, unit_type)
+    class DwarvenLord(unit.UnitTypes.Hero):
+        def __init__(self):
+            pass
 
-    class DwarvenLord(Unit, UnitTypes.Hero):
-        def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing DwarvenLord() class")
-            super().__init__(logutils, pgu, player, unit_type)
-
-    class Servant(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Servant() class")
-            super().__init__(logutils, pgu, player, unit_type)
+    class Servant(unit.UnitTypes.MeleeUnit):
+        def __init__(self):
+            pass
 
     hero_character = DwarvenLord
 
