@@ -32,16 +32,25 @@ import pygame
 # 'twcencondensedextra', 'tempussansitc', 'vinerhanditc', 'vivaldi', 'vladimirscript', 'wingdings2', 'wingdings3', 'extra', 'nina', 'segoecondensed']
 
 class Constants:
-    GAME_NAME = "Unhinged"
+    GAME_NAME = "Unhinged RTS"
     SCREEN_WIDTH_PX = 1366
     SCREEN_HEIGHT_PX = 768    
     GAME_MAIN_BORDER_SIZE_PX = 5
     BORDER_SIZE_PX = 5
     LOADING_MSG = "Loading".upper()
 
+    # game grid nodes
+    GAME_SIZE_WIDTH_GD = 25
+    GAME_SIZE_HEIGHT_GD = 25
+
+    # UNIT
+    UNIT_SIZE_GD = 1
+    WIDTH_STEP = UNIT_SIZE_GD # not used
+    HEIGHT_STEP = UNIT_SIZE_GD # not used
+
     # grid details when middle mouse is pressed
-    GRID_DETAILS_WIDTH_GD = 3
-    GRID_DETAILS_HEIGHT_GD = 4 
+    GRID_DETAILS_WIDTH_PX = 300
+    GRID_DETAILS_HEIGHT_PX = 400
 
     # Environment - testing
     NUM_WATER_TILES = 2
@@ -53,7 +62,7 @@ class Constants:
     NUM_RAIN_TILES = 2 # walkable
     NUM_LAVA_TILES = 2
 
-    # Environment - realisic
+    # # Environment - realisic
     # NUM_WATER_TILES = 14
     # NUM_FIRE_TILES = 6 # walkable
     # NUM_MOUNTAIN_TILES = 22
@@ -82,30 +91,24 @@ class Constants:
     MOUSE_POINTER_SIZE_PX = 1
     MOUSE_CURSOR = pygame.cursors.diamond   
 
-    # UNIT
-    UNIT_SIZE_GD = 1
-
     # SPAWN
     SPAWN_GRID_X = 1
     SPAWN_GRID_Y = 1
     SPAWN_SIZE = 10
-    
-    # game grid nodes
-    GAME_SIZE_WIDTH_GD = 25
-    GAME_SIZE_HEIGHT_GD = 25
-    WIDTH_STEP = UNIT_SIZE_GD # not used
-    HEIGHT_STEP = UNIT_SIZE_GD # not used
 
-    # fpmts
+    # fonts
     FONT_NAME_DEFAULT = "century"
-    TITLE_FONT = "showcardgothic" #rage is cool
-    TITLE_FONT = "showcardgothic" #rage is cool
+    TITLE_FONT = "showcardgothic"
+    TROOP_FONT = "rage"
 
     # font sizes    
     FONT_SIZE_DEFAULT_PX = 8
     FONT_SIZE_MENU_PX = 48
     FONT_SIZE_TITLE_PX = 60
     
+    # map select
+    MAP_MENU_LEFT_WIDTH_PX = 200
+
     # our colors
     class Colors:
         # rgb

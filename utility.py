@@ -97,7 +97,7 @@ class Utility:
                 rs.Text = unit["Name"]
                 rs.HintName = "unit button text"
                 rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
-                rs.Font = pygame.font.Font(None, rs.FontSize)
+                rs.Font = pygame.font.SysFont(Constants.TROOP_FONT, rs.FontSize)
                 pgu.create_rect(rs)
 
                 # update our list to pass back

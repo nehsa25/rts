@@ -7,7 +7,8 @@ class Arguna(Unit):
     secondary_color = Constants.Colors.BURNT_ORANGE
     hover_color = Constants.Colors.BLACK 
     hover_text_color = Constants.Colors.BURNT_ORANGE
-    font = "vinerhanditc"
+    #font = "vinerhanditc"
+    font = "impact"
     font_size = 36
     logutils = None
 

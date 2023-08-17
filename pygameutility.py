@@ -81,8 +81,8 @@ class PygameUtilities:
             rs.y = mouse_pos[1] + Constants.WORD_SPACING_PX
             rs.FontSize = 12
             rs.Text = tile.TileDetails
-            rs.Width = Constants.GRID_DETAILS_WIDTH_GD * tile.Width
-            rs.Height = Constants.GRID_DETAILS_HEIGHT_GD * tile.Height 
+            rs.Width = Constants.GRID_DETAILS_WIDTH_PX
+            rs.Height = Constants.GRID_DETAILS_HEIGHT_PX
             rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
             rs.BorderRadius = 5
             rs = self.create_rect(rs, really_draw = True)

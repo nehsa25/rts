@@ -1,11 +1,11 @@
-import time
 import concurrent.futures
+import time
 import pygame
 import inspect
 
 # our stuff
 from utility import Utility
-from player import Player
+from gamedata import GameData
 from elf import Elf
 from goblin import Goblin
 from human import Human
@@ -19,25 +19,28 @@ from pygameutility import PygameUtilities
 from tile import Tiles
 from logutiliites import LogUtilities
 from unit import Unit
+from events import Events
 
 class unhingedrts:
     # main window title
     main_caption = f"{Constants.GAME_NAME} - GLHF!"
     logo = None
     running = True
-    player = None
+    GameData = None
+    events = None
     hero_unit_created = False
     loading_msg = ""
     selected_units = [] # units on the screen that have been clicked on
+    selected_map = None
     
     def __init__(self):
         self.logutils = LogUtilities()
         self.pgu = PygameUtilities(self.logutils)
         self.ut = Utility(self.logutils)
-        self.player = Player(self.logutils)  
+        self.GameData = GameData(self.logutils)  
         self.tiles = Tiles(self.logutils)
-        
-        
+        self.events = Events(self.logutils, self.pgu)
+
         #logo
         self.logo = pygame.image.load("logo.png")
         pygame.display.set_icon(self.logo)
@@ -59,7 +62,7 @@ class unhingedrts:
 
             # title screen text
             self.pgu.draw_center_text(
-                f"{Constants.GAME_NAME} RTS", 
+                Constants.GAME_NAME, 
                 Constants.Colors.GAME_TEXT_COLOR, 
                 Constants.SCREEN_HEIGHT_PX / 2 - Constants.FONT_SIZE_DEFAULT_PX, 
                 font_name = Constants.TITLE_FONT, 
@@ -397,6 +400,23 @@ class unhingedrts:
                 loading_screen_loop_running = False
                 self.running = False
 
+    # map loading screen
+    def map_select_loop(self):
+        self.logutils.log.debug(f"Inside map_select_loop: {inspect.currentframe().f_code.co_name}")
+        map_select_loop_running = True 
+        pygame.display.set_caption(f"Map Selection")
+
+        while map_select_loop_running:
+            self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
+
+            # draw border
+            self.ut.create_border(self.pgu)
+
+            mouse_pos = pygame.mouse.get_pos()
+            self.pgu.update_mouse(mouse_pos)
+            
+            pygame.display.flip()
+
     # the game..
     def main_game_loop(self):   
         self.logutils.log.debug(f"Inside main_game_loop: {inspect.currentframe().f_code.co_name}")     
@@ -416,13 +436,9 @@ class unhingedrts:
         #     self.ut.create_unit(self.pgu, self.player, troop["Type"])
         #     pass
 
-        # be hit 60 times every seconds        
         game_init_end = time.perf_counter()
         self.logutils.log.debug(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
 
-        unit_moving_threads = []
-        executor = concurrent.futures.ThreadPoolExecutor()
-        executor._max_workers = 1
         while main_game_running:
             game_start = time.perf_counter()
 
@@ -446,16 +462,7 @@ class unhingedrts:
             # add mouse pointer
             self.pgu.update_mouse(mouse_pos, self.pgu.mouse_pointer)
             
-            # continuous key movement (fast)
-            key = pygame.key.get_pressed()            
-            if key[pygame.K_a] or key[pygame.K_LEFT] == True:
-                pass
-            elif key[pygame.K_d] or key[pygame.K_RIGHT] == True:
-                pass
-            elif key[pygame.K_w] or key[pygame.K_UP] == True:
-                pass
-            elif key[pygame.K_s] or key[pygame.K_DOWN] == True:
-                pass
+            self.events.check_for_events(self.tiles)
 
             # scan for selected units on each redraw
             for selected_unit in self.selected_units:
@@ -483,54 +490,15 @@ class unhingedrts:
             # draw border last to cover anything up
             self.ut.create_border(self.pgu)
 
-            # continuous mouse movement (fast)
-            mouse = pygame.mouse.get_pressed()            
-            if mouse[0] == True:
-                # scan unit for select      
-                selected_new_unit = False
-                for unit in self.player.army:
-                    if unit.RectSettings.Rect.collidepoint(mouse_pos):                        
-                        self.selected_units = [] # if we clicked a different troop unit and only used left mouse (not CTRL for example), start over                
-                        self.selected_units.append(unit)
-                        selected_new_unit = True
-
-                        # if we any unit selected, show it in the bottom window and indicate it's selected with border
-                        if len(self.selected_units) > 0:
-                            self.ut.select_unit(self.pgu, unit)
-                            self.ut.create_bottom_panel(self.pgu, self.player)
-
-                # if we selected something new cool, if not, then the order it to move..
-                if not selected_new_unit and len(self.selected_units) > 0:
-                    for army_unit in self.selected_units:
-                        if army_unit.Moving_Thread is False:
-                            dest_x = mouse_pos[0]
-                            dest_y = mouse_pos[1]
-                            unit_moving_threads.append(executor.submit(army_unit.MoveUnitOverTime, self.pgu, self.tiles, dest_x, dest_y))
-            elif mouse[1] == True:
-                self.tiles.show_grid(self.pgu)
-            elif mouse[2] == True:
-                self.logutils.log.debug(f"right mouse")
-                self.pgu.loop_fonts(self.pgu)
-
-            # check if units done moving..
-            for future in unit_moving_threads:
-                state = future._state     
-                if state == "PENDING":
-                    state = "INITIALIZING"
-                elif state == "RUNNING":
-                    state = "LOADING"
-                elif state == "FINISHED":                        
-                    state = "COMPLETE"
-                    self.logutils.log.info(f"unit_moving_threads future state: {state}")
-                    result = future.result()
-                    self.logutils.log.info(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
-                    unit_moving_threads.remove(future)
-
-
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.logutils.log.debug(f"mouse down: {event}")
+                    if event.button == 1:
+                        self.events.mouse_left_single_event(event, self.player, self.ut, self.tiles)
+                    if event.button == 2:
+                        self.events.mouse_middle_single_event(event)
+                    if event.button == 3:
+                        self.events.mouse_right_single_event(event)
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.logutils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
@@ -553,10 +521,12 @@ class unhingedrts:
         while self.running:
             if first_opened:
                 first_opened = self.title_loop()
-            elif (self.player.selected_race is None):
+            elif self.player.selected_race is None:
                 self.race_select_loop()
-            else:   
-                self.main_game_loop()
+            # elif self.selected_map is None:
+            #     self.map_select_loop()   
+            else:
+                self.main_game_loop()            
      
 # run the main function only if this module is executed as the main script
 # (if you import this as a module then nothing is executed)
