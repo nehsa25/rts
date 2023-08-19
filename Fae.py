@@ -2,7 +2,8 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class Fae:
-    Discription = "Tricksters, Magic casters, Strong early to mid game"
+    name = "Fae"
+    description = "Tricksters, Magic casters, Strong early to mid game"
     main_color = Constants.Colors.FUCHSIA
     secondary_color = Constants.Colors.HUNTER_GREEN 
     hover_color = Constants.Colors.MAROON

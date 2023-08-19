@@ -1,7 +1,7 @@
 import concurrent.futures
 import time
 import pygame
-import inspect
+import random
 
 # our stuff
 from utility import Utility
@@ -12,7 +12,6 @@ from human import Human
 from fae import Fae
 from dwarf import Dwarf
 from arguna import Arguna
-from gamebutton import GameButton
 from nyrriss import Nyrriss
 from constants import Constants
 from pygameutility import PygameUtilities
@@ -22,6 +21,7 @@ from unit import Unit
 from events import Events
 from gamedata import GameData
 from menu import Menu
+from race import Race
 
 class unhingedrts:
     # main window title
@@ -31,6 +31,7 @@ class unhingedrts:
     game_data = None
     events = None
     menu = None
+    race = None
     hero_unit_created = False
     loading_msg = ""
     selected_units = [] # units on the screen that have been clicked on
@@ -44,6 +45,7 @@ class unhingedrts:
         self.tiles = Tiles(self.log_utils)
         self.events = Events(self.log_utils, self.pgu)
         self.menu = Menu(self.log_utils, self.pgu) 
+        self.race = Race(self.log_utils)
 
         #logo
         self.logo = pygame.image.load("logo.png")
@@ -100,120 +102,70 @@ class unhingedrts:
         pygame.display.set_caption("Select your Race")
         font_size = 60
         base_height = Constants.SCREEN_HEIGHT_PX / 2 - font_size # true center height # .5 of 1024 = 512
-        text_height = base_height / 2 # .5 of 512 = 256
+        select_your_race_text_y = base_height / 2 # .5 of 512 = 256
 
         while race_select_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
             self.menu.create_border()
             mouse_pos = self.pgu.update_mouse()
+            self.pgu.draw_center_text("Select your Race", Constants.Colors.GAME_TEXT_COLOR, select_your_race_text_y, Constants.FONT_NAME_DEFAULT, font_size)
+            y_spacer = 100
+            x_spacer = 200
 
             # buttons!
-            self.pgu.draw_center_text("Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.FONT_NAME_DEFAULT, font_size)
+            race_buttons = []
 
-            # goblin
-            race_name = "Goblins"
-            goblin_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                      pygame.font.SysFont(Goblin.font, Goblin.font_size),
-                                                                      text_height + (Constants.MENU_SPACING_PX * 2), 
-                                                                      Constants.SCREEN_WIDTH_PX)            
-            goblin_button = GameButton(goblin_button_rect, race_name, 
-                                        font=pygame.font.SysFont(Goblin.font, Goblin.font_size),
-                                            base_color="White", hovering_color=Goblin.hover_text_color)      
-            goblin_button.change_color(mouse_pos)
-            goblin_button.update(self.pgu.surface)
+            # random
+            race_name = "(Random)"
+            def_font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.FONT_SIZE_DEFAULT_PX) # only using Goblin font size here
+            font_render = def_font.render("Random", True, 'black')
+            rand_x = (Constants.SCREEN_WIDTH_PX / 2 + x_spacer)
+            rand_y = (Constants.SCREEN_HEIGHT_PX / 2)
+            rect = font_render.get_rect(x=rand_x,y=rand_y)
+            random_button = self.pgu.game_button(self.pgu,rect, 
+                                                 race_name,
+                                                 font=def_font,
+                                                 base_color="White",
+                                                 hovering_color=Constants.Colors.DODGER)   
+   
+            random_button.change_color(mouse_pos)
+            random_button.update(self.pgu.surface)
+            race_buttons.append(dict(name="random", button=random_button))
 
-            race_name = "Wood Elves"
-            elf_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                   pygame.font.SysFont(Elf.font, Elf.font_size), 
-                                                                   text_height + (Constants.MENU_SPACING_PX * 3),
-                                                                   Constants.SCREEN_WIDTH_PX)
-            elf_button = GameButton(elf_button_rect, text_input=race_name, 
-                                    font=pygame.font.SysFont(Elf.font, Elf.font_size), 
-                                        base_color="White", hovering_color=Elf.hover_text_color)
-            elf_button.change_color(mouse_pos)
-            elf_button.update(self.pgu.surface)
-
-            race_name = "Humans"
-            human_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                     pygame.font.SysFont(Human.font, Human.font_size), 
-                                                                     text_height + (Constants.MENU_SPACING_PX * 4), 
-                                                                     Constants.SCREEN_WIDTH_PX)
-            human_button = GameButton(human_button_rect, text_input=race_name, 
-                                      font=pygame.font.SysFont(Human.font, Human.font_size), 
-                                        base_color="White", hovering_color=Human.hover_text_color)
-            human_button.change_color(mouse_pos)
-            human_button.update(self.pgu.surface)
-
-            race_name = "Fae"
-            fae_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                   pygame.font.SysFont(Fae.font, Fae.font_size), 
-                                                                   text_height + (Constants.MENU_SPACING_PX * 5),
-                                                                   Constants.SCREEN_WIDTH_PX)
-            fae_button = GameButton(fae_button_rect, text_input=race_name, 
-                                    font=pygame.font.SysFont(Fae.font, Fae.font_size), 
-                                        base_color="White", hovering_color=Fae.hover_text_color)
-            fae_button.change_color(mouse_pos)
-            fae_button.update(self.pgu.surface)
-
-            race_name = "Dwarve"
-            dwarf_button_rect = self.pgu.create_rect_with_center_text(race_name.upper(), 
-                                                                     pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
-                                                                     text_height + (Constants.MENU_SPACING_PX * 6), 
-                                                                     Constants.SCREEN_WIDTH_PX)
-            dwarf_button = GameButton(dwarf_button_rect, text_input=race_name.upper(), 
-                                      font=pygame.font.SysFont(Dwarf.font, Dwarf.font_size), 
-                                        base_color="White", hovering_color=Dwarf.hover_text_color)
-            dwarf_button.change_color(mouse_pos)
-            dwarf_button.update(self.pgu.surface)
-
-            race_name = "Nyrriss"
-            nyrriss_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                     pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
-                                                                     text_height + (Constants.MENU_SPACING_PX * 7), 
-                                                                     Constants.SCREEN_WIDTH_PX)
-            nyrriss_button = GameButton(nyrriss_button_rect, text_input=race_name, 
-                                        font=pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
-                                            base_color="White", hovering_color=Nyrriss.hover_text_color)
-            nyrriss_button.change_color(mouse_pos)
-            nyrriss_button.update(self.pgu.surface)
-
-            race_name = "Arguna"
-            arguna_button_rect = self.pgu.create_rect_with_center_text(race_name, 
-                                                                     pygame.font.SysFont(Nyrriss.font, Nyrriss.font_size), 
-                                                                     text_height + (Constants.MENU_SPACING_PX * 8), 
-                                                                     Constants.SCREEN_WIDTH_PX)
-            arguna_button = GameButton(arguna_button_rect, text_input=race_name, 
-                                        font=pygame.font.SysFont(Arguna.font, Arguna.font_size), 
-                                            base_color="White", hovering_color=Arguna.hover_text_color)
-            arguna_button.change_color(mouse_pos)
-            arguna_button.update(self.pgu.surface)
-
+            # our races
+            for i in range(0, len(self.race.races)):
+                current_race = self.race.races[i]
+                race = self.race.get_race_by_name(current_race)
+                race_font = pygame.font.SysFont(race.font, race.font_size)
+                race_button_rect = self.pgu.create_rect_with_center_text(race.name, 
+                                                                        race_font,
+                                                                        select_your_race_text_y + y_spacer + (Constants.MENU_SPACING_PX * i+1), 
+                                                                        Constants.SCREEN_WIDTH_PX)            
+                race_button = self.pgu.game_button(self.pgu, 
+                                                   race_button_rect, 
+                                                   race.name,
+                                                   font=race_font,
+                                                   base_color="White", 
+                                                   hovering_color=race.hover_text_color)      
+                race_button.change_color(mouse_pos)
+                race_button.update(self.pgu.surface)
+                race_buttons.append(dict(name=race, button=race_button))
 
             # event loop for option selection screen
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if goblin_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Goblin(self.log_utils)
-                        race_select_running = False
-                    if elf_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Elf(self.log_utils)
-                        race_select_running = False
-                    if human_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Human(self.log_utils)
-                        race_select_running = False    
-                    if fae_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Fae(self.log_utils)
-                        race_select_running = False  
-                    if dwarf_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Dwarf(self.log_utils)
-                        race_select_running = False   
-                    if nyrriss_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Nyrriss(self.log_utils)
-                        race_select_running = False          
-                    if arguna_button.check_position(mouse_pos):
-                        self.game_data.Player.selected_race = Arguna(self.log_utils)
-                        race_select_running = False   
+                    for race_button in race_buttons:
+                        if race_button["button"].check_position(mouse_pos):
+                            selected_race = race_button["name"]
 
+                            # support random case
+                            if selected_race == "random":
+                                race_string = random.choice(self.race.races)
+                                selected_race = self.race.get_race_by_name(race_string)
+                            else:
+                                selected_race = race_button["button"]
+                            self.game_data.Player.selected_race = selected_race
+                            race_select_running = False
                 if event.type == pygame.QUIT:
                     race_select_running = False
                     self.running = False
@@ -234,7 +186,12 @@ class unhingedrts:
             font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.DEFAULT_FONT_SIZE)
 
             show_grid_rect = self.pgu.create_rect_with_center_text("Show Grid", font, pause_y, Constants.SCREEN_WIDTH_PX)
-            show_grid = GameButton(show_grid_rect, text_input="Choose Race", font=font, base_color="White", hovering_color=Constants.Colors.ROYAL_PURPLE)
+            show_grid = self.pgu.game_button(self.pgu,
+                                             show_grid_rect, 
+                                             text_input="Choose Race", 
+                                             font=font, 
+                                             base_color="White", 
+                                             hovering_color=Constants.Colors.ROYAL_PURPLE)
             show_grid.change_color(mouse_pos)
             show_grid.update(self.pgu.surface)
 
@@ -273,17 +230,31 @@ class unhingedrts:
             font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, 48)
 
             race_button_rect = self.pgu.create_rect_with_center_text("Choose Race", font, pause_y, Constants.SCREEN_WIDTH_PX)
-            race_button = GameButton(race_button_rect, text_input="Choose Race", font=font, base_color="White", hovering_color=Constants.Colors.ROYAL_PURPLE)
+            race_button = self.pgu.game_button(self.pgu,
+                                               race_button_rect, 
+                                               text_input="Choose Race", 
+                                               font=font, base_color="White", 
+                                               hovering_color=Constants.Colors.ROYAL_PURPLE)
             race_button.change_color(mouse_pos)
             race_button.update(self.pgu.surface)
 
             options_rect = self.pgu.create_rect_with_center_text("Options", font, pause_y + (Constants.MENU_SPACING_PX * 1), Constants.SCREEN_WIDTH_PX)
-            options_button = GameButton(options_rect, text_input="Options", font=font, base_color="White", hovering_color=Constants.Colors.ROYAL_PURPLE)
+            options_button = self.pgu.game_button(self.pgu, 
+                                                  options_rect, 
+                                                  text_input="Options", 
+                                                  font=font, 
+                                                  base_color="White", 
+                                                  hovering_color=Constants.Colors.ROYAL_PURPLE)
             options_button.change_color(mouse_pos)
             options_button.update(self.pgu.surface)
 
             quit_button_rect = self.pgu.create_rect_with_center_text("Quit", font, pause_y + (Constants.MENU_SPACING_PX * 2), Constants.SCREEN_WIDTH_PX)
-            quit_button = GameButton(quit_button_rect, text_input="Quit", font=font, base_color="White", hovering_color=Constants.Colors.ROYAL_PURPLE)
+            quit_button = self.pgu.game_button(self.pgu,
+                                               quit_button_rect, 
+                                               text_input="Quit", 
+                                               font=font, 
+                                               base_color="White", 
+                                               hovering_color=Constants.Colors.ROYAL_PURPLE)
             quit_button.change_color(mouse_pos)
             quit_button.update(self.pgu.surface)
 
@@ -435,7 +406,7 @@ class unhingedrts:
             #         self.logutils.log.debug("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
 
             # add mouse pointer
-            self.pgu.update_mouse(mouse_pos, self.pgu.mouse_pointer)
+            self.pgu.update_mouse(mouse_pos, self.pgu.cursor)
             
             self.events.check_for_events(self.tiles)
 

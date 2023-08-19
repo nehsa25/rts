@@ -2,6 +2,7 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class Human:
+    name = "Humans"
     description = "Land units focused, jack of all trades, Mid-game"
     main_color = Constants.Colors.YELLOW
     secondary_color = Constants.Colors.NAVY

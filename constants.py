@@ -52,6 +52,16 @@ class Constants:
     GRID_DETAILS_HEIGHT_PX = 400
 
     # Environment - testing
+    # NUM_WATER_TILES = 2
+    # NUM_FIRE_TILES = 2 # walkable
+    # NUM_MOUNTAIN_TILES = 2
+    # NUM_SWAMP_TILES = 2
+    # NUM_FOREST_TILES = 2
+    # NUM_FOG_TILES = 2 # walkable
+    # NUM_RAIN_TILES = 2 # walkable
+    # NUM_LAVA_TILES = 2
+
+    # Environment - realisic
     NUM_WATER_TILES = 128
     NUM_FIRE_TILES = 29 # walkable
     NUM_MOUNTAIN_TILES = 58
@@ -60,16 +70,6 @@ class Constants:
     NUM_FOG_TILES = 69 # walkable
     NUM_RAIN_TILES = 75 # walkable
     NUM_LAVA_TILES = 29
-
-    # # Environment - realisic
-    # NUM_WATER_TILES = 14
-    # NUM_FIRE_TILES = 6 # walkable
-    # NUM_MOUNTAIN_TILES = 22
-    # NUM_SWAMP_TILES = 10
-    # NUM_FOREST_TILES = 14
-    # NUM_FOG_TILES = 12 # walkable
-    # NUM_RAIN_TILES = 20 # walkable
-    # NUM_LAVA_TILES = 7
 
     # main game side panel
     SIDE_PANEL_WIDTH_PX = 100   
@@ -101,7 +101,7 @@ class Constants:
     TROOP_FONT = "rage"
 
     # font sizes    
-    FONT_SIZE_DEFAULT_PX = 8
+    FONT_SIZE_DEFAULT_PX = 24
     FONT_SIZE_MENU_PX = 48
     FONT_SIZE_TITLE_PX = 60
     

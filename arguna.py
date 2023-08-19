@@ -2,6 +2,7 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class Arguna(Unit):
+    name = "Arguna"
     description = "Big bulking guys maybe?"
     main_color = Constants.Colors.COCOA
     secondary_color = Constants.Colors.BURNT_ORANGE

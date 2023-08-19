@@ -11,6 +11,9 @@ class PygameUtilities:
     font = None
     surface = None
     screen_border_rs = None
+    font = None
+    cursor_type = None
+    cursor = None
 
     # mouse
     # mouse_pointer = None
@@ -19,6 +22,67 @@ class PygameUtilities:
     # logging
     logutils = None
 
+    # rect(surface, color, rect, width=0, border_radius=0, 
+    # border_top_left_radius=-1, border_top_right_radius=-1, 
+    # border_bottom_left_radius=-1, border_bottom_right_radius=-1)
+    class tile_rect_settings:  
+        x = None
+        y = None  
+        grid_x = None
+        grid_y = None    
+        width = None
+        height = None
+        hint_name = None
+        rect = None
+        text = None
+        font = None
+        font_name = Constants.FONT_NAME_DEFAULT
+        font_size = Constants.FONT_SIZE_DEFAULT_PX
+        background_color = Constants.Colors.GREEN
+        font_color = Constants.Colors.BLACK
+        border_color = None   
+        border_sides = None  
+        border_radius = 3
+        border_width = Constants.BORDER_SIZE_PX
+        def __init__(self, grid_x, grid_y, tile_width, tile_height, background_color):
+            self.x = Constants.SIDE_PANEL_WIDTH_PX + (grid_x * tile_width)
+            self.y = grid_y * tile_height
+            self.grid_x = grid_x
+            self.grid_y = grid_y
+            self.background_color = background_color
+            self.width = tile_width
+            self.height = tile_height
+            self.rect = pygame.Rect(self.x, self.y, tile_width, tile_height) 
+            print(f"Created new tile of coordinates: XY: ({self.x}x{self.y}), GRID: ({self.grid_x}x{self.grid_y})")
+
+    class game_button():
+        pgu = None
+        def __init__(self, pgu, rect, text_input, font, base_color, hovering_color):
+            self.pgu = pgu
+            self.image = None
+            self.font = font
+            self.base_color = base_color
+            self.hovering_color = hovering_color
+            self.text_input = text_input
+            self.text = self.font.render(self.text_input, True, self.base_color)
+            self.text_rect = rect
+
+        def update(self, screen):
+            screen.blit(self.text, self.text_rect)
+
+        def check_position(self, position):
+            if position[0] in range(self.text_rect.left, self.text_rect.right) and position[1] in range(self.text_rect.top, self.text_rect.bottom):
+                return True
+            return False
+
+        def change_color(self, position):
+            if position[0] in range(self.text_rect.left, self.text_rect.right) and position[1] in range(self.text_rect.top, self.text_rect.bottom):
+                self.pgu.cursor_type = pygame.cursors.ball
+                self.text = self.font.render(self.text_input, True, self.hovering_color)
+            else:
+                self.pgu.cursor_type = Constants.MOUSE_CURSOR
+                self.text = self.font.render(self.text_input, True, self.base_color)
+
     def __init__(self, logutils):
         self.logutils = logutils
         self.logutils.log.debug("Initializing PygameUtilities() class")        
@@ -26,22 +90,20 @@ class PygameUtilities:
         pygame.init() # initialize the pygame module
         self.font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.FONT_SIZE_DEFAULT_PX)
         self.surface = pygame.display.set_mode((Constants.SCREEN_WIDTH_PX, Constants.SCREEN_HEIGHT_PX))
+        self.cursor_type = Constants.MOUSE_CURSOR
 
-        self.mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE_PX, Constants.MOUSE_POINTER_SIZE_PX))
-        self.mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
-        self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
+        # self.mouse_pointer = pygame.Surface((Constants.MOUSE_POINTER_SIZE_PX, Constants.MOUSE_POINTER_SIZE_PX))
+        # self.mouse_pointer.fill(Constants.Colors.MOUSE_POINTER_COLOR)
+        # self.mouse_pointer_mask = pygame.mask.from_surface(self.mouse_pointer)
 
         # hides mouse pointer provided by pygame
         #pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
-        pygame.mouse.set_cursor(Constants.MOUSE_CURSOR)
+        self.cursor = pygame.mouse.set_cursor(self.cursor_type)
 
     def update_mouse(self, mouse_pos=None, mouse_pointer=None, tile=None):
         self.logutils.log.debug(f"Inside update_mouse")
         if mouse_pos is None:
             mouse_pos = pygame.mouse.get_pos()
-
-        if mouse_pointer is None:
-            mouse_pointer = self.mouse_pointer
 
         x = mouse_pos[0]
         y = mouse_pos[1]
@@ -50,20 +112,9 @@ class PygameUtilities:
         else:
             x -= Constants.SIDE_PANEL_WIDTH_PX
 
-        if tile is not None:            
-            rs = self.TileRectSettings()
-            rs.x = x + Constants.WORD_SPACING_PX
-            rs.y = y + Constants.WORD_SPACING_PX
-            rs.FontSize = 12
-            rs.Text = tile.TileDetails
-            rs.Width = Constants.GRID_DETAILS_WIDTH_PX
-            rs.Height = Constants.GRID_DETAILS_HEIGHT_PX
-            rs.BgColor = Constants.Colors.GRID_DETAILS_COLOR
-            rs.BorderRadius = 5
-            rs = self.create_rect(rs, really_draw = True)
-            pygame.display.update(rs.Rect)
-            
-        self.surface.blit(mouse_pointer, mouse_pos)
+        if tile is not None:   
+            tile.display_details()         
+
 
         return mouse_pos
     
@@ -105,40 +156,41 @@ class PygameUtilities:
         text_rect = text.get_rect(center=(Constants.SCREEN_WIDTH_PX / 2, y))
         self.surface.blit(text, text_rect)    
 
-    def create_rect(self, rs, really_draw=True):
+    def create_rect(self, rs, border_only=False):
         self.logutils.log.debug(f"Inside create_rect")
-
-        x = rs.Grid_x + rs.Width
-        y = rs.Grid_y + rs.Height
-        if rs.Rect is None:
-           rs.Rect = pygame.Rect(x, y, rs.Width, rs.Height) 
+        x = rs.grid_x * rs.width
+        y = rs.grid_y * rs.height
+        if rs.rect is None:
+           rs.rect = pygame.Rect(x, y, rs.width, rs.height) 
 
         # ensure these match always
-        rs.Width = rs.Rect.width
-        rs.Height = rs.Rect.height
+        rs.width = rs.rect.width
+        rs.height = rs.rect.height
 
-        if really_draw:
-            if rs.BorderColor is None:
-                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, border_radius=rs.BorderRadius)
+        if not border_only:
+            pygame.draw.rect(self.surface, rs.background_color, rs.rect)
+        else:
+            if rs.border_color is None:
+                pygame.draw.rect(self.surface, rs.background_color, rs.rect, rs.border_width, border_radius=rs.border_radius)
             else:
-                pygame.draw.rect(self.surface, rs.BgColor, rs.Rect, rs.BorderWidth, border_radius=rs.BorderRadius)
+                pygame.draw.rect(self.surface, rs.border_color, rs.rect, rs.border_width, border_radius=rs.border_radius)
 
         # add text
-        if rs.Text is not None:  
-            if rs.FontColor is None:
-                rs.FontColor = Constants.Colors.NEON_GREEN
+        if rs.text is not None:  
+            if rs.font_color is None:
+                rs.font_color = Constants.Colors.NEON_GREEN
 
-            if rs.FontName is not None:
-                if rs.FontSize is None:
-                    rs.FontSize == Constants.DEFAULT_FONT_SIZE                    
-                rs.Font = pygame.font.SysFont(rs.FontName, rs.FontSize)
-            elif rs.Font is None:
-                rs.Font =  self.font
+            if rs.font_name is not None:
+                if rs.font_size is None:
+                    rs.font_size == Constants.DEFAULT_FONT_SIZE                    
+                rs.font = pygame.font.SysFont(rs.font_name, rs.font_size)
+            elif rs.font is None:
+                rs.font =  self.font
 
-            if "\n" in rs.Text:
-                self.place_text(rs.Text, rs.Rect.width, rs.x, rs.y, font=rs.Font, color=rs.FontColor)
+            if "\n" in rs.text:
+                self.place_text(rs.text, rs.rect.width, rs.x, rs.y, font=rs.font, color=rs.font_color)
             else:
-                unit_text = rs.Font.render(rs.Text, True, rs.FontColor)
+                unit_text = rs.font.render(rs.text, True, rs.font_color)
                 rect = unit_text.get_rect(x=rs.x, y=rs.y)
                 self.surface.blit(unit_text, rect)
         return rs

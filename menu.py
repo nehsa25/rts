@@ -41,7 +41,7 @@ class Menu:
         #         unit_height = unit_width
         #         rs = pgu.RectSettings()
         #         rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-        #         rs.BgColor = player.selected_race.main_color
+        #         rs.background_color = player.selected_race.main_color
         #         rs.BorderColor = player.selected_race.secondary_color
         #         rs.Text = unit["Name"]
         #         rs.HintName = "unit button text"

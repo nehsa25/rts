@@ -28,7 +28,7 @@ class Utility:
         self.logutils.log.debug(f"Inside draw_spawn_points")
         self.pgu.update_mouse()
 
-        spawn_x = Constants.SPAWN_GRID_X * tile_width
+        spawn_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.SPAWN_GRID_X * tile_width
         spawn_y = Constants.SPAWN_GRID_Y * tile_height
         spawn_width = Constants.SPAWN_SIZE * tile_width 
         spawn_height = Constants.SPAWN_SIZE * tile_height 
@@ -56,7 +56,7 @@ class Utility:
     def create_bottom_panel(self, player):
         self.logutils.log.debug(f"Inside create_bottom_panel")
         rs = self.pgu.RectSettings()
-        rs.BgColor = Constants.Colors.COCOA
+        rs.background_color = Constants.Colors.COCOA
         rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
         rs.BorderSides = [Constants.BorderSides.TOP, Constants.BorderSides.LEFT]
         rs.FontSize = Constants.SP_BUTTON_TEXT_SIZE_PX
@@ -64,7 +64,7 @@ class Utility:
         rs.x = Constants.SIDE_PANEL_WIDTH_PX  + nudge # start at end of SP panel
         rs.y = Constants.SCREEN_HEIGHT_PX - Constants.BP_HEIGHT_PX
         rs.Width = Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX - nudge
-        rs.Height = pgu.surface.get_height()
+        rs.Height = self.pgu.surface.get_height()
         rs.HintName = "bottom panel main"
         self.pgu.create_rect(rs)
 
@@ -78,7 +78,7 @@ class Utility:
             unit_height = unit_width
             rs = self.pgu.RectSettings()
             rs.Rect = pygame.Rect(unit_x, unit_y, unit_width, unit_height)
-            rs.BgColor = player.selected_race.main_color
+            rs.background_color = player.selected_race.main_color
             rs.BorderColor = player.selected_race.secondary_color
             rs.Text = unit.Name
             rs.HintName = "unit button text"
@@ -95,7 +95,7 @@ class Utility:
     def unit_button_highlighted(self, player, rs):
         self.logutils.log.debug(f"Inside unit_button_highlighted")
         rs.FontColor = player.selected_race.hover_text_color
-        rs.BgColor = player.selected_race.hover_color
+        rs.background_color = player.selected_race.hover_color
         self.pgu.create_rect(rs, really_draw=True)
         self.pgu.update_mouse()
 

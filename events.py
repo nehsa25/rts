@@ -4,18 +4,18 @@ import pygame
 class Events:
     executor = None
     pgu = None
-    logutils = None
+    log_utils = None
     unit_moving_threads = []
 
-    def __init__(self, logutils, pgu):
-        self.logutils = logutils
+    def __init__(self, log_utils, pgu):
+        self.log_utils = log_utils
         self.pgu = pgu
-        self.logutils.log.debug("Initializing Events() class")     
+        self.log_utils.log.debug("Initializing Events() class")     
         self.executor = concurrent.futures.ThreadPoolExecutor()
         self.executor._max_workers = 1
 
     def check_on_troop_movement(self):
-        self.logutils.log.debug("check_on_troop_movement")
+        self.log_utils.log.debug("check_on_troop_movement")
         # check units done moving threads..
         for future in self.unit_moving_threads:
             state = future._state     
@@ -25,13 +25,13 @@ class Events:
                 state = "LOADING"
             elif state == "FINISHED":                        
                 state = "COMPLETE"
-                self.logutils.log.info(f"unit_moving_threads future state: {state}")
+                self.log_utils.log.info(f"unit_moving_threads future state: {state}")
                 result = future.result()
-                self.logutils.log.info(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
+                self.log_utils.log.info(f"Unit moving result: {result}, removing thread from unit_moving_threads list")
                 self.unit_moving_threads.remove(future)
 
     def check_for_events(self, tiles):
-        self.logutils.log.debug("check_for_events")
+        self.log_utils.log.debug("check_for_events")
 
         # keyboard
         key = pygame.key.get_pressed()            
@@ -49,7 +49,7 @@ class Events:
         if mouse[0] == True:
             print("quick mouse 0 click")
         elif mouse[1] == True:
-            print("quick mouse 1 click")
+            # print("quick mouse 1 click")
             tiles.show_grid(self.pgu)
         elif mouse[2] == True:
             print("quick mouse 2 click")

@@ -2,11 +2,12 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class Nyrriss(Unit):
+    name = "Nyrriss"
     description = "Snakes/poison"
     main_color = Constants.Colors.PEA_GREEN
     secondary_color = Constants.Colors.MOCCASIN
     hover_color = Constants.Colors.FUCHSIA 
-    hover_text_color = Constants.Colors.ALICE_BLUE
+    hover_text_color = Constants.Colors.PUTRID_GREEN
     font = "mvboli"
     font_size = 36
     logutils = None

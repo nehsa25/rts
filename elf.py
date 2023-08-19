@@ -2,6 +2,7 @@ from constants import Constants
 from unit import UnitTypes, Unit
 
 class Elf:
+    name = "Wood Elves"
     description = "Can impersonate humans, sabatage, can use magic, Strong late game"     
     main_color = Constants.Colors.ALICE_BLUE
     secondary_color = Constants.Colors.YELLOW 

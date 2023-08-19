@@ -2,6 +2,7 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class Goblin:
+    name = "Goblins"
     description = "Create water tiles, Sail, Pillage from other players, Strong early game, Naval"
     main_color = Constants.Colors.CRIMSON
     secondary_color = Constants.Colors.BLACK
@@ -9,11 +10,11 @@ class Goblin:
     hover_text_color = Constants.Colors.CRIMSON    
     font = "copperplategothic"
     font_size = 36
-    logutils = None
+    log_utils = None
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Goblin() class")        
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Goblin() class")        
 
     class Sailor(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):            
