@@ -19,27 +19,27 @@ class Dwarf:
 
     class Miner(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Miner() class")
+            self.log_utils.log.debug("Initializing Miner() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class CrossbowGuard(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing CrossbowGuard() class")
+            self.log_utils.log.debug("Initializing CrossbowGuard() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Warror(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Warror() class")
+            self.log_utils.log.debug("Initializing Warror() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class DwarvenLord(Unit, UnitTypes.Hero):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing DwarvenLord() class")
+            self.log_utils.log.debug("Initializing DwarvenLord() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Servant(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Servant() class")
+            self.log_utils.log.debug("Initializing Servant() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = DwarvenLord

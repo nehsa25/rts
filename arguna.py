@@ -18,12 +18,12 @@ class Arguna(Unit):
 
     class Argn(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Argn() class")
+            self.log_utils.log.debug("Initializing Argn() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Argnamont(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Argnamont() class")
+            self.log_utils.log.debug("Initializing Argnamont() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = Argnamont

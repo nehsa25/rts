@@ -17,32 +17,32 @@ class Human:
 
     class Farmer(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Farmer() class")
+            self.log_utils.log.debug("Initializing Farmer() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Miner(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Miner() class")
+            self.log_utils.log.debug("Initializing Miner() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Fisherman(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Fisherman() class")
+            self.log_utils.log.debug("Initializing Fisherman() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Knight(Unit, UnitTypes.MountedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Knight() class")
+            self.log_utils.log.debug("Initializing Knight() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Commander(Unit, UnitTypes.Hero):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Commander() class")
+            self.log_utils.log.debug("Initializing Commander() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Archer(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Archer() class")
+            self.log_utils.log.debug("Initializing Archer() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = Commander

@@ -17,20 +17,20 @@ class Elf:
 
     class Scout(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Scout() class")
+            self.log_utils.log.debug("Initializing Scout() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Archer(Unit, UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range + 1 
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Archer() class")
+            self.log_utils.log.debug("Initializing Archer() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Ranger(Unit, UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range + 1 
         speed = UnitTypes.RangedUnit.speed + 2
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Ranger() class")
+            self.log_utils.log.debug("Initializing Ranger() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Lord(Unit, UnitTypes.Hero):
@@ -38,7 +38,7 @@ class Elf:
         combat_damage_low = UnitTypes.RangedUnit.combat_damage_low + 1
         combat_damage_high = UnitTypes.RangedUnit.combat_damage_high + 1
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Lord() class")
+            self.log_utils.log.debug("Initializing Lord() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = Lord

@@ -21,26 +21,29 @@ from logutiliites import LogUtilities
 from unit import Unit
 from events import Events
 from gamedata import GameData
+from menu import Menu
 
 class unhingedrts:
     # main window title
     main_caption = f"{Constants.GAME_NAME} - GLHF!"
     logo = None
     running = True
-    GameData = None
+    game_data = None
     events = None
+    menu = None
     hero_unit_created = False
     loading_msg = ""
     selected_units = [] # units on the screen that have been clicked on
     selected_map = None
     
     def __init__(self):
-        self.logutils = LogUtilities()
-        self.pgu = PygameUtilities(self.logutils)
-        self.ut = Utility(self.logutils)
-        self.GameData = GameData(self.logutils)  
-        self.tiles = Tiles(self.logutils)
-        self.events = Events(self.logutils, self.pgu)
+        self.log_utils = LogUtilities()
+        self.pgu = PygameUtilities(self.log_utils)
+        self.ut = Utility(self.log_utils, self.pgu)
+        self.game_data = GameData(self.log_utils)  
+        self.tiles = Tiles(self.log_utils)
+        self.events = Events(self.log_utils, self.pgu)
+        self.menu = Menu(self.log_utils, self.pgu) 
 
         #logo
         self.logo = pygame.image.load("logo.png")
@@ -49,17 +52,14 @@ class unhingedrts:
         
     # title screen
     def title_loop(self):
-        self.logutils.log.debug(f"Inside title_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside title_loop")
         first_open_running = True         
         pygame.display.set_caption("Welcome!")
 
         while first_open_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            self.pgu.update_mouse()
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
 
             # title screen text
             self.pgu.draw_center_text(
@@ -95,7 +95,7 @@ class unhingedrts:
     
     # race select screen
     def race_select_loop(self):
-        self.logutils.log.debug(f"Inside race_select_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside race_select_loop")
         race_select_running = True 
         pygame.display.set_caption("Select your Race")
         font_size = 60
@@ -104,13 +104,8 @@ class unhingedrts:
 
         while race_select_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            # get mouse info
-            mouse_pos = pygame.mouse.get_pos()          
-            self.pgu.update_mouse(mouse_pos)
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
 
             # buttons!
             self.pgu.draw_center_text("Select your Race", Constants.Colors.GAME_TEXT_COLOR, text_height, Constants.FONT_NAME_DEFAULT, font_size)
@@ -198,25 +193,25 @@ class unhingedrts:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if goblin_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Goblin(self.logutils)
+                        self.game_data.Player.selected_race = Goblin(self.log_utils)
                         race_select_running = False
                     if elf_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Elf(self.logutils)
+                        self.game_data.Player.selected_race = Elf(self.log_utils)
                         race_select_running = False
                     if human_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Human(self.logutils)
+                        self.game_data.Player.selected_race = Human(self.log_utils)
                         race_select_running = False    
                     if fae_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Fae(self.logutils)
+                        self.game_data.Player.selected_race = Fae(self.log_utils)
                         race_select_running = False  
                     if dwarf_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Dwarf(self.logutils)
+                        self.game_data.Player.selected_race = Dwarf(self.log_utils)
                         race_select_running = False   
                     if nyrriss_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Nyrriss(self.logutils)
+                        self.game_data.Player.selected_race = Nyrriss(self.log_utils)
                         race_select_running = False          
                     if arguna_button.check_position(mouse_pos):
-                        self.GameData.Player.selected_race = Arguna(self.logutils)
+                        self.game_data.Player.selected_race = Arguna(self.log_utils)
                         race_select_running = False   
 
                 if event.type == pygame.QUIT:
@@ -226,18 +221,14 @@ class unhingedrts:
 
     # options
     def options_loop(self):
-        self.logutils.log.debug(f"Inside options_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside options_loop")
         options_loop_running = True 
         pygame.display.set_caption(f"Options")
 
         while options_loop_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            mouse_pos = pygame.mouse.get_pos()
-            self.pgu.update_mouse(mouse_pos)
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
 
             pause_y = Constants.SCREEN_HEIGHT_PX / 2 - Constants.FONT_SIZE_DEFAULT_PX
             font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.DEFAULT_FONT_SIZE)
@@ -249,13 +240,13 @@ class unhingedrts:
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.logutils.log.debug(f"mouse down: {event}")
+                    self.log_utils.log.debug(f"mouse down: {event}")
                     if show_grid.check_position(mouse_pos):
                         options_loop_running = False
                         self.hero_unit_created = False
                         self.race_select_loop()
                 if event.type == pygame.MOUSEBUTTONUP:
-                    self.logutils.log.debug(f"mouse up: {event}")
+                    self.log_utils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         options_loop_running = False # unpause
@@ -269,18 +260,14 @@ class unhingedrts:
 
     # pause screen (when you press esc)
     def pause_game_menu_loop(self):
-        self.logutils.log.debug(f"Inside pause_game_menu_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside pause_game_menu_loop")
         pause_game_menu_loop_running = True 
         pygame.display.set_caption(f"Paused!")
 
         while pause_game_menu_loop_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            mouse_pos = pygame.mouse.get_pos()
-            self.pgu.update_mouse(mouse_pos)
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
 
             pause_y = Constants.SCREEN_HEIGHT_PX / 2 - Constants.FONT_SIZE_DEFAULT_PX
             font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, 48)
@@ -302,7 +289,7 @@ class unhingedrts:
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.logutils.log.debug(f"mouse down: {event}")
+                    self.log_utils.log.debug(f"mouse down: {event}")
                     if race_button.check_position(mouse_pos):
                         pause_game_menu_loop_running = False
                         self.hero_unit_created = False
@@ -314,7 +301,7 @@ class unhingedrts:
                         pause_game_menu_loop_running = False
                         self.running = False
                 if event.type == pygame.MOUSEBUTTONUP:
-                    self.logutils.log.debug(f"mouse up: {event}")
+                    self.log_utils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pause_game_menu_loop_running = False # unpause
@@ -328,12 +315,12 @@ class unhingedrts:
 
     # loading screen
     def loading_screen_loop(self):
-        self.logutils.log.debug(f"Inside loading_screen_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside loading_screen_loop")
         loading_screen_loop_running = True 
         pygame.display.set_caption(f"Loading!")
 
         clock = pygame.time.Clock()
-        self.logutils.log.debug(f"Started clock: {clock}")
+        self.log_utils.log.debug(f"Started clock: {clock}")
 
         loading_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -342,16 +329,10 @@ class unhingedrts:
         loading = False
         show_complete = False
         while loading_screen_loop_running:            
-            clock.tick(60)                
-
-            # blank out screen to allow refresh
-            self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) 
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            # mouse
-            self.pgu.update_mouse()
+            clock.tick(60)
+            self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
             
             # main font
             font_size = 72
@@ -372,7 +353,7 @@ class unhingedrts:
             # the work..
             if not loading:
                 load_env = True # load obstacles or not
-                loading_threads.append(executor.submit(self.tiles.load_grid, self.pgu, self.ut, self.GameData, load_env))
+                loading_threads.append(executor.submit(self.tiles.load_grid, self.pgu, self.ut, self.game_data, load_env))
                 loading = True # whether thread started
 
             # check if done..
@@ -386,16 +367,16 @@ class unhingedrts:
                     state = "COMPLETE"
                     self.loading_msg = "Get ready!".upper()  
                     result = future.result()        
-                    self.logutils.log.debug(f"Loading complete: {result}")             
+                    self.log_utils.log.debug(f"Loading complete: {result}")             
                     loading_screen_loop_running = False
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.logutils.log.debug(f"mouse down: {event}")
+                self.log_utils.log.debug(f"mouse down: {event}")
             if event.type == pygame.MOUSEBUTTONUP:
-                self.logutils.log.debug(f"mouse up: {event}")
+                self.log_utils.log.debug(f"mouse up: {event}")
             if event.type == pygame.KEYDOWN:
-                self.logutils.log.debug(f"key down: {event}")
+                self.log_utils.log.debug(f"key down: {event}")
             if event.type == pygame.QUIT:
                 # change the value to False, to exit the main loop
                 loading_screen_loop_running = False
@@ -403,29 +384,24 @@ class unhingedrts:
 
     # map loading screen
     def map_select_loop(self):
-        self.logutils.log.debug(f"Inside map_select_loop: {inspect.currentframe().f_code.co_name}")
+        self.log_utils.log.debug(f"Inside map_select_loop")
         map_select_loop_running = True 
         pygame.display.set_caption(f"Map Selection")
 
         while map_select_loop_running:
             self.pgu.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
-
-            # draw border
-            self.ut.create_border(self.pgu)
-
-            mouse_pos = pygame.mouse.get_pos()
-            self.pgu.update_mouse(mouse_pos)
-            
+            self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()            
             pygame.display.flip()
 
     # the game..
     def main_game_loop(self):   
-        self.logutils.log.debug(f"Inside main_game_loop: {inspect.currentframe().f_code.co_name}")     
+        self.log_utils.log.debug(f"Inside main_game_loop")     
         game_init_start = time.perf_counter()
         main_game_running = True 
 
         clock = pygame.time.Clock()
-        self.logutils.log.debug(f"main_game_loop: Started clock: {clock}")
+        self.log_utils.log.debug(f"main_game_loop: Started clock: {clock}")
 
         self.loading_screen_loop()
 
@@ -438,7 +414,7 @@ class unhingedrts:
         #     pass
 
         game_init_end = time.perf_counter()
-        self.logutils.log.debug(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
+        self.log_utils.log.debug(f"Game initialization ended in {round(game_init_end - game_init_start, 2)} second(s)")
 
         while main_game_running:
             game_start = time.perf_counter()
@@ -446,11 +422,9 @@ class unhingedrts:
             # slow things down
             clock.tick(60)
 
-            # blank out screen so we can redraw it
-            self.pgu.surface.fill(Constants.Colors.GAME_MAP_COLOR) 
-
-            # mouse position
-            mouse_pos = pygame.mouse.get_pos()
+            self.pgu.surface.fill(Constants.Colors.GAME_MAP_COLOR) # blank out screen to allow refresh
+            #self.menu.create_border()
+            mouse_pos = self.pgu.update_mouse()
 
             # create terrain environment
             self.tiles.DrawTerrainTiles(self.pgu)
@@ -473,37 +447,37 @@ class unhingedrts:
                     self.ut.create_bottom_panel(self.pgu, self.player)
             
             #  refresh side panel / highlight a unit that's hovered over
-            self.ut.draw_side_panel(self.pgu, player=self.GameData.Player)
+            self.menu.draw_side_panel(self.pgu, player=self.game_data.Player)
 
             # refresh spawn point
-            self.ut.draw_spawn_points(self.pgu, tiles=self.tiles)
+            self.ut.draw_spawn_points(self.tiles.tile_width, self.tiles.tile_height)
 
             # create initial unit
             if self.hero_unit_created:
                 # draw units on field
-                for army_unit in self.GameData.Player.army:
-                    army_unit.DrawUnit(self.pgu)
+                for army_unit in self.game_data.Player.army:
+                    army_unit.DrawUnit(self.game_data.Player)
             else:
-                hero_unit = Unit(self.logutils, self.pgu, self.GameData.Player, unit_type=self.GameData.Player.selected_race.hero_character, tiles=self.tiles)
+                hero_unit = Unit(self.log_utils, self.pgu, unit_type=self.game_data.Player.selected_race.hero_character, tiles=self.tiles)
 
                 hero_unit.AttackTile(3,5)
-                self.GameData.Player.army = hero_unit.AddToArmy(self.GameData.Player)
+                self.game_data.Player.army = hero_unit.AddToArmy(self.game_data.Player)
                 self.hero_unit_created = True
 
             # draw border last to cover anything up
-            self.ut.create_border(self.pgu)
+            self.menu.create_border()
 
             # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        self.events.mouse_left_single_event(event, self.GameData.Player, self.ut, self.tiles, self.GameData)
+                        self.events.mouse_left_single_event(event, self.game_data.Player, self.ut, self.tiles, self.game_data)
                     if event.button == 2:
                         self.events.mouse_middle_single_event(event)
                     if event.button == 3:
                         self.events.mouse_right_single_event(event)
                 if event.type == pygame.MOUSEBUTTONUP:
-                    self.logutils.log.debug(f"mouse up: {event}")
+                    self.log_utils.log.debug(f"mouse up: {event}")
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.pause_game_menu_loop()
@@ -519,12 +493,12 @@ class unhingedrts:
             pygame.display.flip()
 
     def main(self):    
-        self.logutils.log.debug(f"Inside main: {inspect.currentframe().f_code.co_name}")      
+        self.log_utils.log.debug(f"Inside main")      
         first_opened = True
         while self.running:
             if first_opened:
                 first_opened = self.title_loop()
-            elif self.GameData.Player.selected_race is None:
+            elif self.game_data.Player.selected_race is None:
                 self.race_select_loop()
             # elif self.selected_map is None:
             #     self.map_select_loop()   

@@ -17,12 +17,12 @@ class Nyrriss(Unit):
 
     class Shaman(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing Shaman() class")
+            self.log_utils.log.debug("Initializing Shaman() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class GodKing(Unit, UnitTypes.RangedUnit):
         def __init__(self, logutils, pgu, player, unit_type):
-            self.logutils.log.debug("Initializing GodKing() class")
+            self.log_utils.log.debug("Initializing GodKing() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = GodKing

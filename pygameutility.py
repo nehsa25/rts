@@ -19,38 +19,6 @@ class PygameUtilities:
     # logging
     logutils = None
 
-    # rect(surface, color, rect, width=0, border_radius=0, 
-    # border_top_left_radius=-1, border_top_right_radius=-1, 
-    # border_bottom_left_radius=-1, border_bottom_right_radius=-1)
-    class RectSettings:        
-        x = 0
-        y = 0
-        Width = 50
-        Height = 50
-        HintName = None
-        Rect = None
-        Text = None
-        Rect = None
-        Font = None
-        FontName = Constants.FONT_NAME_DEFAULT
-        FontSize = Constants.FONT_SIZE_DEFAULT_PX
-        BgColor = Constants.Colors.GREEN
-        FontColor = Constants.Colors.BLACK
-        BorderColor = None   
-        BorderSides = None  
-        BorderRadius = 1
-        BorderWidth = Constants.BORDER_SIZE_PX
-        id = None   
-        def __init__(self, tile=None):
-            self.id = uuid4()
-
-            if tile is not None:
-                self.x = tile.x
-                self.y = tile.y
-                self.Width = tile.Width
-                self.Height = tile.Height
-                self.BgColor = tile.Type.value["BgColor"]
-
     def __init__(self, logutils):
         self.logutils = logutils
         self.logutils.log.debug("Initializing PygameUtilities() class")        
@@ -68,7 +36,7 @@ class PygameUtilities:
         pygame.mouse.set_cursor(Constants.MOUSE_CURSOR)
 
     def update_mouse(self, mouse_pos=None, mouse_pointer=None, tile=None):
-        self.logutils.log.debug(f"Inside update_mouse: {inspect.currentframe().f_code.co_name}")
+        self.logutils.log.debug(f"Inside update_mouse")
         if mouse_pos is None:
             mouse_pos = pygame.mouse.get_pos()
 
@@ -83,7 +51,7 @@ class PygameUtilities:
             x -= Constants.SIDE_PANEL_WIDTH_PX
 
         if tile is not None:            
-            rs = self.RectSettings()
+            rs = self.TileRectSettings()
             rs.x = x + Constants.WORD_SPACING_PX
             rs.y = y + Constants.WORD_SPACING_PX
             rs.FontSize = 12
@@ -106,7 +74,7 @@ class PygameUtilities:
         pgu.surface.fill(Constants.Colors.ALICE_BLUE) 
         for i in range(0, len(fonts)):            
             newfont = fonts[i]            
-            self.logutils.log.debug(f"Inside loop_fonts: {inspect.currentframe().f_code.co_name}")
+            self.logutils.log.debug(f"Inside loop_fonts")
             rand_x = random.randint(0, 800)
             font = pygame.font.SysFont(newfont, 36)  
             text = font.render(f"Arguna ({newfont})", True, 'black')
@@ -123,7 +91,7 @@ class PygameUtilities:
                 pgu.surface.fill(Constants.Colors.ALICE_BLUE) 
 
     def draw_center_text(self, text, text_color, y, font_name = None, font_size = None):
-        self.logutils.log.debug(f"Inside draw_center_text: {inspect.currentframe().f_code.co_name}")
+        self.logutils.log.debug(f"Inside draw_center_text")
         default_font_size = Constants.FONT_SIZE_DEFAULT_PX
         if font_size is None:
             font_size = default_font_size            
@@ -138,13 +106,14 @@ class PygameUtilities:
         self.surface.blit(text, text_rect)    
 
     def create_rect(self, rs, really_draw=True):
-        self.logutils.log.debug(f"Inside create_rect: {inspect.currentframe().f_code.co_name}")
+        self.logutils.log.debug(f"Inside create_rect")
+
+        x = rs.Grid_x + rs.Width
+        y = rs.Grid_y + rs.Height
         if rs.Rect is None:
-           rs.Rect = pygame.Rect(rs.x, rs.y, rs.Width, rs.Height) 
+           rs.Rect = pygame.Rect(x, y, rs.Width, rs.Height) 
 
         # ensure these match always
-        rs.x = rs.Rect.x
-        rs.y = rs.Rect.y
         rs.Width = rs.Rect.width
         rs.Height = rs.Rect.height
 
@@ -176,13 +145,13 @@ class PygameUtilities:
 
     # used for "gamebutton" class
     def create_rect_with_center_text(self, text, font, y, total_width):
-        self.logutils.log.debug(f"Inside create_rect_with_center_text: {inspect.currentframe().f_code.co_name}")
+        self.logutils.log.debug(f"Inside create_rect_with_center_text")
         font_render = font.render(text, True, 'black')
         rect = font_render.get_rect(center=(total_width / 2, y))
         return rect
 
     def place_text(self, text, width, initial_x, initial_y, font, color=pygame.Color('black')):
-        self.logutils.log.debug(f"Inside place_text: {inspect.currentframe().f_code.co_name}")
+        self.logutils.log.debug(f"Inside place_text")
         words = text.split(' ')
         space = font.size(' ')[0]
         initial_x += Constants.WORD_SPACING_PX

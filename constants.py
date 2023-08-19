@@ -40,8 +40,8 @@ class Constants:
     LOADING_MSG = "Loading".upper()
 
     # game grid nodes
-    GAME_SIZE_WIDTH_GD = 15
-    GAME_SIZE_HEIGHT_GD = 15
+    GAME_SIZE_WIDTH_GD = 50
+    GAME_SIZE_HEIGHT_GD = 50
 
     # UNIT
     UNIT_SIZE_GD = 1
@@ -125,7 +125,7 @@ class Constants:
         RED = (255, 0, 0)
         SCARLET = (255, 36, 0)
         CRIMSON = (139, 0, 0)    
-        FIRE = (255,90,0)   
+        FIRE_TERRAIN = (255,90,0)   
         LAVA = (207, 16, 32)
 
         # blues
@@ -151,6 +151,7 @@ class Constants:
         GREEN_DARK = (1, 50, 32)
         OLIVE = (128,128,0)
         PEA_GREEN = (96, 160, 76)
+        PUTRID_GREEN = (137,165,114)
 
         # purples
         PLUM = (221,160,221)
@@ -178,6 +179,20 @@ class Constants:
         GAME_MAIN_BORDER_COLOR = GAME_BORDER_COLOR    
         SPAWN_COLOR = BURNT_ORANGE    
         GRID_DETAILS_COLOR = SIENNA
+
+        # terrain colors
+        TERRAIN_BASIC = SANDY_BROWN
+        TERRAIN_LAVA = LAVA
+        TERRAIN_FIRE = CRIMSON
+        TERRAIN_MOUNTAIN = WHITE_MISTY
+        TERRAIN_RAIN = RAIN
+        TERRAIN_WATER = AQUA
+        TERRAIN_FOG = GRAY_IRON_MOUNTAIN
+        TERRAIN_SWAMP = PUTRID_GREEN
+        TERRAIN_FOREST = HUNTER_GREEN
+
+
+
         RANDOM = 1
 
     # indicates what borders to created, used by create_rect function

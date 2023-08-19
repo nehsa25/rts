@@ -17,21 +17,21 @@ class Goblin:
 
     class Sailor(Unit, UnitTypes.MeleeUnit):
         def __init__(self, logutils, pgu, player, unit_type):            
-            self.logutils.log.debug("Initializing Sailor() class")
+            self.log_utils.log.debug("Initializing Sailor() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class Pillager(Unit, UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range - 1 
         combat_damage_high = UnitTypes.RangedUnit.combat_damage_high + 1
         def __init__(self, logutils, pgu, player, unit_type):    
-            self.logutils.log.debug("Initializing Pillager() class")
+            self.log_utils.log.debug("Initializing Pillager() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class GoblinCaptain(Unit, UnitTypes.MeleeUnit):
         combat_damage_low = UnitTypes.MeleeUnit.combat_damage_low + 2
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 2
         def __init__(self, logutils, pgu, player, unit_type):    
-            self.logutils.log.debug("Initializing GoblinCaptain() class")
+            self.log_utils.log.debug("Initializing GoblinCaptain() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     class King(Unit, UnitTypes.Hero):
@@ -39,7 +39,7 @@ class Goblin:
         combat_damage_high = UnitTypes.MeleeUnit.combat_damage_high + 3
         speed = UnitTypes.MeleeUnit.speed + 1
         def __init__(self, logutils, pgu, player, unit_type):    
-            self.logutils.log.debug("Initializing King() class")
+            self.log_utils.log.debug("Initializing King() class")
             super().__init__(logutils, pgu, player, unit_type)
 
     hero_character = King
