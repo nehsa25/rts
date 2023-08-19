@@ -49,16 +49,16 @@ class Tiles:
         self.terrain_mountain = TerrainMountain(Constants.NUM_LAVA_TILES)
 
         # calculate width
-        self.tile_width = int(((Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX) / Constants.GAME_SIZE_WIDTH_GD) * Constants.WIDTH_STEP)
-        self.tile_height = int((Constants.SCREEN_HEIGHT_PX / Constants.GAME_SIZE_HEIGHT_GD) * Constants.HEIGHT_STEP)
+        self.tile_width = int(((Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX) / Constants.GAME_GRID_NODES) * Constants.WIDTH_STEP)
+        self.tile_height = int((Constants.SCREEN_HEIGHT_PX / Constants.GAME_GRID_NODES) * Constants.HEIGHT_STEP)
 
     def ConvertXYCoordToGridCoord(self, x, y):
         self.log_utils.log.debug(f"Inside ConvertXYCoordToGridCoord")
         gridx = 0   
         tile = self.GetTile(0,0)
         if x > Constants.SIDE_PANEL_WIDTH_PX:
-            gridx = int(x / tile.width)
-        gridy = int(y / tile.height)
+            gridx = int(x / self.tile_width)
+        gridy = int(y / self.tile_width)
         return gridx, gridy
     
     def UpdateTile(self, NewTile):
@@ -113,8 +113,8 @@ class Tiles:
     # 1. creates tiles
     def create_tiles(self, pgu):
         tiles = []
-        for y in range(0, Constants.GAME_SIZE_HEIGHT_GD):
-            for x in range(0, Constants.GAME_SIZE_WIDTH_GD):
+        for y in range(0, Constants.GAME_GRID_NODES):
+            for x in range(0, Constants.GAME_GRID_NODES):
                 t = Tile(self.log_utils, x, y, self.tile_width, self.tile_height)
                 tiles.append(t)
 
@@ -123,8 +123,8 @@ class Tiles:
 
     # 2. create empty grid
     def get_empty_grid(self):
-        max_y = Constants.GAME_SIZE_HEIGHT_GD
-        max_x = Constants.GAME_SIZE_WIDTH_GD
+        max_y = Constants.GAME_GRID_NODES
+        max_x = Constants.GAME_GRID_NODES
         y_step = Constants.HEIGHT_STEP
         x_step = Constants.WIDTH_STEP
         self.log_utils.log.info(f"Inside get_empty_grid")
@@ -262,8 +262,8 @@ class Tiles:
             # start at a random point
             xadjustment = 0
             yadjustment = 0
-            rand_x = random.randrange(0, Constants.GAME_SIZE_WIDTH_GD)
-            rand_y = random.randrange(0, Constants.GAME_SIZE_HEIGHT_GD)
+            rand_x = random.randrange(0, Constants.GAME_GRID_NODES)
+            rand_y = random.randrange(0, Constants.GAME_GRID_NODES)
 
             # chose a random water size
             size = Constants.DensityTypes.get_random_size()
@@ -279,9 +279,8 @@ class Tiles:
             elif size == "huge":
                 body_size = random.randint(30, 100)
 
-            while body_num_tiles <= body_size:
-                rand_x + xadjustment
-                rand_y + yadjustment
+            start_new = False
+            while (body_num_tiles <= body_size) and not start_new:
                 side = Constants.BorderSides.get_random_side()
                 if side == "left":
                     xadjustment += -1
@@ -292,14 +291,19 @@ class Tiles:
                 elif side == "bottom":
                     yadjustment += 1
 
+                rand_x += xadjustment
+                rand_y += yadjustment
+
                 for tile in tiles:
-                    if tile.tile_rect_settings.grid_x == rand_x and tile.tile_rect_settings.grid_y == rand_y:
+                    if (rand_x < 0 or rand_x > Constants.GAME_GRID_NODES) or (rand_y < 0 or rand_y > Constants.GAME_GRID_NODES):
+                        start_new = True
+                        break
+                    if (tile.tile_rect_settings.grid_x == rand_x and tile.tile_rect_settings.grid_y == rand_y) and num_tiles_remaining >= 1:
                         print(f"picked {terrain_type.name} tile placement: {tile.tile_rect_settings.grid_x}x{tile.tile_rect_settings.grid_y}")
                         tile.terrain = terrain_type
                         num_tiles_remaining -= 1
                         body_num_tiles += 1
-                        if num_tiles_remaining <= 0:
-                            break
+                        break
 
             self.log_utils.log.debug(f"Wanted tiles for density size \"{size}\": {body_size}, got: {body_num_tiles}")
             if num_tiles_remaining <= 0:

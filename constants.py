@@ -40,8 +40,7 @@ class Constants:
     LOADING_MSG = "Loading".upper()
 
     # game grid nodes
-    GAME_SIZE_WIDTH_GD = 50
-    GAME_SIZE_HEIGHT_GD = 50
+    GAME_GRID_NODES = 500
 
     # UNIT
     UNIT_SIZE_GD = 1
@@ -53,14 +52,14 @@ class Constants:
     GRID_DETAILS_HEIGHT_PX = 400
 
     # Environment - testing
-    NUM_WATER_TILES = 2
-    NUM_FIRE_TILES = 2 # walkable
-    NUM_MOUNTAIN_TILES = 2
-    NUM_SWAMP_TILES = 2
-    NUM_FOREST_TILES = 2
-    NUM_FOG_TILES = 2 # walkable
-    NUM_RAIN_TILES = 2 # walkable
-    NUM_LAVA_TILES = 2
+    NUM_WATER_TILES = 128
+    NUM_FIRE_TILES = 29 # walkable
+    NUM_MOUNTAIN_TILES = 58
+    NUM_SWAMP_TILES = 26
+    NUM_FOREST_TILES = 42
+    NUM_FOG_TILES = 69 # walkable
+    NUM_RAIN_TILES = 75 # walkable
+    NUM_LAVA_TILES = 29
 
     # # Environment - realisic
     # NUM_WATER_TILES = 14
