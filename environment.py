@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Environment:
+class Environment(object):
     class levels(Enum):
         Subterranean = 0
         Ground = 1

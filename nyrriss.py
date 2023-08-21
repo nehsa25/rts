@@ -1,7 +1,7 @@
 from constants import Constants
 from unit import Unit, UnitTypes
 
-class Nyrriss(Unit):
+class NyrrissFactory(Unit):
     name = "Nyrriss"
     description = "Snakes/poison"
     main_color = Constants.Colors.PEA_GREEN
@@ -10,23 +10,21 @@ class Nyrriss(Unit):
     hover_text_color = Constants.Colors.PUTRID_GREEN
     font = "mvboli"
     font_size = 36
-    logutils = None
+    log_utils = None
+    
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Nyrriss() class")
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Nyrriss() class")
-
-    class Shaman(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Shaman(UnitTypes.RangedUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Shaman() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class GodKing(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class GodKing(UnitTypes.RangedUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing GodKing() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    hero_character = GodKing
+    hero = GodKing
     
     units = []
     units.append(dict(Name="Shaman", Type=Shaman, Color=main_color))

@@ -4,39 +4,29 @@ import pygame
 
 # our stuff
 from constants import Constants
-from pygameutility import PygameUtilities
-from tile import Tiles
 
-class Utility:
+class Utility(object):
     screen_border_rs = None # border
     sp_menu_rs = None # side panel
     spawn_rs = None # spawn point
-    MenuTiles = []
     spawn_points = None
     obstacles = None
-    logutils = None
-    pgu = None
 
-    def __init__(self, logutils, pgu):
-        self.logutils = logutils
-        self.pgu = pgu
-        self.logutils.log.debug("Initializing Utility() class")        
-        self.MapTiles = Tiles(self.logutils)        
+    def __init__(self):
+        self.log_utils.log.info("Initializing Utility() class")    
 
     # creates section of the map free for units spawn
-    def draw_spawn_points(self, tile_width, tile_height):
-        self.logutils.log.debug(f"Inside draw_spawn_points")
-        self.pgu.update_mouse()
-
-        spawn_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.SPAWN_GRID_X * tile_width
-        spawn_y = Constants.SPAWN_GRID_Y * tile_height
-        spawn_width = Constants.SPAWN_SIZE * tile_width 
-        spawn_height = Constants.SPAWN_SIZE * tile_height 
+    def draw_spawn_points(self):
+        self.log_utils.log.debug(f"Inside draw_spawn_points")
+        spawn_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.SPAWN_GRID_X * Constants.TILE_WIDTH_PX
+        spawn_y = Constants.SPAWN_GRID_Y * Constants.TILE_HEIGHT_PX
+        spawn_width = Constants.SPAWN_SIZE * Constants.TILE_WIDTH_PX 
+        spawn_height = Constants.SPAWN_SIZE * Constants.TILE_HEIGHT_PX 
         rect = pygame.Rect(spawn_x, spawn_y, spawn_width, spawn_height) 
-        self.side_panel_rect = pygame.draw.rect(self.pgu.surface, Constants.Colors.SPAWN_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
+        self.side_panel_rect = pygame.draw.rect(self.surface, Constants.Colors.SPAWN_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
 
     def update_selected_units_list(self, unit):
-        self.logutils.log.debug(f"Inside update_selected_units_list")
+        self.log_utils.log.debug(f"Inside update_selected_units_list")
         newlist = self.selected_units
         unit_already_added = False
         for selected_unit in self.selected_units:
@@ -54,7 +44,7 @@ class Utility:
 
     # the bottom panel shown when one or more units selected
     def create_bottom_panel(self, player):
-        self.logutils.log.debug(f"Inside create_bottom_panel")
+        self.log_utils.log.debug(f"Inside create_bottom_panel")
         rs = self.pgu.RectSettings()
         rs.background_color = Constants.Colors.COCOA
         rs.BorderColor = Constants.Colors.GAME_BORDER_COLOR
@@ -93,7 +83,7 @@ class Utility:
 
     # highlights buttons on left side panel
     def unit_button_highlighted(self, player, rs):
-        self.logutils.log.debug(f"Inside unit_button_highlighted")
+        self.log_utils.log.debug(f"Inside unit_button_highlighted")
         rs.FontColor = player.selected_race.hover_text_color
         rs.background_color = player.selected_race.hover_color
         self.pgu.create_rect(rs, really_draw=True)
@@ -101,7 +91,7 @@ class Utility:
 
     # changed border around unit to indicate it's "selected" - random color border
     def select_unit(self, unit):
-        self.logutils.log.debug(f"Inside select_unit")
+        self.log_utils.log.debug(f"Inside select_unit")
         unit.RectSettings.BorderColor = Constants.Colors.RANDOM
         unit.RectSettings = self.pgu.create_rect(unit.RectSettings)
         return unit

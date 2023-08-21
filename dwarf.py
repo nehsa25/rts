@@ -3,7 +3,7 @@
 from constants import Constants
 from unit import Unit, UnitTypes
 
-class Dwarf:
+class DwarvenFactory(Unit):
     name = "Dwarves"
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
     main_color = Constants.Colors.POOP_BROWN
@@ -12,38 +12,33 @@ class Dwarf:
     hover_text_color = Constants.Colors.POOP_BROWN
     font = "hightowertext"
     font_size = 36
-    logutils = None
+    log_utils = None
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Dwarf() class")
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Dwarf() class")
 
-    class Miner(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Miner(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Miner() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class CrossbowGuard(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class CrossbowGuard(UnitTypes.RangedUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing CrossbowGuard() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Warror(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Warror(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Warror() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class DwarvenLord(Unit, UnitTypes.Hero):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class DwarvenLord(UnitTypes.Hero):
+        def __init__(self):
             self.log_utils.log.debug("Initializing DwarvenLord() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Servant(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Servant(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Servant() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    hero_character = DwarvenLord
+    hero = DwarvenLord
 
     units = []
     units.append(dict(Name="Miner", Type=CrossbowGuard, Color=main_color))

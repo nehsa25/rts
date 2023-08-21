@@ -1,7 +1,7 @@
 from constants import Constants
 from unit import Unit, UnitTypes
 
-class Arguna(Unit):
+class ArgunaFactory(Unit):
     name = "Arguna"
     description = "Big bulking guys maybe?"
     main_color = Constants.Colors.COCOA
@@ -11,23 +11,21 @@ class Arguna(Unit):
     #font = "vinerhanditc"
     font = "impact"
     font_size = 36
-    logutils = None
+    log_utils = None
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Arguna() class")
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Arguna() class")
 
-    class Argn(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Argn(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Argn() class")
-            super().__init__(logutils, pgu, player, unit_type)
-
-    class Argnamont(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    
+    class Argnamont(UnitTypes.RangedUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Argnamont() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    hero_character = Argnamont
+    hero = Argnamont
     
     units = []
     units.append(dict(Name="Argn", Type=Argn, Color=main_color))

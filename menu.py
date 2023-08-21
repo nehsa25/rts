@@ -1,15 +1,12 @@
 import pygame
 from constants import Constants
 
-class Menu:
+class Menu(object):
     border_rect = None
     side_panel_rect = None
-    log_utils = None
-    pgu = None
 
-    def __init__(self, log_utils, pgu):
-        self.log_utils = log_utils
-        self.pgu = pgu
+    def __init__(self):
+        self.log_utils.log.info("Initializing Menu() class")
 
     # def draw_map_select_menu(self, pgu):
     #     left_side_rs = pgu.RectSettings()
@@ -20,15 +17,14 @@ class Menu:
     def create_border(self):
         self.log_utils.log.debug(f"Inside create_border")
         rect = pygame.Rect(0, 0, Constants.SCREEN_WIDTH_PX, Constants.SCREEN_HEIGHT_PX) 
-        self.border_rect = pygame.draw.rect(self.pgu.surface, Constants.Colors.GAME_BORDER_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
+        self.border_rect = pygame.draw.rect(self.surface, Constants.Colors.GAME_BORDER_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
 
 
     # create sides panel with army troop buttons
-    def draw_side_panel(self, pgu, player, really_draw=True):
+    def draw_side_panel(self, player, really_draw=True):
         self.log_utils.log.debug(f"Inside draw_side_panel")
-        mouse_pos = pgu.update_mouse()
         rect = pygame.Rect(0, 0, Constants.SIDE_PANEL_WIDTH_PX, Constants.SCREEN_HEIGHT_PX) 
-        self.side_panel_rect = pygame.draw.rect(self.pgu.surface, Constants.Colors.GAME_BORDER_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
+        self.side_panel_rect = pygame.draw.rect(self.surface, Constants.Colors.GAME_BORDER_COLOR, rect, Constants.BORDER_SIZE_PX, border_radius=2)
 
         # # also draw guys..
         # if really_draw:

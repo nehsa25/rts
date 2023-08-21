@@ -1,40 +1,52 @@
 from enum import Enum
 
 # our stuff
-from goblin import Goblin
-from elf import Elf
-from human import Human
-from fae import Fae
-from dwarf import Dwarf
-from nyrriss import Nyrriss
-from arguna import Arguna
+from goblin import GoblinFactory
+from elf import ElvenFactory
+from human import HumanFactory
+from fae import FaeFactory
+from dwarf import DwarvenFactory
+from nyrriss import NyrrissFactory
+from arguna import ArgunaFactory
 
-class Race:
-    log_utils = None
+class Race(object):
     races = None
+    goblin_factory = None
+    elven_factory = None
+    human_factory = None
+    dwarven_factory = None
+    nyrriss_factory = None
+    arguna_factory = None
+    fae_factory = None
 
-    def __init__(self, log_utils):
-        self.log_utils = log_utils
-        self.log_utils.log.debug("Initializing Race() class")     
+    def __init__(self):
+        self.log_utils.log.info("Initializing Race() class")   
+        self.goblin_factory = GoblinFactory(self.log_utils)
+        self.elven_factory = ElvenFactory(self.log_utils)
+        self.human_factory = HumanFactory(self.log_utils)
+        self.fae_factory = FaeFactory(self.log_utils)
+        self.dwarven_factory = DwarvenFactory(self.log_utils)
+        self.nyrriss_factory = NyrrissFactory(self.log_utils)
+        self.arguna_factory = ArgunaFactory(self.log_utils)
+        
         self.races = [i.name for i in Race.Races]
 
     def get_race_by_name(self, name):
         if name.upper() == "GOBLIN":
-            race = Goblin(self.log_utils)
+            race = GoblinFactory(self.log_utils)
         elif name.upper() == "ELF":
-            race = Elf(self.log_utils)
+            race = ElvenFactory(self.log_utils)
         elif name.upper() == "HUMAN":
-            race = Human(self.log_utils)
+            race = HumanFactory(self.log_utils)
         elif name.upper() == "FAE":
-            race = Fae(self.log_utils)
+            race = FaeFactory(self.log_utils)
         elif name.upper() == "DWARF":
-            race = Dwarf(self.log_utils)
+            race = DwarvenFactory(self.log_utils)
         elif name.upper() == "NYRRISS":
-            race = Nyrriss(self.log_utils)
+            race = NyrrissFactory(self.log_utils)
         elif name.upper() == "ARGUNA":
-            race = Arguna(self.log_utils)
+            race = ArgunaFactory(self.log_utils)
         return race
-
 
     class Races(Enum):
         GOBLIN = 0,    

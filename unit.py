@@ -1,7 +1,5 @@
-import inspect
 import random
 import time
-import traceback
 import pygame
 from enum import Enum
 from names import Names
@@ -12,7 +10,7 @@ from tile import Tile
 from constants import Constants
 
 # how much damage, how fast, ect
-class Stats:
+class BaseStats(object):
     combat_type = None
     combat_range = None
     combat_damage_low = None
@@ -24,28 +22,20 @@ class Stats:
     def __init__(self, logutils):
         self.logutils = logutils
 
-    # def __init__(self, combat_type, combat_range, combat_damage_low, combat_damage_high, attack_tiles, move_tiles):
-    #     self.combat_type = combat_type
-    #     self.combat_range = combat_range
-    #     self.combat_damage_low = combat_damage_low
-    #     self.combat_damage_high = combat_damage_high
-    #     self.attack_tiles = attack_tiles
-    #     self.move_tiles = move_tiles
-
 class CombatTypes(Enum):
     melee = 0
     ranged = 1
 
-class UnitTypes:
-    class Hero(Stats):
+class UnitTypes:    
+    class Hero(BaseStats):
         combat_type = CombatTypes.melee
         attack_tiles = [Tile.level.ground, Tile.level.air]
         move_tiles = [Tile.level.ground]
         speed = 2
         def __init__(self):
-            pass
+            self.log_utils.log.info("Initializing Hero() class")
 
-    class MountedUnit(Stats):
+    class MountedUnit(BaseStats):
         combat_type = CombatTypes.melee
         combat_range = 0
         combat_damage_low = 4
@@ -54,9 +44,9 @@ class UnitTypes:
         attack_tiles = [Tile.level.ground]
         move_tiles = [Tile.level.ground]
         def __init__(self):
-            pass
+            self.log_utils.log.info("Initializing MountedUnit() class")
 
-    class MeleeUnit(Stats):
+    class MeleeUnit(BaseStats):
         combat_type = CombatTypes.melee
         combat_range = 0
         combat_damage_low = 3
@@ -65,9 +55,9 @@ class UnitTypes:
         attack_tiles = [Tile.level.ground]
         move_tiles = [Tile.level.ground]
         def __init__(self):
-            pass
+            self.log_utils.log.info("Initializing MeleeUnit() class")
 
-    class RangedUnit(Stats):
+    class RangedUnit(BaseStats):
         combat_type = CombatTypes.ranged
         combat_range = 2 # 2 tiles
         combat_damage_low = 3
@@ -76,43 +66,43 @@ class UnitTypes:
         attack_tiles = [Tile.level.sea, Tile.level.ground, Tile.level.air]
         move_tiles = [Tile.level.ground]
         def __init__(self):
-            pass
+            self.log_utils.log.info("Initializing RangedUnit() class")
 
-# the whole can of worms
-class Unit:
+class Unit(UnitTypes):
     name = None
     tile = None
     type = None
     move_thread = False # so we can change direction
-    log_utils = None
-    pgu = None
-        
-    def __init__(self, log_utils, pgu, unit_type, tiles):
-        self.log_utils = log_utils
-        self.log_utils.log.debug("Initializing Unit() class") 
+
+    def __init__(self):
+        self.log_utils.log.info("Initializing Unit() class")
+
+    def create_unit(self, type, tiles):
         grid_x = random.randint(Constants.SPAWN_GRID_X, Constants.SPAWN_SIZE)
         grid_y = random.randint(Constants.SPAWN_GRID_Y, Constants.SPAWN_SIZE)
-        self.tile = tiles.GetTile(grid_x, grid_y) 
+        tiles = [i for i in tiles if grid_x == i.tile_rect_settings.grid_x and grid_y == i.tile_rect_settings.grid_y]
+        if len(tiles) > 0:
+            self.tile = tiles[0]
+        
         self.name = Names.generate_name(self)
-        self.type = unit_type
-        self.pgu = pgu
-
-        print(f"{self.name} has entered the field at XY:({self.tile.tile_rect_settings.x}x{self.tile.tile_rect_settings.y}), Grid:({self.tile.tile_rect_settings.grid_x}x{self.tile.tile_rect_settings.grid_y})") # just used for debugging
+        self.type = type
+        self.log_utils.log.info(f"{self.name} has entered the field at XY:({self.tile.tile_rect_settings.x}x{self.tile.tile_rect_settings.y}), Grid:({self.tile.tile_rect_settings.grid_x}x{self.tile.tile_rect_settings.grid_y})") # just used for debugging
+        return self
 
     # uses speed of unit
     # executor.submit(self.ut.move_unit_over_time, self.pgu, self.grid, army_unit, mouse_pos[0], mouse_pos[1]))
-    def MoveUnitOverTime(self, tiles, end_x, end_y):
+    def move_unit_over_time(self, tiles, end_x, end_y):
         self.log_utils.log.debug(f"Inside MoveUnitOverTime")
         return_msg = ""
         start = ""
         end = ""
 
         try:
-            tile_width = tiles.GetTileWidth()            
+            tile_width = tiles.get_tileWidth()            
             tile_coords = tiles.ConvertXYCoordToGridCoord(end_x, end_y)            
             gridx_end = tile_coords[0]
             gridy_end = tile_coords[1]          
-            tile = tiles.GetTileByNodeCoord(gridx_end, gridy_end)  
+            tile = tiles.get_tileByNodeCoord(gridx_end, gridy_end)  
             default_speed = .35 # higher is faster?
             speed = default_speed - (self.type.speed * .1)
             start = tiles.Grid.node(self.Grid_x, self.Grid_y)
@@ -141,7 +131,7 @@ class Unit:
                         self.log_utils.log.debug(f"{self.name} beginning travel to ({newrect.x}x{newrect.y})")
                     else:                        
                         self.log_utils.log.debug(f"Moving {self.name} from ({oldrect.x}x{oldrect.y}) to ({newrect.x}x{newrect.y})")
-                    newrect = self.move_unit(pgu, oldrect, newrect, self.RectSettings.BgColor)
+                    newrect = self.move_unit(self.pgu, oldrect, newrect, self.RectSettings.BgColor)
                     oldrect = newrect
                 self.RectSettings.Rect = oldrect
                 self.move_thread = False
@@ -161,11 +151,11 @@ class Unit:
             self.log_utils.log.exception("An exception occured in MoveUnitOverTime: {details}")
         return return_msg
 
-    def AddToArmy(self, player):
+    def add_to_army(self, player):
         # add to our army list
         found_unit = False
         for army_unit in player.army:
-            if army_unit.Name == self.name:
+            if army_unit.name == self.name:
                 found_unit = True
                 break
         if not found_unit:
@@ -173,11 +163,11 @@ class Unit:
 
         return player.army
     
-    def DrawUnit(self, player):
-        pygame.draw.rect(self.pgu.surface, player.selected_race.main_color, self.tile.tile_rect_settings.rect)
+    def draw_unit(self, surface, color, rect):
+        pygame.draw.rect(surface, color, rect)
 
-    def AttackTile(self, gridx, gridy):
-        print(f"{self.name} is attacking tile ({gridx}x{gridy})")
+    def attack_tile(self, gridx, gridy):
+        self.log_utils.log.info(f"{self.name} is attacking tile ({gridx}x{gridy})")
         pass
 
     # moves rect x,y cords

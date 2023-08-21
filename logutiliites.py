@@ -1,6 +1,6 @@
 import logging
 
-class LogUtilities:
+class LogUtilities(object):
     LOG_NAME = "unhinged".upper()
     LOG_FILE = "unhinged.log"
     log = logging.getLogger(LOG_NAME)

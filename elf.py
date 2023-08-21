@@ -1,7 +1,7 @@
 from constants import Constants
 from unit import UnitTypes, Unit
 
-class Elf:
+class ElvenFactory(Unit):
     name = "Wood Elves"
     description = "Can impersonate humans, sabatage, can use magic, Strong late game"     
     main_color = Constants.Colors.ALICE_BLUE
@@ -10,39 +10,35 @@ class Elf:
     hover_text_color = Constants.Colors.AQUA
     font = "frenchscript"
     font_size = 36 + 16
-    logutils = None
+    log_utils = None
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Elf() class")
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Elf() class")
 
-    class Scout(Unit, UnitTypes.RangedUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Scout( UnitTypes.RangedUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Scout() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Archer(Unit, UnitTypes.RangedUnit):
+    class Archer(UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range + 1 
-        def __init__(self, logutils, pgu, player, unit_type):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Archer() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Ranger(Unit, UnitTypes.RangedUnit):
+    class Ranger(UnitTypes.RangedUnit):
         combat_range = UnitTypes.RangedUnit.combat_range + 1 
         speed = UnitTypes.RangedUnit.speed + 2
-        def __init__(self, logutils, pgu, player, unit_type):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Ranger() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Lord(Unit, UnitTypes.Hero):
+    class Lord(UnitTypes.Hero):
         combat_range = UnitTypes.RangedUnit.combat_range + 1 
         combat_damage_low = UnitTypes.RangedUnit.combat_damage_low + 1
         combat_damage_high = UnitTypes.RangedUnit.combat_damage_high + 1
-        def __init__(self, logutils, pgu, player, unit_type):
+        def __init__(self, log_utils, pgu, player, unit_type):
             self.log_utils.log.debug("Initializing Lord() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    hero_character = Lord
+    hero = Lord
 
     units = []
     units.append(dict(Name="Scout", Type=Scout, Color=main_color))

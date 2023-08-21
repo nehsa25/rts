@@ -1,7 +1,7 @@
 from constants import Constants
 from unit import Unit, UnitTypes
 
-class Fae:
+class FaeFactory(Unit):
     name = "Fae"
     description = "Tricksters, Magic casters, Strong early to mid game"
     main_color = Constants.Colors.FUCHSIA
@@ -10,34 +10,30 @@ class Fae:
     hover_text_color = Constants.Colors.FUCHSIA
     font = "blackadderitc"
     font_size = 36 + 16
-    logutils = None
+    log_utils = None
 
-    def __init__(self, logutils):
-        self.logutils = logutils
-        self.logutils.log.debug("Initializing Fae() class")
+    def __init__(self, log_utils):
+        self.log_utils = log_utils
+        self.log_utils.log.debug("Initializing Fae() class")
 
-    class Shapeshifter(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Shapeshifter(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Shapeshifter() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class Littlefolk(Unit, UnitTypes.MeleeUnit):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class Littlefolk(UnitTypes.MeleeUnit):
+        def __init__(self):
             self.log_utils.log.debug("Initializing Littlefolk() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class HighFae(Unit, UnitTypes.Hero):
-        def __init__(self, logutils, pgu, player, unit_type):
+    class HighFae(UnitTypes.Hero):
+        def __init__(self):
             self.log_utils.log.debug("Initializing HighFae() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    class BlightedFae(Unit, UnitTypes.MeleeUnit):
+    class BlightedFae(UnitTypes.MeleeUnit):
         speed = UnitTypes.MountedUnit.speed + 1 # fast motherfuckers, they can run down horses
-        def __init__(self, logutils, pgu, player, unit_type):
+        def __init__(self):
             self.log_utils.log.debug("Initializing BlightedFae() class")
-            super().__init__(logutils, pgu, player, unit_type)
 
-    hero_character = HighFae
+    hero = HighFae
 
     units = []
     units.append(dict(Name="Shapeshifter", Type=Shapeshifter, Color=main_color))

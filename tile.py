@@ -1,4 +1,4 @@
-import inspect
+import concurrent.futures
 import time
 import random
 from uuid import uuid4
@@ -11,18 +11,11 @@ from pathfinding.core.grid import Grid
 from constants import Constants
 from terrain import TerrainBasic, TerrainFire, TerrainFog, TerrainLava, TerrainMountain, TerrainRain, TerrainSwamp, TerrainWater, TerrainForest
 
-class Tiles:
+class Tiles(object):
     finder = None
     grid = None
     grid_matrix = None
     map_tiles = []
-    map_detail_tiles = []
-    log_utils = None
-    total_tile_width = None
-    total_tile_height = None
-    tile_width = None
-    tile_height = None
-
     terrain_water = None
     terrain_fire = None
     terrain_swamp = None
@@ -32,50 +25,70 @@ class Tiles:
     terrain_lava = None
     terrain_mountain = None
 
-    def __init__(self, log_utils):
-        self.log_utils = log_utils
-        self.log_utils.log.debug("Initializing Tiles() class")
+    # rect(surface, color, rect, width=0, border_radius=0, 
+    # border_top_left_radius=-1, border_top_right_radius=-1, 
+    # border_bottom_left_radius=-1, border_bottom_right_radius=-1)
+    class PGSettings:  
+        log_utils = None
+        x = None
+        y = None  
+        grid_x = None
+        grid_y = None    
+        width = None
+        height = None
+        hint_name = None
+        rect = None
+        text = None
+        font = None
+        font_name = Constants.FONT_NAME_DEFAULT
+        font_size = Constants.FONT_SIZE_DEFAULT_PX
+        background_color = Constants.Colors.GREEN
+        font_color = Constants.Colors.BLACK
+        border_color = None   
+        border_sides = None  
+        border_radius = 3
+        border_width = Constants.BORDER_SIZE_PX
+        terrain = None
+        def __init__(self, log_utils, grid_x, grid_y, tile_width, tile_height, terrain=TerrainBasic()):
+            self.log_utils = log_utils
+            self.x = Constants.SIDE_PANEL_WIDTH_PX + (grid_x * tile_width)
+            self.y = grid_y * tile_height
+            self.grid_x = grid_x
+            self.grid_y = grid_y
+            self.background_color = terrain.background_color
+            self.width = tile_width
+            self.height = tile_height
+            self.rect = pygame.Rect(self.x, self.y, tile_width, tile_height) 
+            self.terrain = terrain
+            #self.log_utils.log.info(f"Initializing PGSettings() class, coordinates: XY: ({self.x}x{self.y}), GRID: ({self.grid_x}x{self.grid_y})")
+
+    def __init__(self):
+        self.log_utils.log.info("Initializing Tiles() class")
         self.finder = AStarFinder()
         self.map_tiles = list[Tile]()
-
+        
         # initialize our terrains
-        self.terrain_water = TerrainWater(Constants.NUM_WATER_TILES)
-        self.terrain_fire = TerrainFire(Constants.NUM_FIRE_TILES)
-        self.terrain_swamp = TerrainSwamp(Constants.NUM_SWAMP_TILES)
-        self.terrain_forest = TerrainForest(Constants.NUM_FOREST_TILES)
-        self.terrain_fog = TerrainFog(Constants.NUM_FOG_TILES)
-        self.terrain_rain = TerrainRain(Constants.NUM_RAIN_TILES)
-        self.terrain_lava = TerrainLava(Constants.NUM_LAVA_TILES)
-        self.terrain_mountain = TerrainMountain(Constants.NUM_LAVA_TILES)
-
-        # calculate width
-        self.tile_width = int(((Constants.SCREEN_WIDTH_PX - Constants.SIDE_PANEL_WIDTH_PX) / Constants.GAME_GRID_NODES) * Constants.WIDTH_STEP)
-        self.tile_height = int((Constants.SCREEN_HEIGHT_PX / Constants.GAME_GRID_NODES) * Constants.HEIGHT_STEP)
+        self.terrain_water = TerrainWater()
+        self.terrain_fire = TerrainFire()
+        self.terrain_swamp = TerrainSwamp()
+        self.terrain_forest = TerrainForest()
+        self.terrain_fog = TerrainFog()
+        self.terrain_rain = TerrainRain()
+        self.terrain_lava = TerrainLava()
+        self.terrain_mountain = TerrainMountain()
 
     def ConvertXYCoordToGridCoord(self, x, y):
-        self.log_utils.log.debug(f"Inside ConvertXYCoordToGridCoord")
+        self.log_utils.log.info(f"ConvertXYCoordToGridCoord: enter")
         gridx = 0   
-        tile = self.GetTile(0,0)
         if x > Constants.SIDE_PANEL_WIDTH_PX:
-            gridx = int(x / self.tile_width)
-        gridy = int(y / self.tile_width)
+            gridx = int(x / Constants.TILE_WIDTH_PX)
+        gridy = int(y / Constants.TILE_HEIGHT_PX)
         return gridx, gridy
-    
-    def UpdateTile(self, NewTile):
-        self.log_utils.log.debug(f"Inside UpdateTile")   
-        prev_tile = self.GetTile(Newtile.tile_rect_settings.grid_x, Newtile.tile_rect_settings.grid_y)
-        if prev_tile is not None:
-            self.map_tiles.remove(prev_tile)
 
-        if NewTile.GridNode is None:
-            NewTile.GridNode = self.GetNodeByNodeCoord(Newtile.tile_rect_settings.grid_x, Newtile.tile_rect_settings.grid_y, self.grid)
+    def load_grid(self, load_env = True):
+        self.log_utils.log.info(f"load_grid: enter")
 
-        self.map_tiles.append(NewTile)
-    
-    def load_grid(self, pgu, ut, game_data, load_env = True):
-        self.log_utils.log.info(f"Inside load_grid") 
-
-        self.map_tiles = self.create_tiles(pgu)
+        self.map_tiles = self.create_tiles()
         
         # ensure map meets basic criterias (NOT IMPLEMENTED)
         usable_map = False   
@@ -110,48 +123,90 @@ class Tiles:
             self.grid.cleanup()
         return f"usable_map: {usable_map}, runs: {runs}"
     
+
+    # called as executor thread from create_tiles
+    def thread_create_tiles(self, y):
+        # self.log_utils.log.info(f"loop_tiles: enter, y range: {y}")
+        tiles = []
+        for grid_x in range(0, Constants.GAME_GRID_NODES):
+            #self.log_utils.log.info(f"create_tiles grid_x % Complete: {round(((x_num_complete / Constants.GAME_GRID_NODES) * 100), 2)}")
+
+            rs = self.PGSettings(self.log_utils, 
+                                        grid_x, 
+                                        y, 
+                                        Constants.TILE_WIDTH_PX, 
+                                        Constants.TILE_HEIGHT_PX)
+
+            t = Tile(self.log_utils, rs)
+            tiles.append(t)
+            
+        return tiles
+
     # 1. creates tiles
-    def create_tiles(self, pgu):
-        self.log_utils.log.debug(f"Inside create_tiles")
+    def create_tiles(self):
+        self.log_utils.log.info(f"create_tiles: enter")
         create_tiles_start = time.perf_counter()
         tiles = []
-        for grid_y in range(0, Constants.GAME_GRID_NODES):
-            for grid_x in range(0, Constants.GAME_GRID_NODES):
+        loading_threads = []
 
-                t = Tile(self.log_utils, pgu, grid_x, grid_y, self.tile_width, self.tile_height)
-                tiles.append(t)
+        #num_workers = 100
+        executor = concurrent.futures.ThreadPoolExecutor()        
+        #executor._max_workers = num_workers
+        self.log_utils.log.info(f"num_workers: {executor._max_workers}")
+        #self.log_utils.log.info(f"create_tiles started with {num_workers} thread worker(s)")
 
-        print(tiles)
+        loading = False
+        if not loading:
+            for y in range(0, Constants.GAME_GRID_NODES):
+                loading_threads.append(executor.submit(self.thread_create_tiles, y))
+            loading = True # whether thread started
+
+            # check if done..
+            tiles_created = False
+            while not tiles_created:
+                for future in loading_threads:
+                    state = future._state     
+                    if state == "PENDING":
+                        state = "INITIALIZING"
+                    elif state == "RUNNING":
+                        state = "LOADING"
+                    elif state == "FINISHED":                        
+                        result = future.result()
+                        self.log_utils.log.info(f"Extending tile list with our thread result")
+                        tiles.extend(result)
+                        loading_threads.remove(future)
+                        if len(loading_threads) <= 0:
+                            tiles_created = True
+
         create_tiles_end = time.perf_counter()
-        self.log_utils.log.debug(f"create_tiles timings: {round(60 - (create_tiles_end - create_tiles_start), 2)} second(s)")
+        self.log_utils.log.info(f"create_tiles timings: {round((create_tiles_end - create_tiles_start), 2)} second(s)")
         return tiles
 
     # 2. create empty grid
     def get_empty_grid(self):
-        self.log_utils.log.debug(f"Inside get_empty_grid")
+        self.log_utils.log.info(f"get_empty_grid: enter")
         get_empty_grid_start = time.perf_counter()
         max_y = Constants.GAME_GRID_NODES
         max_x = Constants.GAME_GRID_NODES
-        y_step = Constants.HEIGHT_STEP
-        x_step = Constants.WIDTH_STEP
         self.log_utils.log.info(f"Generating grid based on {max_x}x{max_y} ({max_x*max_y} total nodes)")
-        matrix = []  
-
-        for _ in range(0, max_y, y_step):
+        self.log_utils.log.info(f"Creating grid matrix")
+        matrix = []
+        for _ in range(0, max_y):
             x_line = []
-            for _ in range(0, max_x, x_step):
+            for _ in range(0, max_x):
                 x_line.append(1)
             matrix.append(x_line)
-
-        self.log_utils.log.info(f"get_empty_grid: Generating pathfinding grid based on matrix:\n{matrix}")
+        self.log_utils.log.info(f"Done creating grid matrix")
+        self.log_utils.log.info(f"Creating grid")
         self.grid_matrix = matrix
         self.grid = Grid(matrix = self.grid_matrix)
+        self.log_utils.log.info(f"Done creating grid")
         get_empty_grid_end = time.perf_counter()
-        self.log_utils.log.debug(f"get_empty_grid timings: {round(60 - (get_empty_grid_end - get_empty_grid_start), 2)} second(s)")
+        self.log_utils.log.info(f"get_empty_grid timings: {round((get_empty_grid_end - get_empty_grid_start), 2)} second(s)")
     
     # 3. adds in some terrain
     def add_terrain_to_tiles(self):
-        self.log_utils.log.info(f"Inside add_terrain_to_tiles")
+        self.log_utils.log.info(f"add_terrain_to_tiles: enter")
         create_terrain_start = time.perf_counter()
 
         # for r in menu_rects:
@@ -174,27 +229,27 @@ class Tiles:
         #             # obstacles.append(dict(name="panel", rect=rect, walkable=walkable))
 
         # create water tiles
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_water, Constants.NUM_WATER_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_mountain, Constants.NUM_MOUNTAIN_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_swamp, Constants.NUM_SWAMP_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_fire, Constants.NUM_FIRE_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_forest, Constants.NUM_FOREST_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_fog, Constants.NUM_FOG_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_rain, Constants.NUM_RAIN_TILES)
-        self.CreateRangesOfTiles(self.map_tiles, self.terrain_lava, Constants.NUM_LAVA_TILES)
+        self.create_terrain_globes( self.terrain_water, Constants.NUM_WATER_TILES)
+        self.create_terrain_globes(self.terrain_mountain, Constants.NUM_MOUNTAIN_TILES)
+        self.create_terrain_globes(self.terrain_swamp, Constants.NUM_SWAMP_TILES)
+        self.create_terrain_globes(self.terrain_fire, Constants.NUM_FIRE_TILES)
+        self.create_terrain_globes(self.terrain_forest, Constants.NUM_FOREST_TILES)
+        self.create_terrain_globes(self.terrain_fog, Constants.NUM_FOG_TILES)
+        self.create_terrain_globes(self.terrain_rain, Constants.NUM_RAIN_TILES)
+        self.create_terrain_globes(self.terrain_lava, Constants.NUM_LAVA_TILES)
 
         create_terrain_end = time.perf_counter()
-        self.log_utils.log.debug(f"add_terrain_to_tiles timings: {round(60 - (create_terrain_end - create_terrain_start), 2)} second(s)")
+        self.log_utils.log.info(f"add_terrain_to_tiles timings: {round((create_terrain_end - create_terrain_start), 2)} second(s)")
         return self.map_tiles
 
     # 4. Update tiles
     def update_tiles(self):
-        self.log_utils.log.debug(f"Inside update_tiles")
+        self.log_utils.log.debug(f"update_tiles: enter")
         update_tiles_start = time.perf_counter()
         total_nodes = len(self.map_tiles)
 
         for i in range(0, total_nodes):
-            print(f"update_tiles: {i} of {total_nodes}")
+            self.log_utils.log.debug(f"update_tiles: {i} of {total_nodes}")
             tile = self.map_tiles[i]
             node = self.grid.node(tile.tile_rect_settings.grid_x, tile.tile_rect_settings.grid_y)
             if tile.terrain.walkable == True:
@@ -202,41 +257,35 @@ class Tiles:
             else:
                 node.walkable = False
             tile.grid_node = node
+            tile.tile_details += f"walkable: {tile.grid_node.walkable}\n"
         update_tiles_end = time.perf_counter()
-        self.log_utils.log.debug(f"update_tiles timings: {round(60 - (update_tiles_end - update_tiles_start), 2)} second(s)")
+        self.log_utils.log.info(f"update_tiles timings: {round((update_tiles_end - update_tiles_start), 2)} second(s)")
 
     def GetUniqueTerrain(self):
+        self.log_utils.log.info(f"GetUniqueTerrain: enter")
         tiles = [i for i in self.map_tiles if i.type != Tile.type.Basic]
-        #print(f"Unique tiles on map: {len(tiles)}")
+        #self.log_utils.log.info(f"Unique tiles on map: {len(tiles)}")
         result = ""
         for tile in tiles:
             result += f"  {tile.type}, XY:({tile.x}x{tile.y}), Grid:({tile.tile_rect_settings.grid_x}x{tile.tile_rect_settings.grid_y})\n"
         return result
     
-    def show_grid(self, pgu):     
-        self.log_utils.log.debug(f"Inside show_grid")
-        pgu.surface.fill(Constants.Colors.GAME_MAP_COLOR) 
+    def show_tile_details(self):     
+        self.log_utils.log.info(f"show_grid: enter")
         show_grid_start = time.perf_counter()  
         self.log_utils.log.debug("Showing grid")   
-        mouse_pos = pgu.update_mouse()   
+        mouse_pos = self.update_mouse()   
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
         grid_coords = self.ConvertXYCoordToGridCoord(mouse_x, mouse_y)
-
-        # find the current mouse pos node details
-        detail_node = None
-        for tile in self.map_tiles:
-            tile.draw_tile(border_only=True)
-            if tile is not None:
-                if tile.tile_rect_settings.grid_x == grid_coords[0] and tile.tile_rect_settings.grid_y == grid_coords[1]:
-                    detail_node = tile                    
-        pgu.update_mouse(tile=detail_node)  
-        show_grid_end = time.perf_counter()   
-
-        self.log_utils.log.debug(f"show_grid timings: {round(60 - (show_grid_end - show_grid_start), 2)} second(s)")
+        self.log_utils.log.info(f"show_grid: getting details node")
+        detail_tile = self.get_tile(grid_coords[0], grid_coords[1])
+        self.update_mouse(tile=detail_tile)
+        show_grid_end = time.perf_counter()
+        self.log_utils.log.info(f"show_grid timings: {round((show_grid_end - show_grid_start), 2)} second(s)")
 
     def UpdateGridWithTerrain(self, grid):
-        self.log_utils.log.info(f"Inside UpdateGridWithTerrain")
+        self.log_utils.log.info(f"UpdateGridWithTerrain: enter")
         get_grid_start = time.perf_counter()
         self.log_utils.log.debug("get_grid: Updating pathfinding grid with terrain...")
         for node in grid.nodes:
@@ -249,32 +298,29 @@ class Tiles:
                     item.walkable = True
 
         get_grid_end = time.perf_counter()
-        self.log_utils.log.debug(f"get_grid timings: {round(60 - (get_grid_end - get_grid_start), 2)} second(s)")
+        self.log_utils.log.info(f"get_grid timings: {round((get_grid_end - get_grid_start), 2)} second(s)")
         return grid
 
-    def GetTile(self, gridx, gridy):
-        self.log_utils.log.debug(f"Inside GetTile")
+    def get_tile(self, gridx, gridy):
+        self.log_utils.log.debug(f"get_tile: enter")
         tiles = [i for i in self.map_tiles if gridx == i.tile_rect_settings.grid_x and gridy == i.tile_rect_settings.grid_y]
         tile = None
         if len(tiles) > 0:
             tile = tiles[0]
         else:
-            self.log_utils.log.debug(f"No tile found for grid coordinates: ({gridx}x{gridy})")
+            self.log_utils.log.warn(f"No tile found for grid coordinates: ({gridx}x{gridy})")
         
         return tile
 
-    # looks good for mountains
-    def CreateRangesOfTiles(self, tiles, terrain_type, type_num):
-        self.log_utils.log.info(f"Inside CreateRangesOfTiles: {terrain_type.name}")
+    # looks good for water?
+    def create_terrain_globes(self, terrain_type, type_num):
+        self.log_utils.log.info(f"create_terrain_globes: enter, terrain: {terrain_type.name}")
         start = time.perf_counter()
-        body_num_tiles = 0
-        num_tiles_remaining = type_num
-        for num_complete in range(type_num):
-            self.log_utils.log.debug(f"CreateRangesOfTiles ({terrain_type.name}) % Complete: {round(((num_complete / type_num) * 100), 2)}")
+        num_placed = 0
+        while num_placed < type_num:
+            self.log_utils.log.debug(f"create_terrain_globes ({terrain_type.name}) % Complete: {round(((num_placed / type_num) * 100), 2)}")
 
             # start at a random point
-            xadjustment = 0
-            yadjustment = 0
             rand_x = random.randrange(0, Constants.GAME_GRID_NODES)
             rand_y = random.randrange(0, Constants.GAME_GRID_NODES)
 
@@ -292,42 +338,56 @@ class Tiles:
             elif size == "huge":
                 body_size = random.randint(30, 100)
 
-            start_new = False
-            while (body_num_tiles <= body_size) and not start_new:
-                side = Constants.BorderSides.get_random_side()
-                if side == "left":
-                    xadjustment += -1
-                elif side == "right":
-                    xadjustment += 1
-                elif side == "top":
-                    yadjustment += -1
-                elif side == "bottom":
-                    yadjustment += 1
+            body_num_tiles = 0
+            orig_rand_x = rand_x  
+            orig_rand_y = rand_y 
+            while body_num_tiles < body_size:
+                # if num_placed >= type_num:
+                #     break
+                good_tile = False
+                while not good_tile:
+                    side = Constants.BorderSides.get_random_side()
+                    previous_side = None
+                    while side != previous_side:
+                         # ensure we can't go same way twice
+                        if previous_side == side:
+                            continue
+                        else:
+                            previous_side = side
 
-                rand_x += xadjustment
-                rand_y += yadjustment
+                        if side == "left":
+                            rand_x += -1
+                        elif side == "right":
+                            rand_x += 1
+                        elif side == "top":
+                            rand_y += -1
+                        elif side == "bottom":
+                            rand_y += 1
 
-                for tile in tiles:
-                    if (rand_x < 0 or rand_x > Constants.GAME_GRID_NODES) or (rand_y < 0 or rand_y > Constants.GAME_GRID_NODES):
-                        start_new = True
-                        break
-                    if (tile.tile_rect_settings.grid_x == rand_x and tile.tile_rect_settings.grid_y == rand_y) and num_tiles_remaining >= 1:
-                        print(f"picked {terrain_type.name} tile placement: {tile.tile_rect_settings.grid_x}x{tile.tile_rect_settings.grid_y}")
+                        if rand_x >= Constants.GAME_GRID_NODES or rand_x < 0:
+                            rand_x = orig_rand_x
+                            continue
+
+                        if rand_y >= Constants.GAME_GRID_NODES or rand_y < 0: 
+                            rand_y = orig_rand_y
+                            continue
+
+                        good_tile = True
+
+                        tile = self.get_tile(rand_x, rand_y)
+                        # self.log_utils.log.info(f"picked {terrain_type.name} tile placement: {tile.tile_rect_settings.grid_x}x{tile.tile_rect_settings.grid_y}")
                         tile.terrain = terrain_type
-                        num_tiles_remaining -= 1
                         body_num_tiles += 1
                         break
 
-            self.log_utils.log.debug(f"Wanted tiles for density size \"{size}\": {body_size}, got: {body_num_tiles}")
-            if num_tiles_remaining <= 0:
-                break
 
+            num_placed += body_num_tiles
+            self.log_utils.log.info(f"Wanted {terrain_type.name} tiles for body size \"{size}\": {body_size}, got: {body_num_tiles}, num_complete: {num_placed}, type_num: {type_num}, % Complete: {round(((num_placed / type_num) * 100), 2)}")
         end = time.perf_counter()
-        self.log_utils.log.debug(f"CreateRangesOfTiles ({terrain_type.name}): {round(60 - (end - start), 2)} second(s)")
-        return tiles
+        self.log_utils.log.info(f"create_terrain_globes ({terrain_type.name}): {round((end - start), 2)} second(s)")
 
     def GetTileByNodeCoord(self, gridx, gridy):
-        self.log_utils.log.debug(f"Inside GetTileByNodeCoord ({gridx}x{gridy})")
+        self.log_utils.log.info(f"GetTileByNodeCoord: enter, grid: ({gridx}x{gridy})")
         tiles = [i for i in self.map_tiles if i.grid_x == gridx and i.grid_y == gridy]
         tile = None
         if len(tiles) > 0:
@@ -335,23 +395,25 @@ class Tiles:
         return tile            
 
     def DrawTerrainTiles(self, pgu):
-        self.log_utils.log.debug(f"Inside DrawTerrainTiles")
+        self.log_utils.log.debug(f"DrawTerrainTiles: enter")
         draw_terrain_start = time.perf_counter()
         for tile in self.map_tiles:
-            pygame.draw.rect(pgu.surface, tile.terrain.background_color, tile.tile_rect_settings.rect)
+            if not self.show_grid:
+                pygame.draw.rect(self.surface, tile.tile_rect_settings.background_color, tile.tile_rect_settings.rect)
+            else:
+                pygame.draw.rect(self.surface, Constants.Colors.NEON_GREEN, tile.tile_rect_settings.rect, Constants.GRID_BORDER_WIDTH_PX, border_radius=Constants.BORDER_RADIUS)
         draw_terrain_end = time.perf_counter()
-        self.log_utils.log.debug(f"DrawTerrainTiles timings: {round(60 - (draw_terrain_end - draw_terrain_start), 2)} second(s)")
+        self.log_utils.log.debug(f"DrawTerrainTiles timings: {round((draw_terrain_end - draw_terrain_start), 2)} second(s)")
 
-class Tile:
+class Tile(object):
     level = None
     grid_node = None
     tile_rect_settings = None
     usable_tile = True
-    log_utils = None
     tile_details = ""
     units = []
     terrain = None
-    pgu = None
+    log_utils = None
 
     class level(Enum):
         subterranean = 0
@@ -359,40 +421,20 @@ class Tile:
         air = 2
         sea = 3
 
-    def __init__(self, log_utils, pgu, grid_x, grid_y, tile_width, tile_height, terrain=TerrainBasic()):    
+    def __init__(self, log_utils, rs):
         self.log_utils = log_utils
         self.log_utils.log.debug("Initializing Tile() class")
         self.level = Tile.level.ground
-        self.pgu = pgu
-        # self.tile_details = f"Coordinates: ({self.x}, {self.y})\n"
-        # self.tile_details += f"Grid node: ({self.grid_x}, {self.grid_y})\n"
-        # self.tile_details += f"walkable: {self.GridNode.walkable}\n"
+        self.terrain = rs.terrain
+        rs.text = f"({rs.grid_x}x{rs.grid_y})"
+        self.tile_details = f"Coordinates: ({rs.x}, {rs.y})\n"
+        self.tile_details += f"Grid node: ({rs.grid_x}, {rs.grid_y})\n"
         self.tile_details += f"Units: {len(self.units)}\n"
+        self.tile_rect_settings = rs
         # self.tile_details += f"Unique Terrain: {self.GetUniqueTerrain()}\n"
-        self.terrain = terrain
-        self.tile_rect_settings = self.pgu.tile_rect_settings(grid_x, grid_y, tile_width, tile_height, self.terrain.background_color)
 
     def draw_tile(self, border_only):
         self.pgu.create_rect(self.tile_rect_settings, border_only)        
-
-    def display_details(self):
-            self.pgu
-            base_tile_setings = self.tile_rect_settings
-            
-            rs = self.pgu.tile_rect_settings(self.tile_rect_settings.grid_x, self.tile_rect_settings.grid_y, Constants.GRID_DETAILS_WIDTH_PX, Constants.GRID_DETAILS_HEIGHT_PX, Constants.Colors.GRID_DETAILS_COLOR)
-            rs.x = self.tile_rect_settings.x + Constants.WORD_SPACING_PX + 10
-            rs.y = self.tile_rect_settings.y + Constants.WORD_SPACING_PX
-            rs.font_size = 12
-            rs.text = self.tile_details
-            rs.width = Constants.GRID_DETAILS_WIDTH_PX
-            rs.height = Constants.GRID_DETAILS_HEIGHT_PX
-            rs.background_color = Constants.Colors.GRID_DETAILS_COLOR
-            rs.border_radius = 5
-
-            print(f"base: XY=({base_tile_setings.x}x{base_tile_setings.y}), GRID=({base_tile_setings.grid_x}x{base_tile_setings.grid_y})")
-            print(f"new: XY=({rs.x}x{rs.y}), GRID=({rs.grid_x}x{rs.grid_y})")
-            rs = self.pgu.create_rect(rs)
-            pygame.display.update(rs.rect)
 
     def GetNodeWidth(self):
         return self.tile_rect_settings.width

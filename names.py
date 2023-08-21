@@ -1,6 +1,6 @@
 import random
 
-class Names:
+class Names(object):
     def generate_name(self):
         names = []
         names.append("Ley")
