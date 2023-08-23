@@ -63,7 +63,7 @@ class PygameUtilities(object):
         # hides mouse pointer provided by pygame
         #pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
         self.cursor = pygame.mouse.set_cursor(self.cursor_type)
-
+        
     def update_mouse(self, mouse_pos=None, mouse_pointer=None, tile=None):
         self.log_utils.log.debug(f"Inside update_mouse")
         if mouse_pos is None:
@@ -78,13 +78,11 @@ class PygameUtilities(object):
 
         new_rs = None
         if tile is not None:   
-
-            # (self, log_utils, grid_x, grid_y, tile_width, tile_height, terrain=TerrainBasic()):
             new_rs = self.PGSettings(self.log_utils, tile.tile_rect_settings.grid_x, tile.tile_rect_settings.grid_y, tile.tile_rect_settings.width, tile.tile_rect_settings.height)
-            new_rs.x = tile.tile_rect_settings.x + Constants.WORD_SPACING_PX
-            new_rs.y = tile.tile_rect_settings.y + Constants.WORD_SPACING_PX
+            new_rs.x = tile.tile_rect_settings.x
+            new_rs.y = tile.tile_rect_settings.y
             new_rs.font_size = 12
-            new_rs.text = tile.tile_details
+            new_rs.text = self.get_tile_details(tile)
             new_rs.width = Constants.GRID_DETAILS_WIDTH_PX
             new_rs.height = Constants.GRID_DETAILS_HEIGHT_PX
             new_rs.background_color = Constants.Colors.GRID_DETAILS_COLOR

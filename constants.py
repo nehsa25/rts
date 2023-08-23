@@ -37,11 +37,11 @@ class Constants(object):
     SCREEN_HEIGHT_PX = 768    
     GAME_MAIN_BORDER_SIZE_PX = 1
     BORDER_SIZE_PX = 3
-    BORDER_RADIUS = 5
+    BORDER_RADIUS = 3
     LOADING_MSG = "Loading".upper()
 
     # game board sizes
-    GAME_GRID_NODES = 100
+    GAME_GRID_NODES = 20
 
     # TILE
     TILE_WIDTH_PX = 32
@@ -53,24 +53,24 @@ class Constants(object):
     GRID_BORDER_WIDTH_PX = 1
 
     # Terrain / Environment - testing
-    # NUM_WATER_TILES = 2
-    # NUM_FIRE_TILES = 2 # walkable
-    # NUM_MOUNTAIN_TILES = 2
-    # NUM_SWAMP_TILES = 2
-    # NUM_FOREST_TILES = 2
-    # NUM_FOG_TILES = 2 # walkable
-    # NUM_RAIN_TILES = 2 # walkable
-    # NUM_LAVA_TILES = 2
+    NUM_WATER_TILES = 2
+    NUM_FIRE_TILES = 2 # walkable
+    NUM_MOUNTAIN_TILES = 2
+    NUM_SWAMP_TILES = 2
+    NUM_FOREST_TILES = 2
+    NUM_FOG_TILES = 2 # walkable
+    NUM_RAIN_TILES = 2 # walkable
+    NUM_LAVA_TILES = 2
 
     # Terrain / Environment - realisic
-    NUM_WATER_TILES = 100
-    NUM_FIRE_TILES = 100 # walkable
-    NUM_MOUNTAIN_TILES = 100
-    NUM_SWAMP_TILES = 100
-    NUM_FOREST_TILES = 100
-    NUM_FOG_TILES = 100 # walkable
-    NUM_RAIN_TILES = 100 # walkable
-    NUM_LAVA_TILES = 100
+    # NUM_WATER_TILES = 100
+    # NUM_FIRE_TILES = 100 # walkable
+    # NUM_MOUNTAIN_TILES = 100
+    # NUM_SWAMP_TILES = 100
+    # NUM_FOREST_TILES = 100
+    # NUM_FOG_TILES = 100 # walkable
+    # NUM_RAIN_TILES = 100 # walkable
+    # NUM_LAVA_TILES = 100
 
     # main game side panel
     SIDE_PANEL_WIDTH_PX = 100   
@@ -109,8 +109,10 @@ class Constants(object):
     # map select
     MAP_MENU_LEFT_WIDTH_PX = 200
 
+
     # our colors
-    class Colors:
+    class Colors(object):
+
         # rgb
         BLACK = (0, 0, 0)
 
@@ -169,16 +171,20 @@ class Constants(object):
         # grays
         GRAY_IRON_MOUNTAIN = (87, 85, 83)
         GRAY_DARK = (64, 64, 64)
+        MINK = (136, 128, 123)
 
         # main colors
         GAME_MAIN_COLOR = DARK_PURPLE
-        GAME_MAP_COLOR = SIENNA
+        GAME_MAP_COLOR = MINK
         GAME_BORDER_COLOR = BLACK
         GAME_TEXT_COLOR = ROYAL_GOLD
         MOUSE_POINTER_COLOR = ROYAL_GOLD
         GAME_MAIN_BORDER_COLOR = GAME_BORDER_COLOR    
         SPAWN_COLOR = BURNT_ORANGE    
-        GRID_DETAILS_COLOR = MOCCASIN
+        GRID_DETAILS_COLOR = PLUM
+
+        # random colors
+        COLORS = [ROYAL_GOLD, GREEN_DARK, BURNT_ORANGE, NEON_GREEN, YELLOW, POOP_BROWN, WHITE_MISTY, ROYAL_GOLD, MINK, DODGER, CRIMSON]
 
         # terrain colors
         TERRAIN_BASIC = SANDY_BROWN

@@ -4,7 +4,7 @@ from constants import Constants
 from unit import Unit, UnitTypes
 
 class DwarvenFactory(Unit):
-    name = "Dwarves"
+    name = "Dwarves".upper()
     description = "Underground bases and tunnels, Defense, Strong late game, turtle playstyle"
     main_color = Constants.Colors.POOP_BROWN
     secondary_color = Constants.Colors.COCOA   

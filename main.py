@@ -93,16 +93,17 @@ class unhingedrts(object):
 
             # random
             race_name = "(Random)"
-            def_font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.FONT_SIZE_DEFAULT_PX) # only using Goblin font size here
+            def_font = pygame.font.SysFont(Constants.FONT_NAME_DEFAULT, Constants.FONT_SIZE_DEFAULT_PX * 3) # only using Goblin font size here
             font_render = def_font.render("Random", True, 'black')
             rand_x = (Constants.SCREEN_WIDTH_PX / 2 + x_spacer)
             rand_y = (Constants.SCREEN_HEIGHT_PX / 2)
             rect = font_render.get_rect(x=rand_x,y=rand_y)
+            random_color = random.choice(Constants.Colors.COLORS)
             random_button = self.game_data.game_button(self.game_data,rect, 
                                                  race_name,
                                                  font=def_font,
                                                  base_color="White",
-                                                 hovering_color=Constants.Colors.DODGER)   
+                                                 hovering_color=random_color)   
    
             random_button.change_color(mouse_pos)
             random_button.update(self.game_data.surface)
@@ -373,7 +374,7 @@ class unhingedrts(object):
             mouse_pos = self.game_data.update_mouse()
 
             # create terrain environment
-            self.game_data.DrawTerrainTiles(self.game_data)
+            self.game_data.draw_terrain_tiles(self.game_data)
 
             # # check for fire damage
             # for army_unit in self.player.army:
