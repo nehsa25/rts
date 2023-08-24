@@ -1,4 +1,5 @@
 import concurrent.futures
+import time
 import pygame
 
 class Events(object):
@@ -12,11 +13,14 @@ class Events(object):
         self.executor._max_workers = 1
 
     def scan_for_slow_events(self):
+        self.log_utils.log.info(f"scan_for_slow_events: enter")
+        scan_for_slow_events_start = time.perf_counter()
+
         # event handling, gets all event from the event queue.  These events are only fired once so good for menus or single movement but not for continuous
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.mouse_left_single_event(event, self.game_data.player, self.ut, self.game_data, self.game_data)
+                    self.mouse_left_single_event(event, self.player, self.ut, self.game_data, self.game_data)
                 if event.button == 2:
                     self.mouse_middle_single_event(event)
                 if event.button == 3:
@@ -32,6 +36,8 @@ class Events(object):
                 # change the value to False, to exit the main loop
                 self.main_game_running = False
                 self.running = False
+        scan_for_slow_events_end = time.perf_counter()
+        self.log_utils.log.info(f"scan_for_slow_events: exit, timings: {round((scan_for_slow_events_end - scan_for_slow_events_start), 2)} second(s)")
 
     def check_on_troop_movement(self):
         self.log_utils.log.debug("check_on_troop_movement")
@@ -50,7 +56,8 @@ class Events(object):
                 self.unit_moving_threads.remove(future)
 
     def check_for_fast_events(self):
-        self.log_utils.log.debug("check_for_events")
+        self.log_utils.log.info(f"check_for_fast_events: enter")
+        check_for_fast_events_start = time.perf_counter()
 
         # keyboard
         key = pygame.key.get_pressed()            
@@ -71,6 +78,9 @@ class Events(object):
             self.log_utils.log.info("quick mouse 1 click")
         elif mouse[2] == True:
             self.log_utils.log.info("quick mouse 2 click")
+
+        check_for_fast_events_end = time.perf_counter()
+        self.log_utils.log.info(f"check_for_fast_events: exit, timings: {round((check_for_fast_events_end - check_for_fast_events_start), 2)} second(s)")
 
     def mouse_left_single_event(self, event, player, ut, tiles, gamedata):
         self.log_utils.log.info("mouse_0_single_event")  

@@ -37,7 +37,6 @@ class unhingedrts(object):
         while first_open_running:
             self.game_data.surface.fill(Constants.Colors.GAME_MAIN_COLOR) # blank out screen to allow refresh
             self.game_data.create_border()
-            mouse_pos = self.game_data.update_mouse()
 
             # title screen text
             self.game_data.draw_center_text(
@@ -370,20 +369,10 @@ class unhingedrts(object):
             clock.tick(60)
 
             self.game_data.surface.fill(Constants.Colors.GAME_MAP_COLOR) # blank out screen to allow refresh
-            #self.game_data.create_border()
-            mouse_pos = self.game_data.update_mouse()
 
             # create terrain environment
             self.game_data.draw_terrain_tiles(self.game_data)
 
-            # # check for fire damage
-            # for army_unit in self.player.army:
-            #     if obstacles.colliderect(army_unit.RectSettings.Rect):
-            #         self.logutils.log.debug("YOU BURNT! - this should be move to somewhere else and slowed down to something like once hurt per .5 second")
-
-            # add mouse pointer
-            self.game_data.update_mouse(mouse_pos, self.game_data.cursor)
-            
             self.game_data.check_for_fast_events()
 
             # scan for selected units on each redraw
@@ -403,8 +392,8 @@ class unhingedrts(object):
             if self.hero_unit_created:
                 # draw units on field
                 for army_unit in self.game_data.player.army:
-                    army_unit.draw_unit(self.game_data.surface, army_unit.main_color, army_unit.tile.tile_rect_settings.rect)
-                    # player.selected_race.main_color, self.tile.tile_rect_settings.rect)
+                    army_unit.draw_unit(self.game_data.surface, army_unit.main_color, army_unit.tile.primary_rs.rect)
+                    # player.selected_race.main_color, self.tile.primary_rs.rect)
             else:
                 hero_unit = self.game_data.player.selected_race.create_unit(self.game_data.player.selected_race.hero, 
                                                                             self.game_data.map_tiles)
@@ -422,7 +411,7 @@ class unhingedrts(object):
             self.game_data.scan_for_slow_events()
 
             game_end = time.perf_counter()
-            # self.log_utils.log.info(f"FPS: {round((game_end - game_start), 2)} second(s)")
+            self.log_utils.log.info(f"FPS: {round(60-(game_end - game_start), 2)} second(s)")
             pygame.display.flip()
 
     def main(self):    

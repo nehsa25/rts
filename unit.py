@@ -78,15 +78,15 @@ class Unit(UnitTypes):
         self.log_utils.log.info("Initializing Unit() class")
 
     def create_unit(self, type, tiles):
-        grid_x = random.randint(Constants.SPAWN_GRID_X, Constants.SPAWN_SIZE)
-        grid_y = random.randint(Constants.SPAWN_GRID_Y, Constants.SPAWN_SIZE)
-        tiles = [i for i in tiles if grid_x == i.tile_rect_settings.grid_x and grid_y == i.tile_rect_settings.grid_y]
+        x_gd = random.randint(Constants.SPAWN_GD_X, Constants.SPAWN_SIZE)
+        y_gd = random.randint(Constants.SPAWN_GD_Y, Constants.SPAWN_SIZE)
+        tiles = [i for i in tiles if x_gd == i.primary_rs.x_gd and y_gd == i.primary_rs.y_gd]
         if len(tiles) > 0:
             self.tile = tiles[0]
         
         self.name = Names.generate_name(self)
         self.type = type
-        self.log_utils.log.info(f"{self.name} has entered the field at XY:({self.tile.tile_rect_settings.x}x{self.tile.tile_rect_settings.y}), Grid:({self.tile.tile_rect_settings.grid_x}x{self.tile.tile_rect_settings.grid_y})") # just used for debugging
+        self.log_utils.log.info(f"{self.name} has entered the field at XY:({self.tile.primary_rs.x}x{self.tile.primary_rs.y}), Grid:({self.tile.primary_rs.x_gd}x{self.tile.primary_rs.y_gd})") # just used for debugging
         return self
 
     # uses speed of unit
@@ -105,9 +105,9 @@ class Unit(UnitTypes):
             tile = tiles.get_tileByNodeCoord(gridx_end, gridy_end)  
             default_speed = .35 # higher is faster?
             speed = default_speed - (self.type.speed * .1)
-            start = tiles.Grid.node(self.Grid_x, self.Grid_y)
+            start = tiles.Grid.node(self.x_gd, self.y_gd)
             end = tiles.Grid.node(gridx_end, gridy_end)
-            self.log_utils.log.info(f"{self.name}: Can I get from ({self.Grid_x}x{self.Grid_x}) to ({gridx_end}x{gridy_end})?")        
+            self.log_utils.log.info(f"{self.name}: Can I get from ({self.x_gd}x{self.x_gd}) to ({gridx_end}x{gridy_end})?")        
             tiles.Grid.cleanup()
             paths, runs = tiles.Finder.find_path(start, end, tiles.Grid)
             self.log_utils.log.info(f"operations: {runs}, path length: {len(paths)}")
@@ -115,7 +115,7 @@ class Unit(UnitTypes):
             if len(paths) < 1:
                 return_msg = f"{self.name}: I can't get there"
             else:
-                self.log_utils.log.debug(f"Moving {self.name} at {round(speed, 2)} speed from ({self.Grid_x}, {self.Grid_x}) to ({gridx_end}, {gridy_end}), journey will take {runs} steps")
+                self.log_utils.log.debug(f"Moving {self.name} at {round(speed, 2)} speed from ({self.x_gd}, {self.x_gd}) to ({gridx_end}, {gridy_end}), journey will take {runs} steps")
                 self.move_thread = True
                 x = end_x
                 y = end_y
@@ -141,7 +141,7 @@ class Unit(UnitTypes):
                 tiles.UpdateTile(tile)
 
                 end = time.perf_counter()
-                return_msg = f"{self.name} arrived and their destination (XY coords: {tile.x}x{tile.y}), Grid coords: {tile.Grid_x}x{tile.Grid_y}).  Commute took {round(end - start, 2)} second(s)"
+                return_msg = f"{self.name} arrived and their destination (XY coords: {tile.x}x{tile.y}), Grid coords: {tile.x_gd}x{tile.y_gd}).  Commute took {round(end - start, 2)} second(s)"
 
         except:
             details = "find_path exception:"

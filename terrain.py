@@ -26,7 +26,7 @@ class TerrainWater(Terrain):
 class TerrainRain(Terrain):
     name = "Rain"
     def __init__(self):
-        super().__init__(self.name, Constants.Colors.TERRAIN_RAIN, walkable=False, cost=50)
+        super().__init__(self.name, Constants.Colors.TERRAIN_RAIN, walkable=True, cost=50)
 
 class TerrainLava(Terrain):
     name = "Lava"
@@ -41,7 +41,7 @@ class TerrainFog(Terrain):
 class TerrainFire(Terrain):
     name = "Fire"
     def __init__(self):
-        super().__init__(self.name, Constants.Colors.TERRAIN_FIRE, walkable=True, cost=200)
+        super().__init__(self.name, Constants.Colors.TERRAIN_FIRE, walkable=True, cost=1500)
 
 class TerrainMountain(Terrain):
     name = "Mountain"
@@ -56,4 +56,4 @@ class TerrainSwamp(Terrain):
 class TerrainBasic(Terrain):
     name = "Basic"
     def __init__(self):
-        super().__init__(self.name, Constants.Colors.TERRAIN_BASIC, walkable=True, cost=0)
+        super().__init__(self.name, Constants.Colors.TERRAIN_BASIC, walkable=True, cost=1)

@@ -41,11 +41,11 @@ class Constants(object):
     LOADING_MSG = "Loading".upper()
 
     # game board sizes
-    GAME_GRID_NODES = 20
+    GAME_GRID_NODES = 100
 
     # TILE
-    TILE_WIDTH_PX = 32
-    TILE_HEIGHT_PX = 32
+    TILE_WIDTH_PX = 15
+    TILE_HEIGHT_PX = 15
 
     # grid details when middle mouse is pressed
     GRID_DETAILS_WIDTH_PX = 300
@@ -53,14 +53,14 @@ class Constants(object):
     GRID_BORDER_WIDTH_PX = 1
 
     # Terrain / Environment - testing
-    NUM_WATER_TILES = 2
-    NUM_FIRE_TILES = 2 # walkable
-    NUM_MOUNTAIN_TILES = 2
-    NUM_SWAMP_TILES = 2
-    NUM_FOREST_TILES = 2
-    NUM_FOG_TILES = 2 # walkable
-    NUM_RAIN_TILES = 2 # walkable
-    NUM_LAVA_TILES = 2
+    NUM_WATER_TILES = 1 * 100
+    NUM_FIRE_TILES = 1 * 100 # walkable
+    NUM_MOUNTAIN_TILES = 1 * 100
+    NUM_SWAMP_TILES = 1 * 100
+    NUM_FOREST_TILES = 1 * 100
+    NUM_FOG_TILES = 1 * 100 # walkable
+    NUM_RAIN_TILES = 1 * 100 # walkable
+    NUM_LAVA_TILES = 1 * 100
 
     # Terrain / Environment - realisic
     # NUM_WATER_TILES = 100
@@ -92,8 +92,8 @@ class Constants(object):
     MOUSE_CURSOR = pygame.cursors.diamond   
 
     # SPAWN
-    SPAWN_GRID_X = 1
-    SPAWN_GRID_Y = 1
+    SPAWN_GD_X = 1
+    SPAWN_GD_Y = 1
     SPAWN_SIZE = 2
 
     # fonts
@@ -105,6 +105,7 @@ class Constants(object):
     FONT_SIZE_DEFAULT_PX = 12
     FONT_SIZE_MENU_PX = 48
     FONT_SIZE_TITLE_PX = 60
+    FONT_SIZE_GRID_DETAILS = 18
     
     # map select
     MAP_MENU_LEFT_WIDTH_PX = 200
@@ -181,7 +182,7 @@ class Constants(object):
         MOUSE_POINTER_COLOR = ROYAL_GOLD
         GAME_MAIN_BORDER_COLOR = GAME_BORDER_COLOR    
         SPAWN_COLOR = BURNT_ORANGE    
-        GRID_DETAILS_COLOR = PLUM
+        GRID_DETAILS_COLOR = MINK
 
         # random colors
         COLORS = [ROYAL_GOLD, GREEN_DARK, BURNT_ORANGE, NEON_GREEN, YELLOW, POOP_BROWN, WHITE_MISTY, ROYAL_GOLD, MINK, DODGER, CRIMSON]

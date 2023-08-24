@@ -14,12 +14,12 @@ class Utility(object):
 
     def __init__(self):
         self.log_utils.log.info("Initializing Utility() class")    
-
+    
     # creates section of the map free for units spawn
     def draw_spawn_points(self):
         self.log_utils.log.debug(f"Inside draw_spawn_points")
-        spawn_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.SPAWN_GRID_X * Constants.TILE_WIDTH_PX
-        spawn_y = Constants.SPAWN_GRID_Y * Constants.TILE_HEIGHT_PX
+        spawn_x = Constants.SIDE_PANEL_WIDTH_PX + Constants.SPAWN_GD_X * Constants.TILE_WIDTH_PX
+        spawn_y = Constants.SPAWN_GD_Y * Constants.TILE_HEIGHT_PX
         spawn_width = Constants.SPAWN_SIZE * Constants.TILE_WIDTH_PX 
         spawn_height = Constants.SPAWN_SIZE * Constants.TILE_HEIGHT_PX 
         rect = pygame.Rect(spawn_x, spawn_y, spawn_width, spawn_height) 
